@@ -9,36 +9,51 @@ import { WebMenuPage } from './pages/WebMenuPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { TermsPage } from './pages/TermsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
-import { CmsProvider } from './context/CmsContext';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { MaintenancePage } from './pages/MaintenancePage';
+import { DataErrorBoundary } from './components/DataErrorBoundary';
+import { CmsProvider, useCmsData } from './context/CmsContext';
 import { MessageCircle } from 'lucide-react';
 import { RESTAURANT_INFO } from './data/restaurantData';
 
 function AppContent() {
   const location = useLocation();
+  const { isMaintenanceMode } = useCmsData();
+
   const isLandingPage = location.pathname === '/';
   const isAdminPage = location.pathname.startsWith('/admin');
+  const isExplicitMaintenanceRoute = location.pathname === '/mantenimiento' || location.pathname === '/maintenance';
+
+  // 503 Maintenance Mode: Disables public navigation when active
+  if ((isMaintenanceMode && !isAdminPage) || isExplicitMaintenanceRoute) {
+    return <MaintenancePage />;
+  }
 
   return (
     <div className="min-h-screen bg-[#080808] text-zinc-100 flex flex-col font-sans selection:bg-[#D90302] selection:text-white">
-      {/* Persistent Navbar (hidden on admin page for clean dashboard focus) */}
+      {/* Persistent Navbar (hidden on admin page for focused layout) */}
       {!isAdminPage && <Navbar />}
 
-      {/* Dynamic Pages / Routes */}
+      {/* Dynamic Pages / Routes protected by Global Data Error Boundary */}
       <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/promos" element={<PromosPage />} />
-          <Route path="/menu-pdf" element={<PdfMenuPage />} />
-          <Route path="/menu" element={<WebMenuPage />} />
-          <Route path="/terminos-y-condiciones" element={<TermsPage />} />
-          <Route path="/politicas-de-privacidad" element={<PrivacyPage />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          {/* Catch-all route to prevent blank page on IDE webview proxy paths */}
-          <Route path="*" element={<LandingPage />} />
-        </Routes>
+        <DataErrorBoundary>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/promos" element={<PromosPage />} />
+            <Route path="/menu-pdf" element={<PdfMenuPage />} />
+            <Route path="/menu" element={<WebMenuPage />} />
+            <Route path="/terminos-y-condiciones" element={<TermsPage />} />
+            <Route path="/politicas-de-privacidad" element={<PrivacyPage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/mantenimiento" element={<MaintenancePage />} />
+            <Route path="/maintenance" element={<MaintenancePage />} />
+            {/* 404 Catch-All Route with luxury branded screen */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </DataErrorBoundary>
       </main>
 
-      {/* Render standalone footer only on non-landing, non-admin routes */}
+      {/* Standalone footer on non-landing, non-admin routes */}
       {!isLandingPage && !isAdminPage && <Footer />}
 
       {/* Floating Quick WhatsApp Action Button (hidden on admin) */}

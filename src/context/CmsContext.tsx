@@ -281,6 +281,11 @@ export interface CmsContextType {
   data: CmsData;
   isLoading: boolean;
   isCloudSync: boolean;
+  dataError: string | null;
+  isRetrying: boolean;
+  isMaintenanceMode: boolean;
+  setMaintenanceMode: (active: boolean) => void;
+  refetchData: () => Promise<void>;
   updateHero: (hero: Partial<CmsHeroData>) => void;
   updateAbout: (about: Partial<CmsAboutData>) => void;
   updateEvents: (events: Partial<CmsEventsData>) => void;
@@ -310,7 +315,24 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [dataError, setDataError] = useState<string | null>(null);
   const isCloudSync = isSupabaseConfigured();
+
+  const [isMaintenanceMode, setIsMaintenanceModeState] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem('tonys_maintenance_mode');
+      if (stored !== null) return stored === 'true';
+    } catch {}
+    return import.meta.env.VITE_MAINTENANCE_MODE === 'true';
+  });
+
+  const setMaintenanceMode = (active: boolean) => {
+    setIsMaintenanceModeState(active);
+    try {
+      localStorage.setItem('tonys_maintenance_mode', String(active));
+    } catch {}
+  };
 
   // Keep local backup synchronized for instant renders and offline fallback
   useEffect(() => {
@@ -328,6 +350,8 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     setIsLoading(true);
+    setIsRetrying(true);
+
     try {
       // 1. Fetch Landing Content
       const { data: landingRow, error: landingErr } = await supabase
@@ -354,7 +378,14 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .select('*')
         .order('display_order', { ascending: true });
 
-      if (!landingErr && landingRow) {
+      const firstErr = landingErr || catErr || itemsErr || promosErr;
+      if (firstErr) {
+        console.warn('Supabase query error:', firstErr);
+        setDataError(firstErr.message || 'Error al obtener datos desde Supabase.');
+        return;
+      }
+
+      if (landingRow) {
         setData((prev) => ({
           ...prev,
           hero: landingRow.hero || prev.hero,
@@ -389,10 +420,13 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             : prev.promos,
         }));
       }
-    } catch (err) {
-      console.warn('Supabase fetch encountered an issue, running with local seed data:', err);
+      setDataError(null);
+    } catch (err: any) {
+      console.warn('Supabase fetch encountered an issue:', err);
+      setDataError(err?.message || 'Error al conectar con la base de datos Supabase.');
     } finally {
       setIsLoading(false);
+      setIsRetrying(false);
     }
   }, []);
 
@@ -688,6 +722,11 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         data,
         isLoading,
         isCloudSync,
+        dataError,
+        isRetrying,
+        isMaintenanceMode,
+        setMaintenanceMode,
+        refetchData: fetchSupabaseData,
         updateHero,
         updateAbout,
         updateEvents,

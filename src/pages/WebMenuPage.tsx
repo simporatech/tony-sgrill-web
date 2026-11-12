@@ -18,9 +18,10 @@ import {
 } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 import { useCmsData, CmsMenuItem } from '../context/CmsContext';
+import { SupabaseDataErrorFallback } from '../components/SupabaseDataErrorFallback';
 
 export const WebMenuPage: React.FC = () => {
-  const { data } = useCmsData();
+  const { data, dataError, isRetrying, refetchData } = useCmsData();
   const [selectedCategory, setSelectedCategory] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedDishes, setSelectedDishes] = useState<string[]>([]);
@@ -236,99 +237,109 @@ export const WebMenuPage: React.FC = () => {
         {/* ======================================================== */}
         {/* TEXT-ONLY EDITORIAL MENU LAYOUT (NO IMAGES, PURE TYPOGRAPHY) */}
         {/* ======================================================== */}
-        <div className="space-y-16">
-          {Object.entries(groupedItems).map(([categoryId, catGroup]) => {
-            const CatIcon = getCategoryIcon(categoryId);
-            return (
-              <section key={categoryId} id={categoryId} className="scroll-mt-36">
-                
-                {/* Category Header */}
-                <div className="flex items-center gap-3 mb-6 pb-3 border-b border-white/[0.08]">
-                  <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#D90302]">
-                    <CatIcon className="w-4 h-4" />
+        {dataError ? (
+          <div className="py-12">
+            <SupabaseDataErrorFallback
+              onRetry={refetchData}
+              isRetrying={isRetrying}
+              errorMessage={dataError}
+            />
+          </div>
+        ) : (
+          <div className="space-y-16">
+            {Object.entries(groupedItems).map(([categoryId, catGroup]) => {
+              const CatIcon = getCategoryIcon(categoryId);
+              return (
+                <section key={categoryId} id={categoryId} className="scroll-mt-36">
+                  
+                  {/* Category Header */}
+                  <div className="flex items-center gap-3 mb-6 pb-3 border-b border-white/[0.08]">
+                    <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#D90302]">
+                      <CatIcon className="w-4 h-4" />
+                    </div>
+                    <h2 className="font-serif text-xl sm:text-2xl font-bold text-white uppercase tracking-wider">
+                      {catGroup.name}
+                    </h2>
+                    <div className="flex-grow" />
+                    <span className="text-[11px] text-zinc-500 font-mono">
+                      {catGroup.items.length} {catGroup.items.length === 1 ? 'platillo' : 'platillos'}
+                    </span>
                   </div>
-                  <h2 className="font-serif text-xl sm:text-2xl font-bold text-white uppercase tracking-wider">
-                    {catGroup.name}
-                  </h2>
-                  <div className="flex-grow" />
-                  <span className="text-[11px] text-zinc-500 font-mono">
-                    {catGroup.items.length} {catGroup.items.length === 1 ? 'platillo' : 'platillos'}
-                  </span>
-                </div>
 
-                {/* Minimalist Grid of Dishes */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
-                  {catGroup.items.map((item) => {
-                    const isSelected = selectedDishes.includes(item.name);
-                    return (
-                      <motion.div
-                        key={item.id}
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.3 }}
-                        onClick={() => toggleSelectDish(item.name)}
-                        className={`group p-4 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 ${
-                          isSelected
-                            ? 'bg-[#18181b] border-[#D90302]/60 shadow-lg'
-                            : 'bg-[#101012] hover:bg-[#161619] border-white/[0.05] hover:border-white/15'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0 ${
-                              isSelected
-                                ? 'bg-[#03AF45] text-white'
-                                : 'bg-white/[0.05] text-zinc-500 group-hover:text-white group-hover:bg-white/10'
-                            }`}
-                          >
-                            {isSelected ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                          </button>
-                          <span className={`text-sm sm:text-base font-medium transition-colors ${
-                            isSelected ? 'text-[#EBFA00] font-semibold' : 'text-zinc-200 group-hover:text-white'
-                          }`}>
-                            {item.name}
-                          </span>
-                        </div>
+                  {/* Minimalist Grid of Dishes */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4">
+                    {catGroup.items.map((item) => {
+                      const isSelected = selectedDishes.includes(item.name);
+                      return (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0 }}
+                          whileInView={{ opacity: 1 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.3 }}
+                          onClick={() => toggleSelectDish(item.name)}
+                          className={`group p-4 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-4 ${
+                            isSelected
+                              ? 'bg-[#18181b] border-[#D90302]/60 shadow-lg'
+                              : 'bg-[#101012] hover:bg-[#161619] border-white/[0.05] hover:border-white/15'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0 ${
+                                isSelected
+                                  ? 'bg-[#03AF45] text-white'
+                                  : 'bg-white/[0.05] text-zinc-500 group-hover:text-white group-hover:bg-white/10'
+                              }`}
+                            >
+                              {isSelected ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                            </button>
+                            <span className={`text-sm sm:text-base font-medium transition-colors ${
+                              isSelected ? 'text-[#EBFA00] font-semibold' : 'text-zinc-200 group-hover:text-white'
+                            }`}>
+                              {item.name}
+                            </span>
+                          </div>
 
-                        {/* Price formatted with Q */}
-                        <div className="shrink-0 flex items-baseline gap-1">
-                          <span className="text-xs text-zinc-400 font-mono">Q</span>
-                          <span className="font-serif font-bold text-base sm:text-lg text-white group-hover:text-[#EBFA00] transition-colors">
-                            {Number(item.price).toFixed(2)}
-                          </span>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
+                          {/* Price formatted with Q */}
+                          <div className="shrink-0 flex items-baseline gap-1">
+                            <span className="text-xs text-zinc-400 font-mono">Q</span>
+                            <span className="font-serif font-bold text-base sm:text-lg text-white group-hover:text-[#EBFA00] transition-colors">
+                              {Number(item.price).toFixed(2)}
+                            </span>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
 
-              </section>
-            );
-          })}
+                </section>
+              );
+            })}
 
-          {filteredItems.length === 0 && (
-            <div className="text-center py-20 rounded-2xl bg-[#101012] border border-white/[0.06]">
-              <Utensils className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-              <h4 className="font-serif text-lg font-bold text-zinc-300">
-                No encontramos platillos para "{searchQuery}"
-              </h4>
-              <p className="text-xs text-zinc-500 mt-1">
-                Intente con otro término o seleccione otra categoría.
-              </p>
-              <button
-                onClick={() => {
-                  setSelectedCategory('todos');
-                  setSearchQuery('');
-                }}
-                className="mt-4 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 text-xs text-zinc-300 transition-colors"
-              >
-                Restablecer Filtros
-              </button>
-            </div>
-          )}
-        </div>
+            {filteredItems.length === 0 && (
+              <div className="text-center py-20 rounded-2xl bg-[#101012] border border-white/[0.06]">
+                <Utensils className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+                <h4 className="font-serif text-lg font-bold text-zinc-300">
+                  No encontramos platillos para "{searchQuery}"
+                </h4>
+                <p className="text-xs text-zinc-500 mt-1">
+                  Intente con otro término o seleccione otra categoría.
+                </p>
+                <button
+                  onClick={() => {
+                    setSelectedCategory('todos');
+                    setSearchQuery('');
+                  }}
+                  className="mt-4 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 text-xs text-zinc-300 transition-colors"
+                >
+                  Restablecer Filtros
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* CTA Banner: Reserve with Preselection */}
         <div className="mt-20 rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-[#141416] to-[#0c0c0e] border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">

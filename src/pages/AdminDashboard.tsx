@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   AlertTriangle, 
@@ -24,13 +24,16 @@ import {
   Search,
   Eye,
   Sliders,
-  DollarSign
+  DollarSign,
+  Loader2,
+  Flame
 } from 'lucide-react';
 import { useCmsData, CmsMenuItem, CmsPromoItem } from '../context/CmsContext';
 import { CustomSelect } from '../components/ui/CustomSelect';
 import { ImageUploader } from '../components/ui/ImageUploader';
 import { AdminLoginGate } from '../components/AdminLoginGate';
-import { authService } from '../services/authService';
+import { supabase } from '../services/supabaseClient';
+import type { Session } from '@supabase/supabase-js';
 
 // Live preview component imports
 import { LandingPage } from './LandingPage';
@@ -38,11 +41,43 @@ import { WebMenuPage } from './WebMenuPage';
 import { PromosPage } from './PromosPage';
 
 export const AdminDashboard: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => authService.isAuthenticated());
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
+
+  // Listen for Supabase session and auth state changes
+  useEffect(() => {
+    let isMounted = true;
+
+    // 1. Initial session verification via getSession()
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      if (isMounted) {
+        setSession(currentSession);
+        setIsAuthLoading(false);
+      }
+    }).catch((err) => {
+      console.warn('Error reading Supabase session:', err);
+      if (isMounted) setIsAuthLoading(false);
+    });
+
+    // 2. Real-time auth state change subscription
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (isMounted) {
+        setSession(newSession);
+        setIsAuthLoading(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const {
     data,
     isCloudSync,
+    isMaintenanceMode,
+    setMaintenanceMode,
     updateHero,
     updateAbout,
     updateEvents,
@@ -134,9 +169,36 @@ export const AdminDashboard: React.FC = () => {
     showToast(`✓ Promoción "${newPromoTitle.trim()}" agregada`);
   };
 
-  // If not authenticated, the entire CMS is completely unrendered and blocked
-  if (!isAuthenticated) {
-    return <AdminLoginGate onAuthenticated={() => setIsAuthenticated(true)} />;
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('Error al cerrar sesión en Supabase:', err);
+    }
+    setSession(null);
+    showToast('Sesión cerrada correctamente.');
+  };
+
+  // Auth loading verification state
+  if (isAuthLoading) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-[#0c0c0e] text-white">
+        <img 
+          src="/logo.png" 
+          alt="Tony's Grill" 
+          className="h-16 w-auto mb-4 animate-pulse object-contain filter drop-shadow-[0_2px_14px_rgba(217,3,2,0.45)]" 
+        />
+        <div className="flex items-center gap-2.5 text-xs uppercase tracking-widest text-zinc-400 font-mono">
+          <Loader2 className="w-4 h-4 animate-spin text-[#D90302]" />
+          <span>Verificando Sesión Supabase...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // If no session exists, the entire CMS is completely unrendered and blocked
+  if (!session) {
+    return <AdminLoginGate onAuthenticated={(newSession) => setSession(newSession)} />;
   }
 
   const categoryOptions = data.categories.map(c => ({
@@ -257,15 +319,12 @@ export const AdminDashboard: React.FC = () => {
           </a>
 
           <button
-            onClick={() => {
-              authService.logout();
-              setIsAuthenticated(false);
-            }}
-            className="px-3 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-xs font-semibold text-red-300 hover:text-white border border-red-500/30 transition-colors flex items-center gap-1.5 cursor-pointer"
-            title="Cerrar sesión"
+            onClick={handleSignOut}
+            className="px-3.5 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-xs font-semibold text-red-300 hover:text-white border border-red-500/30 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+            title="Cerrar sesión en Supabase"
           >
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Salir</span>
+            <LogOut className="w-3.5 h-3.5 text-[#EBFA00]" />
+            <span className="hidden sm:inline">Cerrar Sesión</span>
           </button>
         </div>
 
@@ -897,7 +956,7 @@ export const AdminDashboard: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-400">Platillos en Base Local:</span>
+                    <span className="text-zinc-400">Platillos en Base:</span>
                     <span className="text-white font-mono font-bold">{data.menuItems.length}</span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -905,8 +964,59 @@ export const AdminDashboard: React.FC = () => {
                     <span className="text-white font-mono font-bold">{data.promos.length}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-400">Seguridad de Sesión:</span>
-                    <span className="text-[#03AF45] font-mono font-bold">SessionStorage (Activo)</span>
+                    <span className="text-zinc-400">Modo Mantenimiento 503:</span>
+                    <span className={`font-mono font-bold ${isMaintenanceMode ? 'text-[#D90302]' : 'text-zinc-400'}`}>
+                      {isMaintenanceMode ? 'ACTIVADO' : 'Inactivo'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 503 MAINTENANCE MODE TOGGLE */}
+                <div className="p-5 rounded-2xl bg-[#141416] border border-white/10 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Flame className={`w-4 h-4 ${isMaintenanceMode ? 'text-[#D90302]' : 'text-zinc-400'}`} />
+                      <span className="text-xs font-bold uppercase tracking-wider text-white">
+                        Modo Mantenimiento (503)
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const nextState = !isMaintenanceMode;
+                        setMaintenanceMode(nextState);
+                        showToast(nextState ? '⚠️ Modo Mantenimiento 503 ACTIVADO' : '✓ Modo Mantenimiento DESACTIVADO');
+                      }}
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                        isMaintenanceMode 
+                          ? 'bg-[#D90302] text-white shadow-md shadow-[#D90302]/30' 
+                          : 'bg-white/10 text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      {isMaintenanceMode ? 'ACTIVADO' : 'DESACTIVADO'}
+                    </button>
+                  </div>
+                  <p className="text-xs text-zinc-400 font-light leading-relaxed">
+                    Al activar el modo 503, la navegación de la web se inhabilita para todos los visitantes públicos, mostrando la pantalla <em>"Estamos encendiendo el carbón. Volvemos pronto."</em> con enlaces directos a pedidos por teléfono y WhatsApp.
+                  </p>
+                  <div className="pt-2 flex flex-wrap gap-3">
+                    <a
+                      href="/mantenimiento"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-[#EBFA00]" />
+                      <span>Ver Vista 503</span>
+                    </a>
+                    <a
+                      href="/pagina-404-prueba"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 text-[#D90302]" />
+                      <span>Ver Vista 404</span>
+                    </a>
                   </div>
                 </div>
 

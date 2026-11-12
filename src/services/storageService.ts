@@ -37,3 +37,4 @@ export async function uploadCmsImage(compressedFile: File): Promise<string> {
 
   return publicUrlData.publicUrl;
 }
+

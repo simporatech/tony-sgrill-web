@@ -1,73 +1,84 @@
-/**
- * Mock Authentication Service for Tony's Grill Admin Dashboard
- * 
- * Abstracted into an async service so it can be swapped seamlessly 
- * with a real backend / Supabase Auth endpoint in the future.
- */
-
-const AUTH_SESSION_KEY = 'tonys_grill_admin_session';
-
-// Mock password for administrative access
-const MOCK_VALID_PASSWORD = 'tonys.1968';
+import { supabase, isSupabaseConfigured } from './supabaseClient';
+import type { Session, User } from '@supabase/supabase-js';
 
 export interface AuthResponse {
   success: boolean;
   error?: string;
-  token?: string;
+  session?: Session | null;
+  user?: User | null;
 }
 
 export const authService = {
   /**
-   * Authenticate with a single administrative password.
-   * Simulates an asynchronous network round-trip.
+   * Real Supabase Authentication using signInWithPassword()
+   * Completely removes the mock setTimeout delay and connects to real Supabase Auth.
    */
-  async login(password: string): Promise<AuthResponse> {
-    // Simulate network latency (400-600ms)
-    await new Promise((resolve) => setTimeout(resolve, 450));
+  async login(emailOrUser: string, password: string): Promise<AuthResponse> {
+    if (!isSupabaseConfigured()) {
+      return {
+        success: false,
+        error: 'Las credenciales de Supabase no están configuradas en .env. Configure VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY para autenticar.',
+      };
+    }
 
-    if (password === MOCK_VALID_PASSWORD) {
-      // Create session token stored strictly in sessionStorage
-      const token = `tg_adm_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      try {
-        sessionStorage.setItem(AUTH_SESSION_KEY, token);
-      } catch (err) {
-        console.error('SessionStorage access failed:', err);
+    try {
+      // Supabase requires an email address. If an administrative username is supplied without @,
+      // format it as email@tonysgrill.com
+      const trimmedInput = emailOrUser.trim();
+      const email = trimmedInput.includes('@') ? trimmedInput : `${trimmedInput}@tonysgrill.com`;
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: password.trim(),
+      });
+
+      if (error) {
+        let errorMsg = error.message;
+        if (errorMsg.toLowerCase().includes('invalid login credentials')) {
+          errorMsg = 'Credenciales inválidas. Verifique su correo y contraseña en Supabase.';
+        } else if (errorMsg.toLowerCase().includes('email not confirmed')) {
+          errorMsg = 'El correo electrónico no ha sido confirmado en Supabase Auth.';
+        }
+        return {
+          success: false,
+          error: errorMsg,
+        };
       }
 
       return {
         success: true,
-        token,
+        session: data.session,
+        user: data.user,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err?.message || 'Error de conexión al autenticar con Supabase.',
       };
     }
-
-    return {
-      success: false,
-      error: 'Contraseña de administrador incorrecta. Verifique sus credenciales.',
-    };
   },
 
   /**
-   * Check if the user is authenticated in the current browser session.
-   * Automatically expires when the browser tab is closed.
+   * Check and retrieve the current Supabase session
    */
-  isAuthenticated(): boolean {
+  async getSession(): Promise<Session | null> {
     try {
-      const session = sessionStorage.getItem(AUTH_SESSION_KEY);
-      return session !== null && session.length > 0;
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session) return null;
+      return data.session;
     } catch {
-      return false;
+      return null;
     }
   },
 
   /**
-   * Clear the session and logout.
+   * Sign out the user using Supabase Auth
    */
-  logout(): void {
+  async logout(): Promise<void> {
     try {
-      sessionStorage.removeItem(AUTH_SESSION_KEY);
+      await supabase.auth.signOut();
     } catch (err) {
-      console.error('SessionStorage removal failed:', err);
+      console.error('Supabase signOut error:', err);
     }
   },
 };
-
