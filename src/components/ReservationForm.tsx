@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Send, Calendar } from 'lucide-react';
+import { CheckCircle2, Send } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
+import { CustomSelect } from './ui/CustomSelect';
 
 interface ReservationFormProps {
   prefilledDish?: string | null;
@@ -14,7 +15,7 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow.toISOString().split('T')[0];
   });
-  const [time, setTime] = useState<string>('19:00');
+  const [time, setTime] = useState<string>('07:00 PM');
   const [fullName, setFullName] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [specialNotes, setSpecialNotes] = useState<string>(prefilledDish ? `Consulta: ${prefilledDish}` : '');
@@ -22,10 +23,18 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
 
-  const timeSlots = [
+  const guestOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20].map((num) => ({
+    value: num,
+    label: `${num} ${num === 1 ? 'persona' : 'personas'}`,
+  }));
+
+  const timeSlotOptions = [
     '08:00 AM', '09:30 AM', '12:00 PM', '01:00 PM', '02:30 PM', 
     '06:00 PM', '07:00 PM', '08:00 PM', '08:45 PM'
-  ];
+  ].map((slot) => ({
+    value: slot,
+    label: slot,
+  }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,23 +88,17 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
                 onSubmit={handleSubmit}
                 className="space-y-6"
               >
-                {/* 1. Date, Time & Number of Guests (Simple Number / Standard Dropdown) */}
+                {/* 1. Date, Time & Number of Guests (Modern Dropdowns & Dark Pickers) */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                   <div>
                     <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
                       Número de comensales
                     </label>
-                    <select
+                    <CustomSelect
                       value={guests}
-                      onChange={(e) => setGuests(parseInt(e.target.value))}
-                      className="w-full px-4 py-3 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302] transition-colors"
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20].map((num) => (
-                        <option key={num} value={num}>
-                          {num} {num === 1 ? 'persona' : 'personas'}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setGuests(Number(val))}
+                      options={guestOptions}
+                    />
                   </div>
 
                   <div>
@@ -107,7 +110,7 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
                       required
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302] transition-colors"
+                      className="w-full px-4 py-3 bg-[#141416] hover:bg-[#1a1a1e] border border-white/10 hover:border-white/20 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302] transition-colors [color-scheme:dark]"
                     />
                   </div>
 
@@ -115,17 +118,11 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
                     <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
                       Horario
                     </label>
-                    <select
+                    <CustomSelect
                       value={time}
-                      onChange={(e) => setTime(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302] transition-colors"
-                    >
-                      {timeSlots.map((slot) => (
-                        <option key={slot} value={slot}>
-                          {slot}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => setTime(String(val))}
+                      options={timeSlotOptions}
+                    />
                   </div>
                 </div>
 
@@ -141,7 +138,7 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Nombre y apellido"
-                      className="w-full px-4 py-3 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
+                      className="w-full px-4 py-3 bg-[#141416] hover:bg-[#1a1a1e] border border-white/10 hover:border-white/20 rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
                     />
                   </div>
 
@@ -155,7 +152,7 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+502 0000 0000"
-                      className="w-full px-4 py-3 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
+                      className="w-full px-4 py-3 bg-[#141416] hover:bg-[#1a1a1e] border border-white/10 hover:border-white/20 rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
                     />
                   </div>
                 </div>
@@ -170,7 +167,7 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
                     value={specialNotes}
                     onChange={(e) => setSpecialNotes(e.target.value)}
                     placeholder="Detalles sobre su visita o requerimientos especiales"
-                    className="w-full px-4 py-3 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
+                    className="w-full px-4 py-3 bg-[#141416] hover:bg-[#1a1a1e] border border-white/10 hover:border-white/20 rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
                   />
                 </div>
 

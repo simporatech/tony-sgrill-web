@@ -55,6 +55,11 @@ targets = [
         'filename': '10_landing_page_completa.png',
         'url': 'http://127.0.0.1:3000/?delay=1',
         'title': 'Página: Landing Page Completa (Vista General)'
+    },
+    {
+        'filename': '11_panel_cms_admin.png',
+        'url': 'http://127.0.0.1:3000/admin?delay=1',
+        'title': 'Página: Panel CMS Administrativo (/admin)'
     }
 ]
 

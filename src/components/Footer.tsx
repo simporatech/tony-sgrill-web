@@ -124,6 +124,11 @@ export const Footer: React.FC = () => {
               <li>
                 <a href="/#contacto" className="hover:text-white transition-colors">Ubicación</a>
               </li>
+              <li>
+                <Link to="/admin" className="text-zinc-500 hover:text-[#EBFA00] transition-colors flex items-center gap-1 pt-1 font-mono text-[11px]">
+                  <span>⚙ Panel CMS</span>
+                </Link>
+              </li>
             </ul>
           </div>
 

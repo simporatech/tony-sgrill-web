@@ -1,8 +1,12 @@
 import React from 'react';
 import { ArrowRight, Send } from 'lucide-react';
-import { RESTAURANT_INFO } from '../data/restaurantData';
+import { useCmsData } from '../context/CmsContext';
 
 export const EventsSection: React.FC = () => {
+  const { data } = useCmsData();
+  const events = data.events;
+  const contact = data.contact;
+
   return (
     <section 
       id="eventos" 
@@ -13,20 +17,20 @@ export const EventsSection: React.FC = () => {
         {/* Left Editorial Copy */}
         <div className="lg:col-span-6 flex flex-col justify-center">
           <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium block mb-4">
-            Banquetes & Ocasiones
+            {events.eyebrow}
           </span>
 
           <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
-            Servicio de banquetes y eventos especiales con <span className="text-[#D90302]">menú personalizado</span>
+            {events.title} <span className="text-[#D90302]">{events.titleAccent}</span>
           </h2>
 
           <p className="mt-5 text-sm sm:text-base text-zinc-400 font-light leading-relaxed">
-            Ofrecemos atención integral para sus eventos y banquetes. Diseñamos propuestas gastronómicas a la medida de su ocasión, con la calidad, el sabor y la hospitalidad que nos distingue en Chiquimula.
+            {events.description}
           </p>
 
           <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
             <a
-              href={`https://wa.me/${RESTAURANT_INFO.whatsappRaw}?text=${encodeURIComponent("Hola Tony's Grill, deseo solicitar información sobre el servicio de banquetes y eventos especiales con menú personalizado.")}`}
+              href={`https://wa.me/${contact.whatsappRaw}?text=${encodeURIComponent("Hola Tony's Grill, deseo solicitar información sobre el servicio de banquetes y eventos especiales con menú personalizado.")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#D90302] hover:bg-[#b00201] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-[#D90302]/20"
@@ -37,10 +41,10 @@ export const EventsSection: React.FC = () => {
             </a>
 
             <a
-              href={`tel:${RESTAURANT_INFO.phoneRaw}`}
+              href={`tel:${contact.phoneRaw}`}
               className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white text-xs font-semibold border border-white/10 transition-colors flex items-center justify-center gap-2"
             >
-              <span>Tel: {RESTAURANT_INFO.phone}</span>
+              <span>Tel: {contact.phone}</span>
             </a>
           </div>
         </div>
@@ -49,15 +53,15 @@ export const EventsSection: React.FC = () => {
         <div className="lg:col-span-6">
           <div className="relative rounded-3xl overflow-hidden border border-white/[0.08] shadow-2xl h-[340px] sm:h-[420px] bg-[#121212]">
             <img
-              src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80"
+              src={events.imageUrl}
               alt="Servicio de banquetes Tony's Grill"
               className="w-full h-full object-cover object-center filter brightness-[0.7] contrast-[1.05]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
             
             <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10">
-              <p className="text-white font-serif font-bold text-sm">Menú a la Medida de su Evento</p>
-              <p className="text-xs text-zinc-400 mt-0.5">Asesoría directa y atención personalizada</p>
+              <p className="text-white font-serif font-bold text-sm">{events.cardTitle}</p>
+              <p className="text-xs text-zinc-400 mt-0.5">{events.cardSubtitle}</p>
             </div>
           </div>
         </div>

@@ -4,7 +4,6 @@ import {
   Search, 
   Sparkles, 
   Utensils, 
-  Calendar, 
   Check, 
   Plus, 
   Database,
@@ -17,14 +16,19 @@ import {
   Pizza,
   Heart
 } from 'lucide-react';
-import { MENU_CATEGORIES, EXACT_MENU_DATABASE, MenuItemRow } from '../data/menuSupabaseData';
 import { RESTAURANT_INFO } from '../data/restaurantData';
+import { useCmsData, CmsMenuItem } from '../context/CmsContext';
 
 export const WebMenuPage: React.FC = () => {
+  const { data } = useCmsData();
   const [selectedCategory, setSelectedCategory] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedDishes, setSelectedDishes] = useState<string[]>([]);
   const [showJsonSchema, setShowJsonSchema] = useState<boolean>(false);
+
+  const categories = useMemo(() => {
+    return [{ id: 'todos', label: 'Todos' }, ...data.categories];
+  }, [data.categories]);
 
   const getCategoryIcon = (id: string) => {
     switch (id) {
@@ -40,19 +44,19 @@ export const WebMenuPage: React.FC = () => {
   };
 
   const filteredItems = useMemo(() => {
-    return EXACT_MENU_DATABASE.filter((item) => {
+    return data.menuItems.filter((item) => {
       const matchCat = selectedCategory === 'todos' || item.category_id === selectedCategory;
       const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.category_name.toLowerCase().includes(searchQuery.toLowerCase());
+                          (item.category_name && item.category_name.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchCat && matchSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [data.menuItems, selectedCategory, searchQuery]);
 
   // Group items by category for the editorial luxury layout
   const groupedItems = useMemo(() => {
-    const groups: { [key: string]: { name: string; items: MenuItemRow[] } } = {};
+    const groups: { [key: string]: { name: string; items: CmsMenuItem[] } } = {};
     
-    MENU_CATEGORIES.filter(c => c.id !== 'todos').forEach((cat) => {
+    data.categories.forEach((cat) => {
       const itemsInCat = filteredItems.filter(item => item.category_id === cat.id);
       if (itemsInCat.length > 0) {
         groups[cat.id] = {
@@ -62,8 +66,18 @@ export const WebMenuPage: React.FC = () => {
       }
     });
 
+    // Also catch any orphan items if category was changed
+    const knownCatIds = new Set(data.categories.map(c => c.id));
+    const orphanItems = filteredItems.filter(item => !knownCatIds.has(item.category_id));
+    if (orphanItems.length > 0) {
+      groups['otros'] = {
+        name: 'Otras Especialidades',
+        items: orphanItems,
+      };
+    }
+
     return groups;
-  }, [filteredItems]);
+  }, [data.categories, filteredItems]);
 
   const toggleSelectDish = (name: string) => {
     setSelectedDishes((prev) => 
@@ -128,11 +142,11 @@ export const WebMenuPage: React.FC = () => {
                     <span>Dataset estructurado listo para migración a Supabase / PostgreSQL</span>
                   </div>
                   <span className="text-[11px] font-mono text-zinc-400">
-                    {EXACT_MENU_DATABASE.length} registros cargados
+                    {data.menuItems.length} registros cargados
                   </span>
                 </div>
                 <div className="p-4 rounded-xl bg-black/60 border border-white/10 font-mono text-[11px] text-zinc-300 max-h-48 overflow-y-auto">
-                  <pre>{JSON.stringify(EXACT_MENU_DATABASE.slice(0, 4), null, 2)}</pre>
+                  <pre>{JSON.stringify(data.menuItems.slice(0, 4), null, 2)}</pre>
                 </div>
               </div>
             </motion.div>
@@ -145,7 +159,7 @@ export const WebMenuPage: React.FC = () => {
             
             {/* Category Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 lg:pb-0 no-scrollbar">
-              {MENU_CATEGORIES.map((cat) => {
+              {categories.map((cat) => {
                 const active = selectedCategory === cat.id;
                 return (
                   <button
@@ -210,7 +224,7 @@ export const WebMenuPage: React.FC = () => {
 
                 <button
                   onClick={() => setSelectedDishes([])}
-                  className="p-1.5 text-zinc-500 hover:text-white text-xs"
+                  className="p-1.5 text-zinc-500 hover:text-white text-xs cursor-pointer"
                 >
                   ✕
                 </button>
@@ -260,34 +274,30 @@ export const WebMenuPage: React.FC = () => {
                             : 'bg-[#101012] hover:bg-[#161619] border-white/[0.05] hover:border-white/15'
                         }`}
                       >
-                        {/* Name and dot leader */}
-                        <div className="flex-grow flex items-baseline gap-2 min-w-0">
-                          <h3 className="text-sm sm:text-base font-semibold text-white group-hover:text-[#EBFA00] transition-colors truncate">
-                            {item.name}
-                          </h3>
-                        </div>
-
-                        {/* Price & Selection indicator */}
-                        <div className="flex items-center gap-3 shrink-0">
-                          <span className="font-serif text-base sm:text-lg font-bold text-zinc-100 group-hover:text-[#EBFA00] transition-colors tracking-tight">
-                            {item.formatted_price}
-                          </span>
-
+                        <div className="flex items-center gap-3">
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleSelectDish(item.name);
-                            }}
-                            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-colors ${
+                            className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0 ${
                               isSelected
                                 ? 'bg-[#03AF45] text-white'
-                                : 'bg-white/5 text-zinc-500 group-hover:text-white group-hover:bg-white/10'
+                                : 'bg-white/[0.05] text-zinc-500 group-hover:text-white group-hover:bg-white/10'
                             }`}
-                            title="Seleccionar platillo"
                           >
                             {isSelected ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
                           </button>
+                          <span className={`text-sm sm:text-base font-medium transition-colors ${
+                            isSelected ? 'text-[#EBFA00] font-semibold' : 'text-zinc-200 group-hover:text-white'
+                          }`}>
+                            {item.name}
+                          </span>
+                        </div>
+
+                        {/* Price formatted with Q */}
+                        <div className="shrink-0 flex items-baseline gap-1">
+                          <span className="text-xs text-zinc-400 font-mono">Q</span>
+                          <span className="font-serif font-bold text-base sm:text-lg text-white group-hover:text-[#EBFA00] transition-colors">
+                            {Number(item.price).toFixed(2)}
+                          </span>
                         </div>
                       </motion.div>
                     );
@@ -297,50 +307,56 @@ export const WebMenuPage: React.FC = () => {
               </section>
             );
           })}
+
+          {filteredItems.length === 0 && (
+            <div className="text-center py-20 rounded-2xl bg-[#101012] border border-white/[0.06]">
+              <Utensils className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+              <h4 className="font-serif text-lg font-bold text-zinc-300">
+                No encontramos platillos para "{searchQuery}"
+              </h4>
+              <p className="text-xs text-zinc-500 mt-1">
+                Intente con otro término o seleccione otra categoría.
+              </p>
+              <button
+                onClick={() => {
+                  setSelectedCategory('todos');
+                  setSearchQuery('');
+                }}
+                className="mt-4 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 text-xs text-zinc-300 transition-colors"
+              >
+                Restablecer Filtros
+              </button>
+            </div>
+          )}
         </div>
 
-        {filteredItems.length === 0 && (
-          <div className="text-center py-20">
-            <Utensils className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-            <p className="text-zinc-400 text-sm">No se encontraron platillos con el término de búsqueda.</p>
-            <button
-              onClick={() => { setSelectedCategory('todos'); setSearchQuery(''); }}
-              className="mt-3 text-xs text-[#D90302] hover:underline font-bold"
-            >
-              Restablecer filtros
-            </button>
+        {/* CTA Banner: Reserve with Preselection */}
+        <div className="mt-20 rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-[#141416] to-[#0c0c0e] border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <span className="text-xs uppercase tracking-widest text-[#EBFA00] font-bold block mb-1">
+              Atención Telefónica & Pedidos
+            </span>
+            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+              ¿Listo para degustar lo mejor de la parrilla?
+            </h3>
+            <p className="mt-2 text-xs sm:text-sm text-zinc-400 leading-relaxed font-light">
+              Visítenos en Chiquimula o reserve su mesa con antelación para disfrutar de cortes selectos, pizzas a la leña y especialidades de la casa.
+            </p>
           </div>
-        )}
 
-        {/* Bottom Reservation Action */}
-        <div className="mt-20 p-8 sm:p-12 rounded-3xl bg-[#111113] border border-white/10 text-center max-w-3xl mx-auto shadow-2xl flex flex-col items-center">
-          <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-semibold block mb-2">
-            Visítenos en Chiquimula
-          </span>
-          <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white">
-            ¿Desea realizar una reservación?
-          </h3>
-          <p className="mt-2 text-zinc-400 text-xs sm:text-sm max-w-md">
-            Reserve su mesa con anticipación o contáctenos directamente para pedidos especiales.
-          </p>
-
-          <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
             <a
               href="/#reservar"
-              className="px-7 py-3 rounded-full bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-[#D90302]/20"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-full bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#D90302]/30"
             >
-              <Calendar className="w-4 h-4" />
               <span>Reservar Mesa</span>
             </a>
 
             <a
-              href={`https://wa.me/${RESTAURANT_INFO.whatsappRaw}?text=Hola%20Tony's%20Grill,%20deseo%20hacer%20una%20consulta%20del%20menú`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-white font-semibold text-xs border border-white/10 transition-colors flex items-center gap-2"
+              href="/menu-pdf"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white font-semibold text-xs uppercase tracking-wider border border-white/10 transition-colors flex items-center justify-center gap-2"
             >
-              <Send className="w-3.5 h-3.5 text-[#03AF45]" />
-              <span>WhatsApp Directo</span>
+              <span>Ver PDF</span>
             </a>
           </div>
         </div>

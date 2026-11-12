@@ -14,3 +14,5 @@ Catálogo visual de todas las secciones y páginas del proyecto capturadas en al
 | [`08_pagina_menu_web_sin_fotos.png`](./08_pagina_menu_web_sin_fotos.png) | Página (`/menu`) | Menú web editorial en texto puro con datos reales y precios exactos |
 | [`09_pagina_visor_menu_pdf.png`](./09_pagina_visor_menu_pdf.png) | Página (`/menu-pdf`) | Visor del menú digital oficial con botón luminoso de descarga |
 | [`10_landing_page_completa.png`](./10_landing_page_completa.png) | Vista General | Vista integral de la Landing Page con Navbar glassmorphism |
+| [`11_panel_cms_admin.png`](./11_panel_cms_admin.png) | Panel CMS (`/admin`) | Panel de control administrativo con sincronización en localStorage y botón de pánico |
+

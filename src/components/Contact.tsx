@@ -11,18 +11,20 @@ import {
   Instagram,
   Facebook
 } from 'lucide-react';
-import { RESTAURANT_INFO } from '../data/restaurantData';
+import { useCmsData } from '../context/CmsContext';
 
 export const Contact: React.FC = () => {
+  const { data } = useCmsData();
+  const contact = data.contact;
   const [copied, setCopied] = useState<boolean>(false);
 
   const handleCopyAddress = () => {
-    navigator.clipboard.writeText(RESTAURANT_INFO.address);
+    navigator.clipboard.writeText(contact.address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Tony's Grill 9 Calle, 15 Avenida, zona 6 colonia las lomas de Chiquimula Guatemala")}`;
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Tony's Grill " + contact.address)}`;
   const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent("Tony's Grill Chiquimula")}`;
 
   return (
@@ -35,10 +37,10 @@ export const Contact: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium block mb-2">
-            Ubicación
+            {contact.eyebrow}
           </span>
           <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white">
-            Visítenos en <span className="text-[#D90302]">Chiquimula</span>
+            {contact.title} <span className="text-[#D90302]">{contact.titleAccent}</span>
           </h2>
         </div>
 
@@ -74,7 +76,7 @@ export const Contact: React.FC = () => {
               </div>
 
               <p className="mt-3 text-sm font-medium text-white leading-relaxed">
-                {RESTAURANT_INFO.address}
+                {contact.address}
               </p>
 
               <div className="mt-4 flex items-center gap-2">
@@ -109,10 +111,10 @@ export const Contact: React.FC = () => {
                   <span className="text-xs uppercase tracking-wider font-semibold">Teléfono</span>
                 </div>
                 <a 
-                  href={`tel:${RESTAURANT_INFO.phoneRaw}`}
+                  href={`tel:${contact.phoneRaw}`}
                   className="text-sm font-bold text-white hover:text-zinc-300"
                 >
-                  {RESTAURANT_INFO.phone}
+                  {contact.phone}
                 </a>
               </div>
 
@@ -122,12 +124,12 @@ export const Contact: React.FC = () => {
                   <span className="text-xs uppercase tracking-wider font-semibold">WhatsApp</span>
                 </div>
                 <a 
-                  href={`https://wa.me/${RESTAURANT_INFO.whatsappRaw}`}
+                  href={`https://wa.me/${contact.whatsappRaw}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-bold text-white hover:text-[#03AF45]"
                 >
-                  {RESTAURANT_INFO.whatsapp}
+                  {contact.whatsapp}
                 </a>
               </div>
             </div>
@@ -138,7 +140,7 @@ export const Contact: React.FC = () => {
                 <Clock className="w-3.5 h-3.5 text-[#EBFA00]" />
                 <span className="font-semibold uppercase tracking-wider">Horario de servicio:</span>
               </div>
-              <span className="font-bold text-white">7:00 AM - 9:45 PM</span>
+              <span className="font-bold text-white">{contact.schedule}</span>
             </div>
 
           </div>
@@ -151,7 +153,7 @@ export const Contact: React.FC = () => {
                   Referencia de Ubicación
                 </span>
                 <span className="text-[11px] text-zinc-500">
-                  Frente a zona vial 8
+                  {contact.reference}
                 </span>
               </div>
 
@@ -164,7 +166,7 @@ export const Contact: React.FC = () => {
                   Tony's Grill
                 </h4>
                 <p className="text-xs text-zinc-400 max-w-sm mx-auto mt-1 leading-relaxed">
-                  9 Calle, 15 Avenida, zona 6 colonia las lomas de Chiquimula, Frente a zona vial 8 Guatemala.
+                  {contact.address}
                 </p>
                 <div className="mt-4">
                   <a
@@ -195,28 +197,28 @@ export const Contact: React.FC = () => {
         <div className="flex items-center gap-4">
           <span className="font-serif font-bold text-zinc-300">TONY'S GRILL</span>
           <span>•</span>
-          <span>© {new Date().getFullYear()} tonysgrillgt.com</span>
+          <span>© {new Date().getFullYear()} {contact.domain}</span>
         </div>
 
         <div className="flex items-center gap-4">
           <a
-            href={RESTAURANT_INFO.instagramUrl}
+            href={contact.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white transition-colors flex items-center gap-1.5"
           >
             <Instagram className="w-3.5 h-3.5" />
-            <span>@jariaga68</span>
+            <span>{contact.instagramHandle}</span>
           </a>
 
           <a
-            href={RESTAURANT_INFO.facebookUrl}
+            href={contact.facebookUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-white transition-colors flex items-center gap-1.5"
           >
             <Facebook className="w-3.5 h-3.5" />
-            <span>/tonysgrillgt</span>
+            <span>{contact.facebookHandle}</span>
           </a>
         </div>
       </div>

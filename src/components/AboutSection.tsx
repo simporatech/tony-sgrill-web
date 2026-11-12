@@ -1,34 +1,21 @@
 import React from 'react';
-import { Beef, Pizza, UtensilsCrossed, Sandwich, Coffee } from 'lucide-react';
+import { Beef, Pizza, UtensilsCrossed, Sandwich, Coffee, Utensils } from 'lucide-react';
+import { useCmsData } from '../context/CmsContext';
 
 export const AboutSection: React.FC = () => {
-  const specialties = [
-    {
-      title: 'Cortes a la Parrilla',
-      icon: Beef,
-      desc: 'Cortes selectos asados a las brasas de carbón y leña.',
-    },
-    {
-      title: 'Pizzas Artesanales',
-      icon: Pizza,
-      desc: 'Masa fermentada lentamente y horneada a la piedra.',
-    },
-    {
-      title: 'Pastas Frescas',
-      icon: UtensilsCrossed,
-      desc: 'Elaboradas en casa con recetas tradicionales.',
-    },
-    {
-      title: 'Hamburguesas',
-      icon: Sandwich,
-      desc: 'Blend propio de carne selecta en pan brioche.',
-    },
-    {
-      title: 'Desayunos Tradicionales',
-      icon: Coffee,
-      desc: 'Auténtico sabor regional servido desde las 7:00 AM.',
-    },
-  ];
+  const { data } = useCmsData();
+  const about = data.about;
+
+  const getPillarIcon = (name?: string) => {
+    switch (name) {
+      case 'Beef': return Beef;
+      case 'Pizza': return Pizza;
+      case 'UtensilsCrossed': return UtensilsCrossed;
+      case 'Sandwich': return Sandwich;
+      case 'Coffee': return Coffee;
+      default: return Utensils;
+    }
+  };
 
   return (
     <section 
@@ -40,23 +27,23 @@ export const AboutSection: React.FC = () => {
         {/* Header with High Negative Space */}
         <div className="max-w-3xl mb-12 sm:mb-16">
           <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium block mb-3">
-            Nuestra Casa
+            {about.eyebrow}
           </span>
           <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
-            Restaurante familiar de referencia en <span className="text-[#D90302]">Chiquimula</span>
+            {about.title} <span className="text-[#D90302]">{about.titleAccent}</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-zinc-400 font-light leading-relaxed">
-            Especializado en cortes de carne a la parrilla, pizzas artesanales, pastas, hamburguesas y desayunos tradicionales.
+            {about.description}
           </p>
         </div>
 
         {/* Minimal Grid - 5 Clean Pillars */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
-          {specialties.map((item) => {
-            const Icon = item.icon;
+          {about.pillars.map((item) => {
+            const Icon = getPillarIcon(item.iconName);
             return (
               <div
-                key={item.title}
+                key={item.id || item.title}
                 className="p-6 rounded-2xl bg-[#121212] border border-white/[0.06] hover:border-white/20 transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
