@@ -16,12 +16,17 @@ import {
   Sparkles,
   Phone,
   Image as ImageIcon,
-  CheckCircle2
+  CheckCircle2,
+  LogOut
 } from 'lucide-react';
 import { useCmsData, CmsMenuItem, CmsPromoItem } from '../context/CmsContext';
 import { CustomSelect } from '../components/ui/CustomSelect';
+import { AdminLoginGate } from '../components/AdminLoginGate';
+import { authService } from '../services/authService';
 
 export const AdminDashboard: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => authService.isAuthenticated());
+
   const {
     data,
     updateHero,
@@ -179,6 +184,11 @@ export const AdminDashboard: React.FC = () => {
     label: c.label,
   }));
 
+  // Gating: If not authenticated, the entire CMS is completely unrendered and blocked
+  if (!isAuthenticated) {
+    return <AdminLoginGate onAuthenticated={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans pt-24 pb-20">
       
@@ -213,6 +223,18 @@ export const AdminDashboard: React.FC = () => {
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Ver Web en Vivo</span>
             </Link>
+
+            <button
+              onClick={() => {
+                authService.logout();
+                setIsAuthenticated(false);
+              }}
+              className="px-4 py-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-xs font-semibold text-red-300 hover:text-white border border-red-500/30 transition-colors flex items-center gap-2 cursor-pointer"
+              title="Cerrar sesión de administrador"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Cerrar Sesión</span>
+            </button>
           </div>
         </div>
 
