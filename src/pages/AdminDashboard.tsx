@@ -42,6 +42,7 @@ export const AdminDashboard: React.FC = () => {
 
   const {
     data,
+    isCloudSync,
     updateHero,
     updateAbout,
     updateEvents,
@@ -174,7 +175,7 @@ export const AdminDashboard: React.FC = () => {
             </span>
             <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-[10px] text-emerald-400 font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Sincronizado en Vivo
+              {isCloudSync ? 'Supabase DB Conectado' : 'Supabase Ready'}
             </span>
           </div>
         </div>
@@ -890,8 +891,10 @@ export const AdminDashboard: React.FC = () => {
                 {/* System Info Box */}
                 <div className="p-4 rounded-2xl bg-[#141416] border border-white/10 space-y-2.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-400">Motor de Persistencia:</span>
-                    <span className="text-white font-mono font-bold">LocalStorage (Client-side)</span>
+                    <span className="text-zinc-400">Motor de Base de Datos:</span>
+                    <span className="text-white font-mono font-bold">
+                      {isCloudSync ? 'Supabase PostgreSQL (Cloud)' : 'Supabase Client (Híbrido / Local)'}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-zinc-400">Platillos en Base Local:</span>

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle2, Image as ImageIcon, Link as LinkIcon, X, Loader2 } from 'lucide-react';
 import { compressClientImage, CompressedImageResult } from '../../utils/imageCompression';
+import { uploadCmsImage } from '../../services/storageService';
 
 interface ImageUploaderProps {
   label: string;
@@ -13,9 +14,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   label,
   value,
   onChange,
-  helperText = 'Compresión automática WebP ≤ 200KB a 1920px max',
+  helperText = 'Compresión WebP ≤ 200KB & Subida a Supabase (cms_images)',
 }) => {
   const [isCompressing, setIsCompressing] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [compressionStats, setCompressionStats] = useState<{
     originalKB: number;
     compressedKB: number;
@@ -31,18 +33,27 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
 
     setIsCompressing(true);
+    setUploadStatus('Comprimiendo imagen del lado del cliente (< 200KB)...');
+
     try {
+      // 1. Client-side compression
       const result: CompressedImageResult = await compressClientImage(file);
       setCompressionStats({
         originalKB: result.originalSizeKB,
         compressedKB: result.compressedSizeKB,
         savings: result.savingsPercent,
       });
-      // Store the compressed base64 dataUrl (ready for Supabase Storage or preview)
-      onChange(result.dataUrl);
+
+      // 2. Upload compressed blob to Supabase Storage bucket 'cms_images'
+      setUploadStatus('Subiendo al bucket Supabase Storage (cms_images)...');
+      const publicUrl = await uploadCmsImage(result.file);
+
+      // 3. Save permanent public URL into state
+      onChange(publicUrl);
+      setUploadStatus('¡Imagen optimizada y almacenada exitosamente!');
     } catch (err) {
-      console.error('Error al comprimir la imagen:', err);
-      alert('Hubo un problema al comprimir la imagen. Puede usar el campo de URL directa como alternativa.');
+      console.error('Error al procesar/subir la imagen:', err);
+      alert('Hubo un problema al procesar la imagen. Puede usar el campo de URL directa como alternativa.');
     } finally {
       setIsCompressing(false);
     }
@@ -105,7 +116,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         {isCompressing ? (
           <div className="py-2 flex items-center justify-center gap-2 text-xs text-zinc-300">
             <Loader2 className="w-4 h-4 animate-spin text-[#D90302]" />
-            <span>Comprimiendo a WebP &lt;200KB (visual lossless)...</span>
+            <span>{uploadStatus || 'Comprimiendo a WebP &lt;200KB...'}</span>
           </div>
         ) : (
           <div className="flex items-center justify-center gap-3">
@@ -186,3 +197,4 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     </div>
   );
 };
+

@@ -126,3 +126,4 @@ function dataURItoBlob(dataURI: string): Blob {
   }
   return new Blob([ab], { type: mimeString });
 }
+

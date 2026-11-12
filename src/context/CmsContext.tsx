@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
 
 export interface CmsHeroData {
   tagline: string;
@@ -141,8 +142,8 @@ export const DEFAULT_CMS_DATA: CmsData = {
     domain: 'tonysgrillgt.com',
   },
   categories: [
-    { id: 'desayunos', label: 'Desayunos & Omelettes' },
     { id: 'carnes', label: 'Carnes & Parrilladas' },
+    { id: 'desayunos', label: 'Desayunos & Omelettes' },
     { id: 'mariscos', label: 'Mariscos' },
     { id: 'pastas', label: 'Pastas' },
     { id: 'hamburguesas', label: 'Hamburguesas' },
@@ -158,6 +159,7 @@ export const DEFAULT_CMS_DATA: CmsData = {
     { id: 'des-05', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'Desayuno Típico', price: 48.00 },
     { id: 'des-06', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'Panqueques Simples (3 porciones)', price: 38.00 },
     { id: 'des-07', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'Tostadas Francesas Simples (2 porciones)', price: 33.00 },
+
     // Carnes & Parrilladas
     { id: 'car-01', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Lomito 8 Onzas', price: 155.00 },
     { id: 'car-02', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Puyazo Americano', price: 140.00 },
@@ -165,28 +167,33 @@ export const DEFAULT_CMS_DATA: CmsData = {
     { id: 'car-04', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Mar y Tierra (Combo)', price: 169.00 },
     { id: 'car-05', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Parrillada para 2 Personas', price: 219.00 },
     { id: 'car-06', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Entraña', price: 165.00 },
+
     // Mariscos
     { id: 'mar-01', category_id: 'mariscos', category_name: 'Mariscos', name: 'Salmón', price: 149.00 },
     { id: 'mar-02', category_id: 'mariscos', category_name: 'Mariscos', name: 'Róbalo', price: 125.00 },
     { id: 'mar-03', category_id: 'mariscos', category_name: 'Mariscos', name: 'Mojarra', price: 70.00 },
     { id: 'mar-04', category_id: 'mariscos', category_name: 'Mariscos', name: 'Ceviche Pequeño', price: 75.00 },
     { id: 'mar-05', category_id: 'mariscos', category_name: 'Mariscos', name: 'Tapado', price: 165.00 },
+
     // Pastas
     { id: 'pas-01', category_id: 'pastas', category_name: 'Pastas', name: 'Pollo Parmesano', price: 99.00 },
     { id: 'pas-02', category_id: 'pastas', category_name: 'Pastas', name: 'Pasta Alfredo con Pollo', price: 99.00 },
     { id: 'pas-03', category_id: 'pastas', category_name: 'Pastas', name: 'Pasta Bolognesa', price: 90.00 },
     { id: 'pas-04', category_id: 'pastas', category_name: 'Pastas', name: 'Pasta al Ajillo con Camarones', price: 135.00 },
+
     // Hamburguesas
     { id: 'ham-01', category_id: 'hamburguesas', category_name: 'Hamburguesas', name: 'Hamburguesa Gemelas', price: 59.00 },
     { id: 'ham-02', category_id: 'hamburguesas', category_name: 'Hamburguesas', name: 'Deluxe con Queso', price: 49.00 },
     { id: 'ham-03', category_id: 'hamburguesas', category_name: 'Hamburguesas', name: 'Torito', price: 59.00 },
     { id: 'ham-04', category_id: 'hamburguesas', category_name: 'Hamburguesas', name: 'Menú Infantil (Hamburguesa, Papas y Gaseosa)', price: 40.00 },
+
     // Antojitos Típicos & Especiales
     { id: 'ant-01', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Mexican Quesadillas', price: 60.00 },
     { id: 'ant-02', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Burrito Chapín', price: 60.00 },
     { id: 'ant-03', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Chuchitos', price: 35.00 },
     { id: 'ant-04', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Rellenitos', price: 35.00 },
     { id: 'ant-05', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Enchiladas', price: 35.00 },
+
     // Pizzas
     { id: 'piz-01', category_id: 'pizzas', category_name: 'Pizzas', name: 'Pizza Peperoni (Mediana)', price: 55.00 },
     { id: 'piz-02', category_id: 'pizzas', category_name: 'Pizzas', name: 'Pizza Margarita (Mediana)', price: 75.00 },
@@ -200,9 +207,9 @@ export const DEFAULT_CMS_DATA: CmsData = {
       badgeColor: '#D90302',
       title: 'Desayuno Súper 2xQ59',
       highlightPrice: '2x Q59',
-      schedule: 'Lunes a Viernes (Consumo en Restaurante)',
-      description: 'Inicia tus mañanas en grande: dos desayunos completos con huevos al gusto, frijoles volteados de la casa, plátanos dulces, queso fresco chiquimulteco, crema artesanal, pan tostado y café caliente de altura.',
-      terms: 'Válido exclusivamente para consumo en mesas del restaurante de 7:00 AM a 11:30 AM.',
+      schedule: 'Lunes - Viernes en rest.',
+      description: 'Dos desayunos completos con huevos al gusto, frijoles volteados de la casa, plátanos dulces, queso fresco, crema y café de altura.',
+      terms: 'Válido exclusivamente para consumo en mesas del restaurante.',
       accentColor: '#D90302',
     },
     {
@@ -212,9 +219,9 @@ export const DEFAULT_CMS_DATA: CmsData = {
       badgeColor: '#03AF45',
       title: 'Huevos con Loroco',
       highlightPrice: '+Q5 Omelet',
-      schedule: 'Todos los días desde las 7:00 AM',
-      description: 'Huevos de granja revueltos suavemente con auténtico loroco fresco regional salteado en mantequilla. ¡Pídelo preparado en Omelet dorado por solo +Q5 adicionales!',
-      terms: 'Incluye guarnición tradicional de frijoles, plátanos y queso de la región.',
+      schedule: 'Todos los días desde 7:00 AM',
+      description: 'Huevos revueltos suavemente con auténtico loroco fresco regional salteado en mantequilla. Opción en Omelet dorado por +Q5 adicionales.',
+      terms: 'Incluye guarnición de frijoles, plátanos y queso de la región.',
       accentColor: '#03AF45',
     },
     {
@@ -224,9 +231,9 @@ export const DEFAULT_CMS_DATA: CmsData = {
       badgeColor: '#EBFA00',
       title: 'Caldo de Res Tradicional',
       highlightPrice: 'Especial Dominical',
-      schedule: 'Domingos Familiares desde las 11:30 AM',
-      description: 'Nuestra receta dominical: tazón humeante de carne suave cocida a fuego lento con elote tierno, yuca, güisquil, repollo y hierbabuena fresca. Servido con arroz y chirmol asado.',
-      terms: 'Hasta agotar existencias dominicales. Ideal para compartir en mesa familiar.',
+      schedule: 'Domingos Familiares',
+      description: 'Nuestra legendaria receta dominical: carne suave cocida a fuego lento con elote tierno, yuca, güisquil, repollo y hierbabuena fresca.',
+      terms: 'Hasta agotar existencias dominicales. Ideal para mesa familiar.',
       accentColor: '#EBFA00',
     },
     {
@@ -234,202 +241,453 @@ export const DEFAULT_CMS_DATA: CmsData = {
       emoji: '🍝',
       badge: '2x1 Especial',
       badgeColor: '#D90302',
-      title: '2x1 Lasaña Q63',
+      title: '2x1 Lasaña Boloñesa Q63',
       highlightPrice: '2x Q63',
       schedule: 'Almuerzos & Cenas Seleccionadas',
-      description: 'Doble porción de placer: capas abundantes de pasta artesanal, salsa boloñesa con carne de res estofada, bechamel cremosa y gratín dorado de quesos mozzarella y parmesano.',
+      description: '¡Doble porción de placer italiano! Pasta fresca artesanal, salsa boloñesa con carne de res estofada y gratín dorado de quesos.',
       terms: 'Pagas una lasaña y recibes la segunda gratis por solo Q63 en total.',
       accentColor: '#D90302',
     },
     {
       id: 'promo-5',
       emoji: '🍕',
-      badge: 'Edición Temporada',
+      badge: 'Temporada Especial',
       badgeColor: '#03AF45',
       title: 'Pizza Loroco de temporada',
-      highlightPrice: 'Receta Exclusiva',
-      schedule: 'Disponible todo el día al horno de leña',
-      description: 'Masa madre fermentada 48 horas, salsa blanca artesanal, mozzarella abundante y flores tiernas de loroco fresco recién traídas del campo chiquimulteco.',
-      terms: 'Disponible por tiempo limitado durante la temporada de cosecha de loroco.',
+      highlightPrice: 'Edición Limitada',
+      schedule: 'Disponible Toda la Semana',
+      description: 'Masa madre crujiente, salsa de tomates asados, abundante queso mozzarella fundido y fresco loroco chiquimulteco.',
+      terms: 'Disponible en tamaño Mediano y Familiar por temporada de cosecha.',
       accentColor: '#03AF45',
     },
     {
       id: 'promo-6',
-      emoji: '☕ 🍷',
-      badge: 'Dúo de Especialidad',
+      emoji: '☕🍷',
+      badge: 'Dúo de Bebidas',
       badgeColor: '#EBFA00',
       title: 'Capuchino 2xQ29 | Sangría 2xQ49',
-      highlightPrice: 'Doble Deleite',
-      schedule: 'Tardes de Café & Noches de Brasa',
-      description: 'Combina como prefieras: Dos Capuchinos con café espresso de altura y leche sedosa por Q29, o dos copas de Sangría de la Cava con vino tinto y frutas maceradas por solo Q49.',
+      highlightPrice: 'Desde Q29',
+      schedule: 'Tardes de Café & Cava',
+      description: 'Combina como prefieras tu momento Tony\'s: Dos Capuchinos con café espresso por Q29, o dos copas de Sangría con vino tinto por Q49.',
       terms: 'Aplica en consumo individual o para compartir en tu visita.',
       accentColor: '#EBFA00',
     },
   ],
 };
 
-const STORAGE_KEY = 'tonys_grill_cms_data';
+const STORAGE_FALLBACK_KEY = 'tonys_grill_cms_data';
 
 export interface CmsContextType {
   data: CmsData;
+  isLoading: boolean;
+  isCloudSync: boolean;
   updateHero: (hero: Partial<CmsHeroData>) => void;
   updateAbout: (about: Partial<CmsAboutData>) => void;
   updateEvents: (events: Partial<CmsEventsData>) => void;
   updateContact: (contact: Partial<CmsContactData>) => void;
   addMenuItem: (item: Omit<CmsMenuItem, 'id'>) => void;
-  updateMenuItem: (id: string, item: Partial<CmsMenuItem>) => void;
+  updateMenuItem: (id: string, updates: Partial<CmsMenuItem>) => void;
   deleteMenuItem: (id: string) => void;
   addCategory: (cat: CmsCategory) => void;
   deleteCategory: (id: string) => void;
   addPromo: (promo: Omit<CmsPromoItem, 'id'>) => void;
-  updatePromo: (id: string, promo: Partial<CmsPromoItem>) => void;
+  updatePromo: (id: string, updates: Partial<CmsPromoItem>) => void;
   deletePromo: (id: string) => void;
   resetToDefaults: () => void;
+  reloadFromDatabase: () => Promise<void>;
 }
 
 const CmsContext = createContext<CmsContextType | null>(null);
 
 export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [data, setData] = useState<CmsData>(() => {
+    // Initial sync read from local cache to prevent layout flicker
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Ensure all required top-level keys exist, merging with defaults if needed
-        return {
-          ...DEFAULT_CMS_DATA,
-          ...parsed,
-          hero: { ...DEFAULT_CMS_DATA.hero, ...(parsed.hero || {}) },
-          about: { ...DEFAULT_CMS_DATA.about, ...(parsed.about || {}) },
-          events: { ...DEFAULT_CMS_DATA.events, ...(parsed.events || {}) },
-          contact: { ...DEFAULT_CMS_DATA.contact, ...(parsed.contact || {}) },
-          categories: parsed.categories?.length ? parsed.categories : DEFAULT_CMS_DATA.categories,
-          menuItems: parsed.menuItems?.length ? parsed.menuItems : DEFAULT_CMS_DATA.menuItems,
-          promos: parsed.promos?.length ? parsed.promos : DEFAULT_CMS_DATA.promos,
-        };
-      }
-    } catch (err) {
-      console.error('Error loading CMS data from localStorage:', err);
-    }
+      const saved = localStorage.getItem(STORAGE_FALLBACK_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
     return DEFAULT_CMS_DATA;
   });
 
-  // Save to localStorage whenever data changes
+  const [isLoading, setIsLoading] = useState(false);
+  const isCloudSync = isSupabaseConfigured();
+
+  // Keep local backup synchronized for instant renders and offline fallback
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(STORAGE_FALLBACK_KEY, JSON.stringify(data));
     } catch (err) {
-      console.error('Error saving CMS data to localStorage:', err);
+      console.error('Local backup sync error:', err);
     }
   }, [data]);
 
-  const updateHero = (heroUpdates: Partial<CmsHeroData>) => {
-    setData((prev) => ({
-      ...prev,
-      hero: { ...prev.hero, ...heroUpdates }
-    }));
+  // Initial load directly from Supabase PostgreSQL tables
+  const fetchSupabaseData = useCallback(async () => {
+    if (!isSupabaseConfigured()) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // 1. Fetch Landing Content
+      const { data: landingRow, error: landingErr } = await supabase
+        .from('landing_content')
+        .select('*')
+        .eq('id', 'main')
+        .maybeSingle();
+
+      // 2. Fetch Menu Categories
+      const { data: categoriesData, error: catErr } = await supabase
+        .from('menu_categories')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      // 3. Fetch Menu Items
+      const { data: menuItemsData, error: itemsErr } = await supabase
+        .from('menu_items')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      // 4. Fetch Promotions
+      const { data: promosData, error: promosErr } = await supabase
+        .from('promotions')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (!landingErr && landingRow) {
+        setData((prev) => ({
+          ...prev,
+          hero: landingRow.hero || prev.hero,
+          about: landingRow.about || prev.about,
+          events: landingRow.events || prev.events,
+          contact: landingRow.contact || prev.contact,
+          categories: categoriesData && categoriesData.length > 0
+            ? categoriesData.map(c => ({ id: c.id, label: c.name }))
+            : prev.categories,
+          menuItems: menuItemsData && menuItemsData.length > 0
+            ? menuItemsData.map(item => ({
+                id: item.id,
+                category_id: item.category_id,
+                category_name: categoriesData?.find(c => c.id === item.category_id)?.name || 'General',
+                name: item.name,
+                price: Number(item.price),
+              }))
+            : prev.menuItems,
+          promos: promosData && promosData.length > 0
+            ? promosData.map(p => ({
+                id: p.id,
+                emoji: p.emoji || '🍳',
+                badge: p.badge || '',
+                badgeColor: p.badge_color || '#D90302',
+                title: p.title,
+                highlightPrice: p.highlight_price || '',
+                schedule: p.schedule || '',
+                description: p.description || '',
+                terms: p.terms || '',
+                accentColor: p.accent_color || '#D90302',
+              }))
+            : prev.promos,
+        }));
+      }
+    } catch (err) {
+      console.warn('Supabase fetch encountered an issue, running with local seed data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSupabaseData();
+  }, [fetchSupabaseData]);
+
+  // ========================================================
+  // CRUD OPERATIONS WITH REAL-TIME SUPABASE DATABASE SYNC
+  // ========================================================
+
+  const updateHero = async (heroUpdates: Partial<CmsHeroData>) => {
+    const updated = { ...data.hero, ...heroUpdates };
+    setData((prev) => ({ ...prev, hero: updated }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('landing_content')
+          .upsert({
+            id: 'main',
+            hero: updated,
+            about: data.about,
+            events: data.events,
+            contact: data.contact,
+            updated_at: new Date().toISOString(),
+          });
+      } catch (err) {
+        console.error('Supabase updateHero failed:', err);
+      }
+    }
   };
 
-  const updateAbout = (aboutUpdates: Partial<CmsAboutData>) => {
-    setData((prev) => ({
-      ...prev,
-      about: { ...prev.about, ...aboutUpdates }
-    }));
+  const updateAbout = async (aboutUpdates: Partial<CmsAboutData>) => {
+    const updated = { ...data.about, ...aboutUpdates };
+    setData((prev) => ({ ...prev, about: updated }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('landing_content')
+          .upsert({
+            id: 'main',
+            hero: data.hero,
+            about: updated,
+            events: data.events,
+            contact: data.contact,
+            updated_at: new Date().toISOString(),
+          });
+      } catch (err) {
+        console.error('Supabase updateAbout failed:', err);
+      }
+    }
   };
 
-  const updateEvents = (eventsUpdates: Partial<CmsEventsData>) => {
-    setData((prev) => ({
-      ...prev,
-      events: { ...prev.events, ...eventsUpdates }
-    }));
+  const updateEvents = async (eventsUpdates: Partial<CmsEventsData>) => {
+    const updated = { ...data.events, ...eventsUpdates };
+    setData((prev) => ({ ...prev, events: updated }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('landing_content')
+          .upsert({
+            id: 'main',
+            hero: data.hero,
+            about: data.about,
+            events: updated,
+            contact: data.contact,
+            updated_at: new Date().toISOString(),
+          });
+      } catch (err) {
+        console.error('Supabase updateEvents failed:', err);
+      }
+    }
   };
 
-  const updateContact = (contactUpdates: Partial<CmsContactData>) => {
-    setData((prev) => ({
-      ...prev,
-      contact: { ...prev.contact, ...contactUpdates }
-    }));
+  const updateContact = async (contactUpdates: Partial<CmsContactData>) => {
+    const updated = { ...data.contact, ...contactUpdates };
+    setData((prev) => ({ ...prev, contact: updated }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('landing_content')
+          .upsert({
+            id: 'main',
+            hero: data.hero,
+            about: data.about,
+            events: data.events,
+            contact: updated,
+            updated_at: new Date().toISOString(),
+          });
+      } catch (err) {
+        console.error('Supabase updateContact failed:', err);
+      }
+    }
   };
 
-  const addMenuItem = (item: Omit<CmsMenuItem, 'id'>) => {
+  const addMenuItem = async (item: Omit<CmsMenuItem, 'id'>) => {
     const newItem: CmsMenuItem = {
       ...item,
-      id: `item-${Date.now()}`
+      id: `item-${Date.now()}`,
     };
     setData((prev) => ({
       ...prev,
-      menuItems: [...prev.menuItems, newItem]
+      menuItems: [...prev.menuItems, newItem],
     }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('menu_items').insert({
+          id: newItem.id,
+          category_id: newItem.category_id,
+          name: newItem.name,
+          price: newItem.price,
+        });
+      } catch (err) {
+        console.error('Supabase addMenuItem failed:', err);
+      }
+    }
   };
 
-  const updateMenuItem = (id: string, updates: Partial<CmsMenuItem>) => {
+  const updateMenuItem = async (id: string, updates: Partial<CmsMenuItem>) => {
     setData((prev) => ({
       ...prev,
-      menuItems: prev.menuItems.map((item) => (item.id === id ? { ...item, ...updates } : item))
+      menuItems: prev.menuItems.map((item) =>
+        item.id === id ? { ...item, ...updates } : item
+      ),
     }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        const payload: any = {};
+        if (updates.name !== undefined) payload.name = updates.name;
+        if (updates.price !== undefined) payload.price = updates.price;
+        if (updates.category_id !== undefined) payload.category_id = updates.category_id;
+
+        await supabase.from('menu_items').update(payload).eq('id', id);
+      } catch (err) {
+        console.error('Supabase updateMenuItem failed:', err);
+      }
+    }
   };
 
-  const deleteMenuItem = (id: string) => {
+  const deleteMenuItem = async (id: string) => {
     setData((prev) => ({
       ...prev,
-      menuItems: prev.menuItems.filter((item) => item.id !== id)
+      menuItems: prev.menuItems.filter((item) => item.id !== id),
     }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('menu_items').delete().eq('id', id);
+      } catch (err) {
+        console.error('Supabase deleteMenuItem failed:', err);
+      }
+    }
   };
 
-  const addCategory = (cat: CmsCategory) => {
+  const addCategory = async (cat: CmsCategory) => {
     setData((prev) => ({
       ...prev,
-      categories: [...prev.categories.filter((c) => c.id !== cat.id), cat]
+      categories: [...prev.categories.filter((c) => c.id !== cat.id), cat],
     }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('menu_categories').upsert({
+          id: cat.id,
+          name: cat.label,
+          display_order: data.categories.length + 1,
+        });
+      } catch (err) {
+        console.error('Supabase addCategory failed:', err);
+      }
+    }
   };
 
-  const deleteCategory = (id: string) => {
+  const deleteCategory = async (id: string) => {
     setData((prev) => ({
       ...prev,
       categories: prev.categories.filter((c) => c.id !== id),
-      menuItems: prev.menuItems.filter((item) => item.category_id !== id)
+      menuItems: prev.menuItems.filter((item) => item.category_id !== id),
     }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('menu_categories').delete().eq('id', id);
+      } catch (err) {
+        console.error('Supabase deleteCategory failed:', err);
+      }
+    }
   };
 
-  const addPromo = (promo: Omit<CmsPromoItem, 'id'>) => {
+  const addPromo = async (promo: Omit<CmsPromoItem, 'id'>) => {
     const newPromo: CmsPromoItem = {
       ...promo,
-      id: `promo-${Date.now()}`
+      id: `promo-${Date.now()}`,
     };
     setData((prev) => ({
       ...prev,
-      promos: [...prev.promos, newPromo]
+      promos: [...prev.promos, newPromo],
     }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('promotions').insert({
+          id: newPromo.id,
+          emoji: newPromo.emoji,
+          badge: newPromo.badge,
+          badge_color: newPromo.badgeColor,
+          title: newPromo.title,
+          highlight_price: newPromo.highlightPrice,
+          schedule: newPromo.schedule,
+          description: newPromo.description,
+          terms: newPromo.terms,
+          accent_color: newPromo.accentColor,
+          active_status: true,
+        });
+      } catch (err) {
+        console.error('Supabase addPromo failed:', err);
+      }
+    }
   };
 
-  const updatePromo = (id: string, updates: Partial<CmsPromoItem>) => {
+  const updatePromo = async (id: string, updates: Partial<CmsPromoItem>) => {
     setData((prev) => ({
       ...prev,
-      promos: prev.promos.map((p) => (p.id === id ? { ...p, ...updates } : p))
+      promos: prev.promos.map((p) => (p.id === id ? { ...p, ...updates } : p)),
     }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        const payload: any = {};
+        if (updates.title !== undefined) payload.title = updates.title;
+        if (updates.highlightPrice !== undefined) payload.highlight_price = updates.highlightPrice;
+        if (updates.schedule !== undefined) payload.schedule = updates.schedule;
+        if (updates.description !== undefined) payload.description = updates.description;
+        if (updates.badge !== undefined) payload.badge = updates.badge;
+        if (updates.emoji !== undefined) payload.emoji = updates.emoji;
+
+        await supabase.from('promotions').update(payload).eq('id', id);
+      } catch (err) {
+        console.error('Supabase updatePromo failed:', err);
+      }
+    }
   };
 
-  const deletePromo = (id: string) => {
+  const deletePromo = async (id: string) => {
     setData((prev) => ({
       ...prev,
-      promos: prev.promos.filter((p) => p.id !== id)
+      promos: prev.promos.filter((p) => p.id !== id),
     }));
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('promotions').delete().eq('id', id);
+      } catch (err) {
+        console.error('Supabase deletePromo failed:', err);
+      }
+    }
   };
 
-  // The Panic Button logic: clears localStorage and resets to DEFAULT_CMS_DATA
-  const resetToDefaults = () => {
+  // Panic reset: restores DEFAULT_CMS_DATA and purges local storage
+  const resetToDefaults = async () => {
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_FALLBACK_KEY);
     } catch (err) {
-      console.error('Error clearing localStorage:', err);
+      console.error('Error clearing local cache:', err);
     }
     setData(DEFAULT_CMS_DATA);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('landing_content').upsert({
+          id: 'main',
+          hero: DEFAULT_CMS_DATA.hero,
+          about: DEFAULT_CMS_DATA.about,
+          events: DEFAULT_CMS_DATA.events,
+          contact: DEFAULT_CMS_DATA.contact,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error('Supabase resetToDefaults failed:', err);
+      }
+    }
   };
 
   return (
     <CmsContext.Provider
       value={{
         data,
+        isLoading,
+        isCloudSync,
         updateHero,
         updateAbout,
         updateEvents,
@@ -443,6 +701,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updatePromo,
         deletePromo,
         resetToDefaults,
+        reloadFromDatabase: fetchSupabaseData,
       }}
     >
       {children}
@@ -457,4 +716,3 @@ export const useCmsData = (): CmsContextType => {
   }
   return context;
 };
-
