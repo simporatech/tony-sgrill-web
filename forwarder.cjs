@@ -19,3 +19,4 @@ server.listen(5173, '0.0.0.0', () => {
 server.on('error', (err) => {
   console.log('Port 5173 proxy note:', err.message);
 });
+
