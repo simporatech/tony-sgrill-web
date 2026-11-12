@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { ArrowRight, FileText } from 'lucide-react';
 import { FEATURED_DISHES } from '../data/restaurantData';
 
@@ -9,13 +8,12 @@ interface MenuSectionProps {
 }
 
 export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
-  // Show top 3 dishes for a clean, non-cluttered viewport fit on desktop
   const previewDishes = FEATURED_DISHES.slice(0, 3);
 
   return (
     <section 
       id="menu" 
-      className="relative h-screen min-h-screen snap-start flex items-center justify-center bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-16"
+      className="relative min-h-screen lg:h-screen snap-start flex items-center justify-center bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-16"
     >
       <div className="max-w-6xl mx-auto w-full flex flex-col justify-center">
         
@@ -49,15 +47,11 @@ export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
           </div>
         </div>
 
-        {/* Minimal Cards (Clean, No micro-text clutter) */}
+        {/* Minimal Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {previewDishes.map((dish, idx) => (
-            <motion.div
+          {previewDishes.map((dish) => (
+            <div
               key={dish.id}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: idx * 0.1 }}
               className="group rounded-2xl overflow-hidden bg-[#121212] border border-white/[0.06] hover:border-white/20 transition-all duration-300 flex flex-col"
             >
               <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-zinc-900">
@@ -93,7 +87,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
                   </a>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 

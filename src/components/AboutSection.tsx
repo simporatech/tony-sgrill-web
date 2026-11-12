@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Beef, Pizza, UtensilsCrossed, Sandwich, Coffee } from 'lucide-react';
 
 export const AboutSection: React.FC = () => {
@@ -34,7 +33,7 @@ export const AboutSection: React.FC = () => {
   return (
     <section 
       id="nosotros" 
-      className="relative h-screen min-h-screen snap-start flex items-center justify-center bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-16"
+      className="relative min-h-screen lg:h-screen snap-start flex items-center justify-center bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-16"
     >
       <div className="max-w-6xl mx-auto w-full flex flex-col justify-center">
         
@@ -53,15 +52,11 @@ export const AboutSection: React.FC = () => {
 
         {/* Minimal Grid - 5 Clean Pillars */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
-          {specialties.map((item, idx) => {
+          {specialties.map((item) => {
             const Icon = item.icon;
             return (
-              <motion.div
+              <div
                 key={item.title}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.08 }}
                 className="p-6 rounded-2xl bg-[#121212] border border-white/[0.06] hover:border-white/20 transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
@@ -75,7 +70,7 @@ export const AboutSection: React.FC = () => {
                     {item.desc}
                   </p>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -97,4 +92,3 @@ export const AboutSection: React.FC = () => {
     </section>
   );
 };
-

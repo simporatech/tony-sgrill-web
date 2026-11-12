@@ -1,12 +1,11 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Utensils, Calendar } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   return (
     <section 
       id="inicio"
-      className="relative h-screen min-h-screen snap-start flex items-center justify-center overflow-hidden bg-[#080808] px-4 sm:px-6 lg:px-8"
+      className="relative min-h-screen lg:h-screen snap-start flex items-center justify-center overflow-hidden bg-[#080808] px-4 sm:px-6 lg:px-8"
     >
       {/* Background Image with Dark Minimal Scrim */}
       <div className="absolute inset-0 z-0">
@@ -21,11 +20,7 @@ export const Hero: React.FC = () => {
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
         
         {/* Main Headline */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
+        <div>
           <span className="text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-zinc-400 mb-4 block">
             Chiquimula, Guatemala
           </span>
@@ -36,25 +31,15 @@ export const Hero: React.FC = () => {
               EN CHIQUIMULA
             </span>
           </h1>
-        </motion.div>
+        </div>
 
         {/* Grounded & Elegant Subheadline */}
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="mt-6 sm:mt-8 text-sm sm:text-lg text-zinc-300 max-w-2xl font-light leading-relaxed text-balance"
-        >
+        <p className="mt-6 sm:mt-8 text-sm sm:text-lg text-zinc-300 max-w-2xl font-light leading-relaxed text-balance">
           Restaurante familiar de referencia en Chiquimula, especializado en cortes de carne a la parrilla, pizzas artesanales, pastas, hamburguesas y desayunos tradicionales.
-        </motion.p>
+        </p>
 
         {/* Primary CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto"
-        >
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
           <a
             href="/menu"
             className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-sm uppercase tracking-wider border border-white/20 hover:border-white/40 transition-all flex items-center justify-center gap-2.5 backdrop-blur-sm"
@@ -70,7 +55,7 @@ export const Hero: React.FC = () => {
             <Calendar className="w-4 h-4" />
             <span>Reservar</span>
           </a>
-        </motion.div>
+        </div>
 
       </div>
     </section>

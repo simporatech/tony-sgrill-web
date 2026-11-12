@@ -1,13 +1,12 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { ArrowRight, Send } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 
 export const EventsSection: React.FC = () => {
   return (
     <section 
-      id="eventos"
-      className="relative h-screen min-h-screen snap-start flex items-center justify-center bg-[#080808] text-white px-4 sm:px-6 lg:px-8 py-16"
+      id="eventos" 
+      className="relative min-h-screen lg:h-screen snap-start flex items-center justify-center bg-[#080808] text-white px-4 sm:px-6 lg:px-8 py-16"
     >
       <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
         
@@ -48,13 +47,7 @@ export const EventsSection: React.FC = () => {
 
         {/* Right Clean Visual Block */}
         <div className="lg:col-span-6">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="relative rounded-3xl overflow-hidden border border-white/[0.08] shadow-2xl h-[340px] sm:h-[420px] bg-[#121212]"
-          >
+          <div className="relative rounded-3xl overflow-hidden border border-white/[0.08] shadow-2xl h-[340px] sm:h-[420px] bg-[#121212]">
             <img
               src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80"
               alt="Servicio de banquetes Tony's Grill"
@@ -66,11 +59,10 @@ export const EventsSection: React.FC = () => {
               <p className="text-white font-serif font-bold text-sm">Menú a la Medida de su Evento</p>
               <p className="text-xs text-zinc-400 mt-0.5">Asesoría directa y atención personalizada</p>
             </div>
-          </motion.div>
+          </div>
         </div>
 
       </div>
     </section>
   );
 };
-
