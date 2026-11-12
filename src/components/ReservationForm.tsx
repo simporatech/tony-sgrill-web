@@ -39,20 +39,22 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // Format into clean, readable text string as instructed
+    const message = `Hola Tony's Grill, quiero hacer una reserva para ${guests} personas, el día ${date} a las ${time}. A nombre de ${fullName}.${phone ? ` Teléfono: ${phone}.` : ''}${specialNotes ? ` Notas: ${specialNotes}.` : ''}`;
+    const waUrl = `https://wa.me/50252188115?text=${encodeURIComponent(message)}`;
+    
+    // Open WhatsApp in a new tab
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+
     setTimeout(() => {
       setIsSubmitting(false);
       setIsConfirmed(true);
-    }, 800);
+    }, 300);
   };
 
   const getWhatsAppMessage = () => {
-    const text = `Hola Tony's Grill, deseo reservar una mesa:\n` +
-      `Nombre: ${fullName}\n` +
-      `Fecha: ${date}\n` +
-      `Hora: ${time}\n` +
-      `Comensales: ${guests}\n` +
-      `Teléfono: ${phone}\n` +
-      (specialNotes ? `Notas: ${specialNotes}\n` : '');
+    const text = `Hola Tony's Grill, quiero hacer una reserva para ${guests} personas, el día ${date} a las ${time}. A nombre de ${fullName}.${phone ? ` Teléfono: ${phone}.` : ''}${specialNotes ? ` Notas: ${specialNotes}.` : ''}`;
     return encodeURIComponent(text);
   };
 

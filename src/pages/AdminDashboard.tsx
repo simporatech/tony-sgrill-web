@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { 
   AlertTriangle, 
   RotateCcw, 
-  Save, 
   Plus, 
   Trash2, 
   Edit3, 
@@ -17,12 +16,25 @@ import {
   Phone,
   Image as ImageIcon,
   CheckCircle2,
-  LogOut
+  LogOut,
+  Monitor,
+  Smartphone,
+  ExternalLink,
+  RefreshCw,
+  Search,
+  Eye,
+  Sliders,
+  DollarSign
 } from 'lucide-react';
 import { useCmsData, CmsMenuItem, CmsPromoItem } from '../context/CmsContext';
 import { CustomSelect } from '../components/ui/CustomSelect';
 import { AdminLoginGate } from '../components/AdminLoginGate';
 import { authService } from '../services/authService';
+
+// Live preview component imports
+import { LandingPage } from './LandingPage';
+import { WebMenuPage } from './WebMenuPage';
+import { PromosPage } from './PromosPage';
 
 export const AdminDashboard: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => authService.isAuthenticated());
@@ -39,57 +51,43 @@ export const AdminDashboard: React.FC = () => {
     addCategory,
     deleteCategory,
     addPromo,
-    updatePromo,
     deletePromo,
     resetToDefaults,
   } = useCmsData();
 
-  const [activeTab, setActiveTab] = useState<'settings' | 'landing' | 'menu' | 'promos'>('menu');
+  // Navigation & preview states
+  const [activeTab, setActiveTab] = useState<'landing' | 'menu' | 'promos' | 'settings'>('landing');
+  const [previewPage, setPreviewPage] = useState<'landing' | 'menu' | 'promos'>('landing');
+  const [deviceMode, setDeviceMode] = useState<'desktop' | 'mobile'>('desktop');
+  const [previewKey, setPreviewKey] = useState<number>(0);
   const [showPanicConfirm, setShowPanicConfirm] = useState(false);
-  const [savedNotification, setSavedNotification] = useState<string | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
 
-  // Landing form local states
-  const [heroForm, setHeroForm] = useState(data.hero);
-  const [aboutForm, setAboutForm] = useState(data.about);
-  const [eventsForm, setEventsForm] = useState(data.events);
-  const [contactForm, setContactForm] = useState(data.contact);
-
-  // New Menu Item form
-  const [newItemCategory, setNewItemCategory] = useState<string>(data.categories[0]?.id || 'carnes');
+  // Menu Manager local states
+  const [menuFilterCat, setMenuFilterCat] = useState<string>('todos');
+  const [menuSearch, setMenuSearch] = useState<string>('');
   const [newItemName, setNewItemName] = useState('');
-  const [newItemPrice, setNewItemPrice] = useState<string>('');
+  const [newItemPrice, setNewItemPrice] = useState('');
+  const [newItemCategory, setNewItemCategory] = useState(data.categories[0]?.id || 'carnes');
 
-  // Editing menu item
-  const [editingItemId, setEditingItemId] = useState<string | null>(null);
-  const [editItemName, setEditItemName] = useState('');
-  const [editItemPrice, setEditItemPrice] = useState<string>('');
-  const [editItemCategory, setEditItemCategory] = useState('');
-
-  // New Category
-  const [newCatId, setNewCatId] = useState('');
-  const [newCatLabel, setNewCatLabel] = useState('');
-
-  // Promo Form
+  // Promos Manager local states
   const [newPromoTitle, setNewPromoTitle] = useState('');
   const [newPromoPrice, setNewPromoPrice] = useState('');
   const [newPromoSchedule, setNewPromoSchedule] = useState('');
   const [newPromoDesc, setNewPromoDesc] = useState('');
-  const [newPromoTerms, setNewPromoTerms] = useState('');
   const [newPromoBadge, setNewPromoBadge] = useState('');
   const [newPromoEmoji, setNewPromoEmoji] = useState('🍳');
 
-  const showNotification = (msg: string) => {
-    setSavedNotification(msg);
-    setTimeout(() => setSavedNotification(null), 3000);
+  const showToast = (msg: string) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleSaveLanding = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateHero(heroForm);
-    updateAbout(aboutForm);
-    updateEvents(eventsForm);
-    updateContact(contactForm);
-    showNotification('¡Textos y portada guardados correctamente!');
+  const handlePanicReset = () => {
+    resetToDefaults();
+    setShowPanicConfirm(false);
+    setPreviewKey(prev => prev + 1);
+    showToast('⚠️ Plataforma restablecida a valores por defecto (DEFAULT_CMS_DATA).');
   };
 
   const handleCreateMenuItem = (e: React.FormEvent) => {
@@ -107,56 +105,22 @@ export const AdminDashboard: React.FC = () => {
 
     setNewItemName('');
     setNewItemPrice('');
-    showNotification('Platillo añadido al menú');
-  };
-
-  const startEditItem = (item: CmsMenuItem) => {
-    setEditingItemId(item.id);
-    setEditItemName(item.name);
-    setEditItemPrice(String(item.price));
-    setEditItemCategory(item.category_id);
-  };
-
-  const handleSaveEditItem = () => {
-    if (!editingItemId) return;
-    const priceNum = parseFloat(editItemPrice);
-    if (!editItemName.trim() || isNaN(priceNum)) return;
-
-    const catObj = data.categories.find(c => c.id === editItemCategory);
-    updateMenuItem(editingItemId, {
-      name: editItemName.trim(),
-      price: priceNum,
-      category_id: editItemCategory,
-      category_name: catObj?.label || 'General',
-    });
-
-    setEditingItemId(null);
-    showNotification('Platillo actualizado');
-  };
-
-  const handleCreateCategory = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCatLabel.trim()) return;
-    const id = newCatId.trim() || newCatLabel.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    addCategory({ id, label: newCatLabel.trim() });
-    setNewCatId('');
-    setNewCatLabel('');
-    showNotification('Categoría creada');
+    showToast(`✓ Platillo "${newItemName.trim()}" agregado al menú`);
   };
 
   const handleCreatePromo = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPromoTitle.trim() || !newPromoPrice.trim()) return;
+    if (!newPromoTitle.trim()) return;
 
     addPromo({
-      emoji: newPromoEmoji.trim() || '🔥',
+      emoji: newPromoEmoji || '🔥',
       badge: newPromoBadge.trim() || 'Especial',
       badgeColor: '#D90302',
       title: newPromoTitle.trim(),
-      highlightPrice: newPromoPrice.trim(),
-      schedule: newPromoSchedule.trim() || 'Horario regular',
-      description: newPromoDesc.trim(),
-      terms: newPromoTerms.trim() || 'Aplican restricciones',
+      highlightPrice: newPromoPrice.trim() || 'Oferta',
+      schedule: newPromoSchedule.trim() || 'Por tiempo limitado',
+      description: newPromoDesc.trim() || 'Promoción especial en Tony\'s Grill.',
+      terms: 'Válido para consumo en restaurante.',
       accentColor: '#D90302',
     });
 
@@ -164,881 +128,900 @@ export const AdminDashboard: React.FC = () => {
     setNewPromoPrice('');
     setNewPromoSchedule('');
     setNewPromoDesc('');
-    setNewPromoTerms('');
     setNewPromoBadge('');
-    showNotification('Promoción creada');
+    showToast(`✓ Promoción "${newPromoTitle.trim()}" agregada`);
   };
 
-  const handlePanicReset = () => {
-    resetToDefaults();
-    setHeroForm(data.hero);
-    setAboutForm(data.about);
-    setEventsForm(data.events);
-    setContactForm(data.contact);
-    setShowPanicConfirm(false);
-    showNotification('⚠️ Todo el sistema ha sido restablecido a los valores originales.');
-  };
+  // If not authenticated, the entire CMS is completely unrendered and blocked
+  if (!isAuthenticated) {
+    return <AdminLoginGate onAuthenticated={() => setIsAuthenticated(true)} />;
+  }
 
   const categoryOptions = data.categories.map(c => ({
     value: c.id,
     label: c.label,
   }));
 
-  // Gating: If not authenticated, the entire CMS is completely unrendered and blocked
-  if (!isAuthenticated) {
-    return <AdminLoginGate onAuthenticated={() => setIsAuthenticated(true)} />;
-  }
+  const filteredMenuItems = data.menuItems.filter(item => {
+    const matchCat = menuFilterCat === 'todos' || item.category_id === menuFilterCat;
+    const matchSearch = item.name.toLowerCase().includes(menuSearch.toLowerCase());
+    return matchCat && matchSearch;
+  });
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans pt-24 pb-20">
+    <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#0b0b0d] text-zinc-100 font-sans selection:bg-[#D90302] selection:text-white">
       
       {/* Toast Notification */}
-      {savedNotification && (
-        <div className="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl bg-[#03AF45] text-white text-xs font-bold shadow-2xl flex items-center gap-2 animate-bounce">
+      {notification && (
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-xl bg-[#03AF45] text-white text-xs font-bold shadow-2xl flex items-center gap-2 animate-bounce">
           <CheckCircle2 className="w-4 h-4" />
-          <span>{savedNotification}</span>
+          <span>{notification}</span>
         </div>
       )}
 
-      {/* Top Banner Navigation */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-extrabold uppercase tracking-widest">
-                Panel de Administración Local
-              </span>
-              <span className="text-[10px] text-zinc-500 font-mono">Modo React State + LocalStorage</span>
-            </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-white">
-              CMS Tony's Grill
-            </h1>
+      {/* ======================================================== */}
+      {/* TOP HEADER BAR (56px) */}
+      {/* ======================================================== */}
+      <header className="h-14 border-b border-white/10 bg-[#121214] px-4 sm:px-6 flex items-center justify-between shrink-0 z-30">
+        
+        {/* Brand & Status */}
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" alt="Tony's Grill" className="h-7 w-auto object-contain" />
+          <div className="flex items-center gap-2">
+            <span className="font-serif font-black text-sm uppercase tracking-wider text-white">
+              CMS <span className="text-[#D90302]">Tony's Grill</span>
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-[10px] text-emerald-400 font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Sincronizado en Vivo
+            </span>
           </div>
+        </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              className="px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-semibold text-zinc-300 hover:text-white border border-white/10 transition-colors flex items-center gap-2"
+        {/* Center: Live Preview Viewport Controls */}
+        <div className="hidden md:flex items-center gap-2 bg-[#09090b] p-1 rounded-xl border border-white/10">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-2">
+            Vista Previa:
+          </span>
+
+          <button
+            onClick={() => setPreviewPage('landing')}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+              previewPage === 'landing'
+                ? 'bg-[#D90302] text-white shadow-md'
+                : 'text-zinc-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Landing Page
+          </button>
+
+          <button
+            onClick={() => setPreviewPage('menu')}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+              previewPage === 'menu'
+                ? 'bg-[#D90302] text-white shadow-md'
+                : 'text-zinc-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Menú Web
+          </button>
+
+          <button
+            onClick={() => setPreviewPage('promos')}
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+              previewPage === 'promos'
+                ? 'bg-[#D90302] text-white shadow-md'
+                : 'text-zinc-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            Promociones
+          </button>
+
+          <div className="h-4 w-px bg-white/10 mx-1" />
+
+          {/* Device Frame Switcher */}
+          <button
+            onClick={() => setDeviceMode('desktop')}
+            className={`p-1.5 rounded-lg transition-colors ${
+              deviceMode === 'desktop' ? 'bg-white/15 text-white' : 'text-zinc-400 hover:text-white'
+            }`}
+            title="Vista Escritorio"
+          >
+            <Monitor className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            onClick={() => setDeviceMode('mobile')}
+            className={`p-1.5 rounded-lg transition-colors ${
+              deviceMode === 'mobile' ? 'bg-white/15 text-white' : 'text-zinc-400 hover:text-white'
+            }`}
+            title="Vista Móvil"
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-2">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-xs font-medium text-zinc-300 hover:text-white border border-white/10 transition-colors flex items-center gap-1.5"
+            title="Abrir sitio web público en nueva pestaña"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Ver Sitio Web</span>
+          </a>
+
+          <button
+            onClick={() => {
+              authService.logout();
+              setIsAuthenticated(false);
+            }}
+            className="px-3 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-xs font-semibold text-red-300 hover:text-white border border-red-500/30 transition-colors flex items-center gap-1.5 cursor-pointer"
+            title="Cerrar sesión"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Salir</span>
+          </button>
+        </div>
+
+      </header>
+
+      {/* ======================================================== */}
+      {/* SPLIT-SCREEN MAIN BODY (calc(100vh - 56px)) */}
+      {/* ======================================================== */}
+      <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
+        
+        {/* ====================================================== */}
+        {/* LEFT PANEL: CMS CONTROLS (32% - 35% WIDTH) */}
+        {/* ====================================================== */}
+        <aside className="w-full lg:w-[35%] xl:w-[32%] shrink-0 h-full flex flex-col border-r border-white/10 bg-[#101012] overflow-hidden">
+          
+          {/* Module Selector Sidebar/Tabs */}
+          <div className="p-3 border-b border-white/10 bg-[#141417] flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+            <button
+              onClick={() => {
+                setActiveTab('landing');
+                setPreviewPage('landing');
+              }}
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                activeTab === 'landing'
+                  ? 'bg-[#D90302] text-white shadow-md'
+                  : 'bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+              }`}
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Ver Web en Vivo</span>
-            </Link>
+              <Layout className="w-3.5 h-3.5" />
+              <span>Portada</span>
+            </button>
 
             <button
               onClick={() => {
-                authService.logout();
-                setIsAuthenticated(false);
+                setActiveTab('menu');
+                setPreviewPage('menu');
               }}
-              className="px-4 py-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-xs font-semibold text-red-300 hover:text-white border border-red-500/30 transition-colors flex items-center gap-2 cursor-pointer"
-              title="Cerrar sesión de administrador"
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                activeTab === 'menu'
+                  ? 'bg-[#D90302] text-white shadow-md'
+                  : 'bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+              }`}
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Cerrar Sesión</span>
+              <UtensilsCrossed className="w-3.5 h-3.5" />
+              <span>Menú ({data.menuItems.length})</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab('promos');
+                setPreviewPage('promos');
+              }}
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                activeTab === 'promos'
+                  ? 'bg-[#D90302] text-white shadow-md'
+                  : 'bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+              }`}
+            >
+              <Tag className="w-3.5 h-3.5" />
+              <span>Promos ({data.promos.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                activeTab === 'settings'
+                  ? 'bg-zinc-800 text-white shadow-md'
+                  : 'bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+              }`}
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
+              <span>Ajustes</span>
             </button>
           </div>
-        </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pt-4 pb-2 no-scrollbar">
-          <button
-            onClick={() => setActiveTab('menu')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'menu'
-                ? 'bg-[#D90302] text-white shadow-lg shadow-[#D90302]/30'
-                : 'bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-white/[0.06]'
-            }`}
-          >
-            <UtensilsCrossed className="w-3.5 h-3.5" />
-            <span>Gestor de Menú ({data.menuItems.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('promos')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'promos'
-                ? 'bg-[#D90302] text-white shadow-lg shadow-[#D90302]/30'
-                : 'bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-white/[0.06]'
-            }`}
-          >
-            <Tag className="w-3.5 h-3.5" />
-            <span>Gestor de Promos ({data.promos.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('landing')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'landing'
-                ? 'bg-[#D90302] text-white shadow-lg shadow-[#D90302]/30'
-                : 'bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-white/[0.06]'
-            }`}
-          >
-            <Layout className="w-3.5 h-3.5" />
-            <span>Editor de Portada & Textos</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('settings')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'settings'
-                ? 'bg-zinc-800 text-white shadow-md'
-                : 'bg-white/[0.03] text-zinc-400 hover:text-white hover:bg-white/[0.06] border border-white/[0.06]'
-            }`}
-          >
-            <AlertTriangle className="w-3.5 h-3.5 text-red-500" />
-            <span>Ajustes & Botón de Pánico</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main CMS Body */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        
-        {/* ======================================================== */}
-        {/* MODULE 1: MENU MANAGER */}
-        {/* ======================================================== */}
-        {activeTab === 'menu' && (
-          <div className="space-y-8">
-            {/* Add New Dish Box */}
-            <div className="p-6 rounded-2xl bg-[#121214] border border-white/10 shadow-xl">
-              <h3 className="font-serif text-lg font-bold text-white mb-1 flex items-center gap-2">
-                <Plus className="w-4 h-4 text-[#03AF45]" />
-                Agregar Nuevo Platillo al Menú
-              </h3>
-              <p className="text-xs text-zinc-400 mb-6">
-                El precio debe ser un valor numérico exacto (se formateará automáticamente con "Q").
-              </p>
-
-              <form onSubmit={handleCreateMenuItem} className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
-                <div className="sm:col-span-4">
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Categoría
-                  </label>
-                  <CustomSelect
-                    value={newItemCategory}
-                    onChange={(val) => setNewItemCategory(val)}
-                    options={categoryOptions}
-                  />
+          {/* Controls Scrollable Body */}
+          <div className="flex-grow overflow-y-auto p-4 space-y-6">
+            
+            {/* ---------------------------------------------------- */}
+            {/* MODULE 1: LANDING EDITOR (HERO, ABOUT, EVENTS, CONTACT) */}
+            {/* ---------------------------------------------------- */}
+            {activeTab === 'landing' && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#EBFA00] mb-1">
+                    Editor de Portada en Vivo
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    Escriba directamente en los campos. Los cambios se actualizan en el panel derecho en tiempo real.
+                  </p>
                 </div>
 
-                <div className="sm:col-span-5">
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Nombre del Platillo
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ej. Churrasco Especial 10oz"
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
+                {/* Hero Section */}
+                <div className="p-4 rounded-2xl bg-[#141416] border border-white/10 space-y-3">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-[#D90302]" />
+                    <span>Sección Hero (Inicio)</span>
+                  </h4>
 
-                <div className="sm:col-span-3">
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Precio (Q)
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      step="0.5"
-                      min="0"
-                      required
-                      placeholder="0.00"
-                      value={newItemPrice}
-                      onChange={(e) => setNewItemPrice(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302]"
-                    />
-                    <button
-                      type="submit"
-                      className="px-5 py-3 rounded-xl bg-[#03AF45] hover:bg-[#028f39] text-white text-xs font-bold uppercase tracking-wider shrink-0 transition-all flex items-center gap-1.5 shadow-lg shadow-[#03AF45]/20 cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Guardar</span>
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            {/* Manage Categories Section */}
-            <div className="p-6 rounded-2xl bg-[#121214] border border-white/10 shadow-xl">
-              <h3 className="font-serif text-lg font-bold text-white mb-1">
-                Categorías Activas ({data.categories.length})
-              </h3>
-              <p className="text-xs text-zinc-400 mb-4">
-                Puedes añadir nuevas categorías para el menú web o eliminar las no deseadas.
-              </p>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                {data.categories.map((cat) => (
-                  <div
-                    key={cat.id}
-                    className="px-3.5 py-1.5 rounded-full bg-[#18181b] border border-white/10 text-xs font-medium text-zinc-200 flex items-center gap-2"
-                  >
-                    <span>{cat.label}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (confirm(`¿Eliminar la categoría "${cat.label}" y sus platillos asociados?`)) {
-                          deleteCategory(cat.id);
-                        }
-                      }}
-                      className="text-zinc-500 hover:text-red-400 text-xs cursor-pointer"
-                      title="Eliminar categoría"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <form onSubmit={handleCreateCategory} className="flex gap-2 max-w-md pt-2">
-                <input
-                  type="text"
-                  required
-                  placeholder="Nombre de la nueva categoría"
-                  value={newCatLabel}
-                  onChange={(e) => setNewCatLabel(e.target.value)}
-                  className="flex-grow px-3.5 py-2 bg-[#18181b] border border-white/10 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302]"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-xs font-bold rounded-xl transition-colors shrink-0 cursor-pointer"
-                >
-                  + Categoría
-                </button>
-              </form>
-            </div>
-
-            {/* List of Menu Items grouped by Category */}
-            <div className="space-y-6">
-              {data.categories.map((cat) => {
-                const itemsInCat = data.menuItems.filter((i) => i.category_id === cat.id);
-                return (
-                  <div key={cat.id} className="p-6 rounded-2xl bg-[#121214] border border-white/10 shadow-lg">
-                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/[0.06]">
-                      <h4 className="font-serif text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                        <span>{cat.label}</span>
-                        <span className="text-xs text-zinc-500 font-mono font-normal">
-                          ({itemsInCat.length} platillos)
-                        </span>
-                      </h4>
-                    </div>
-
-                    {itemsInCat.length === 0 ? (
-                      <p className="text-xs text-zinc-500 italic py-2">
-                        No hay platillos registrados en esta categoría aún.
-                      </p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {itemsInCat.map((item) => {
-                          const isEditing = editingItemId === item.id;
-                          return (
-                            <div
-                              key={item.id}
-                              className={`p-3.5 rounded-xl border transition-all ${
-                                isEditing
-                                  ? 'bg-[#1c1c20] border-[#D90302]'
-                                  : 'bg-[#161619] border-white/[0.05] hover:border-white/15'
-                              } flex items-center justify-between gap-3`}
-                            >
-                              {isEditing ? (
-                                <div className="w-full flex items-center gap-2">
-                                  <input
-                                    type="text"
-                                    value={editItemName}
-                                    onChange={(e) => setEditItemName(e.target.value)}
-                                    className="flex-grow px-2.5 py-1.5 bg-[#121214] border border-white/20 rounded-lg text-xs text-white"
-                                  />
-                                  <input
-                                    type="number"
-                                    step="0.5"
-                                    value={editItemPrice}
-                                    onChange={(e) => setEditItemPrice(e.target.value)}
-                                    className="w-20 px-2.5 py-1.5 bg-[#121214] border border-white/20 rounded-lg text-xs text-white"
-                                  />
-                                  <button
-                                    onClick={handleSaveEditItem}
-                                    className="p-1.5 bg-[#03AF45] text-white rounded-lg text-xs hover:bg-[#028a37]"
-                                    title="Guardar"
-                                  >
-                                    <Check className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingItemId(null)}
-                                    className="p-1.5 bg-zinc-700 text-zinc-300 rounded-lg text-xs hover:bg-zinc-600"
-                                    title="Cancelar"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <>
-                                  <div className="min-w-0 flex-grow">
-                                    <p className="text-xs sm:text-sm font-semibold text-white truncate">
-                                      {item.name}
-                                    </p>
-                                  </div>
-
-                                  <div className="flex items-center gap-2 shrink-0">
-                                    <span className="font-serif text-xs sm:text-sm font-bold text-white px-2 py-0.5 rounded bg-white/[0.04]">
-                                      Q{item.price.toFixed(2)}
-                                    </span>
-                                    <button
-                                      onClick={() => startEditItem(item)}
-                                      className="p-1 text-zinc-400 hover:text-white transition-colors"
-                                      title="Editar platillo"
-                                    >
-                                      <Edit3 className="w-3.5 h-3.5" />
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        if (confirm(`¿Eliminar "${item.name}"?`)) {
-                                          deleteMenuItem(item.id);
-                                        }
-                                      }}
-                                      className="p-1 text-zinc-500 hover:text-red-400 transition-colors"
-                                      title="Eliminar platillo"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ======================================================== */}
-        {/* MODULE 2: PROMOS MANAGER */}
-        {/* ======================================================== */}
-        {activeTab === 'promos' && (
-          <div className="space-y-8">
-            {/* Create Promo Box */}
-            <div className="p-6 rounded-2xl bg-[#121214] border border-white/10 shadow-xl">
-              <h3 className="font-serif text-lg font-bold text-white mb-1 flex items-center gap-2">
-                <Plus className="w-4 h-4 text-[#EBFA00]" />
-                Crear Nueva Promoción
-              </h3>
-              <p className="text-xs text-zinc-400 mb-6">
-                Gestiona las promociones que aparecen en la página /promos.
-              </p>
-
-              <form onSubmit={handleCreatePromo} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-                  <div className="sm:col-span-2">
-                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                      Emoji
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Etiqueta Superior (Tagline)
                     </label>
                     <input
                       type="text"
-                      value={newPromoEmoji}
-                      onChange={(e) => setNewPromoEmoji(e.target.value)}
-                      placeholder="🍳"
-                      className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-center text-sm text-white focus:outline-none focus:border-[#D90302]"
+                      value={data.hero.tagline}
+                      onChange={(e) => updateHero({ tagline: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
                     />
                   </div>
 
-                  <div className="sm:col-span-6">
-                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                      Título de la Promoción
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Titular Principal (Línea 1)
+                    </label>
+                    <input
+                      type="text"
+                      value={data.hero.headlineMain}
+                      onChange={(e) => updateHero({ headlineMain: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Titular con Acento Rojo (Línea 2)
+                    </label>
+                    <input
+                      type="text"
+                      value={data.hero.headlineAccent}
+                      onChange={(e) => updateHero({ headlineAccent: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Ciudad / Cierre (Línea 3)
+                    </label>
+                    <input
+                      type="text"
+                      value={data.hero.headlineCity}
+                      onChange={(e) => updateHero({ headlineCity: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Descripción del Hero
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={data.hero.subheadline}
+                      onChange={(e) => updateHero({ subheadline: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302] resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      URL Imagen de Fondo (Mock Upload)
+                    </label>
+                    <input
+                      type="url"
+                      value={data.hero.bgImageUrl}
+                      onChange={(e) => updateHero({ bgImageUrl: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302] font-mono text-[11px]"
+                    />
+                  </div>
+                </div>
+
+                {/* About Us Section */}
+                <div className="p-4 rounded-2xl bg-[#141416] border border-white/10 space-y-3">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                    <Layout className="w-3.5 h-3.5 text-[#03AF45]" />
+                    <span>Sección Nosotros</span>
+                  </h4>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Título
+                    </label>
+                    <input
+                      type="text"
+                      value={data.about.title}
+                      onChange={(e) => updateAbout({ title: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Palabra Destacada (Acento Rojo)
+                    </label>
+                    <input
+                      type="text"
+                      value={data.about.titleAccent}
+                      onChange={(e) => updateAbout({ titleAccent: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Descripción Culinaria
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={data.about.description}
+                      onChange={(e) => updateAbout({ description: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302] resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Events Section */}
+                <div className="p-4 rounded-2xl bg-[#141416] border border-white/10 space-y-3">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-[#EBFA00]" />
+                    <span>Sección Eventos & Banquetes</span>
+                  </h4>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Título
+                    </label>
+                    <input
+                      type="text"
+                      value={data.events.title}
+                      onChange={(e) => updateEvents({ title: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Descripción de Banquetes
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={data.events.description}
+                      onChange={(e) => updateEvents({ description: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302] resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      URL Imagen de Eventos (Mock Upload)
+                    </label>
+                    <input
+                      type="url"
+                      value={data.events.imageUrl}
+                      onChange={(e) => updateEvents({ imageUrl: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302] font-mono text-[11px]"
+                    />
+                  </div>
+                </div>
+
+                {/* Contact Section */}
+                <div className="p-4 rounded-2xl bg-[#141416] border border-white/10 space-y-3">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5 text-[#03AF45]" />
+                    <span>Información de Contacto</span>
+                  </h4>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Dirección Completa
+                    </label>
+                    <input
+                      type="text"
+                      value={data.contact.address}
+                      onChange={(e) => updateContact({ address: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                        Teléfono
+                      </label>
+                      <input
+                        type="text"
+                        value={data.contact.phone}
+                        onChange={(e) => updateContact({ phone: e.target.value })}
+                        className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                        WhatsApp
+                      </label>
+                      <input
+                        type="text"
+                        value={data.contact.whatsapp}
+                        onChange={(e) => updateContact({ whatsapp: e.target.value })}
+                        className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Horario de Atención
+                    </label>
+                    <input
+                      type="text"
+                      value={data.contact.schedule}
+                      onChange={(e) => updateContact({ schedule: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ---------------------------------------------------- */}
+            {/* MODULE 2: MENU MANAGER */}
+            {/* ---------------------------------------------------- */}
+            {activeTab === 'menu' && (
+              <div className="space-y-5">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#EBFA00] mb-1">
+                    Gestor de Platillos & Precios
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    Agregue o edite platillos. Los precios son numéricos y se formatean en la carta pública como "Q".
+                  </p>
+                </div>
+
+                {/* Add New Dish Box */}
+                <form onSubmit={handleCreateMenuItem} className="p-4 rounded-2xl bg-[#141416] border border-white/10 space-y-3">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                    <Plus className="w-3.5 h-3.5 text-[#03AF45]" />
+                    <span>Agregar Platillo a la Carta</span>
+                  </h4>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Categoría
+                    </label>
+                    <CustomSelect
+                      value={newItemCategory}
+                      onChange={(val) => setNewItemCategory(String(val))}
+                      options={categoryOptions}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Nombre del Platillo
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newItemName}
+                      onChange={(e) => setNewItemName(e.target.value)}
+                      placeholder="Ej. Ribeye Angus 12oz"
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Precio en Quetzales (Q)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-zinc-400">Q</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        value={newItemPrice}
+                        onChange={(e) => setNewItemPrice(e.target.value)}
+                        placeholder="145.00"
+                        className="w-full pl-8 pr-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302] font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Guardar Platillo</span>
+                  </button>
+                </form>
+
+                {/* Filter and Search */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-zinc-300">
+                      Platillos Registrados ({filteredMenuItems.length})
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-mono">Edición en vivo</span>
+                  </div>
+
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+                    <input
+                      type="text"
+                      value={menuSearch}
+                      onChange={(e) => setMenuSearch(e.target.value)}
+                      placeholder="Filtrar por nombre..."
+                      className="w-full pl-8 pr-3 py-2 bg-[#141416] border border-white/10 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302]"
+                    />
+                  </div>
+                </div>
+
+                {/* Items List */}
+                <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                  {filteredMenuItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-3 rounded-xl bg-[#141416] border border-white/10 flex items-center justify-between gap-3 group hover:border-white/20 transition-all"
+                    >
+                      <div className="min-w-0 flex-grow">
+                        <input
+                          type="text"
+                          value={item.name}
+                          onChange={(e) => updateMenuItem(item.id, { name: e.target.value })}
+                          className="w-full bg-transparent text-xs font-medium text-white focus:outline-none focus:bg-[#1b1b1e] px-1 py-0.5 rounded"
+                        />
+                        <span className="text-[10px] text-zinc-500 block px-1">
+                          {item.category_name}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="relative w-20">
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400">Q</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={item.price}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val)) updateMenuItem(item.id, { price: val });
+                            }}
+                            className="w-full pl-6 pr-1.5 py-1 bg-[#1b1b1e] border border-white/10 rounded text-xs font-mono text-right text-white focus:outline-none focus:border-[#D90302]"
+                          />
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            deleteMenuItem(item.id);
+                            showToast(`Eliminado: ${item.name}`);
+                          }}
+                          className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                          title="Eliminar platillo"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ---------------------------------------------------- */}
+            {/* MODULE 3: PROMOS MANAGER */}
+            {/* ---------------------------------------------------- */}
+            {activeTab === 'promos' && (
+              <div className="space-y-5">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#EBFA00] mb-1">
+                    Gestor de Promociones
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    Cree ofertas y banners de temporada. Se actualizan automáticamente en la página /promos.
+                  </p>
+                </div>
+
+                {/* Create Promo Form */}
+                <form onSubmit={handleCreatePromo} className="p-4 rounded-2xl bg-[#141416] border border-white/10 space-y-3">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                    <Tag className="w-3.5 h-3.5 text-[#D90302]" />
+                    <span>Crear Nueva Promoción</span>
+                  </h4>
+
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="col-span-1">
+                      <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                        Emoji
+                      </label>
+                      <input
+                        type="text"
+                        value={newPromoEmoji}
+                        onChange={(e) => setNewPromoEmoji(e.target.value)}
+                        className="w-full px-2 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-center text-base text-white focus:outline-none focus:border-[#D90302]"
+                      />
+                    </div>
+
+                    <div className="col-span-3">
+                      <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                        Distintivo / Badge
+                      </label>
+                      <input
+                        type="text"
+                        value={newPromoBadge}
+                        onChange={(e) => setNewPromoBadge(e.target.value)}
+                        placeholder="Ej. 2x1 Especial"
+                        className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Título de la Promo
                     </label>
                     <input
                       type="text"
                       required
                       value={newPromoTitle}
                       onChange={(e) => setNewPromoTitle(e.target.value)}
-                      placeholder="Ej. Desayuno Especial 2xQ60"
-                      className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
+                      placeholder="Ej. 2x1 Lasaña Especial"
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
                     />
                   </div>
 
-                  <div className="sm:col-span-4">
-                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                      Precio Destacado
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={newPromoPrice}
-                      onChange={(e) => setNewPromoPrice(e.target.value)}
-                      placeholder="Ej. 2x Q60 o 25% OFF"
-                      className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                    />
-                  </div>
-                </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                        Precio Destacado
+                      </label>
+                      <input
+                        type="text"
+                        value={newPromoPrice}
+                        onChange={(e) => setNewPromoPrice(e.target.value)}
+                        placeholder="2x Q63"
+                        className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                      />
+                    </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                        Horario / Días
+                      </label>
+                      <input
+                        type="text"
+                        value={newPromoSchedule}
+                        onChange={(e) => setNewPromoSchedule(e.target.value)}
+                        placeholder="Lunes a Viernes"
+                        className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302]"
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                      Insignia / Badge
+                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                      Descripción
                     </label>
-                    <input
-                      type="text"
-                      value={newPromoBadge}
-                      onChange={(e) => setNewPromoBadge(e.target.value)}
-                      placeholder="Ej. Lunes a Viernes"
-                      className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
+                    <textarea
+                      rows={2}
+                      value={newPromoDesc}
+                      onChange={(e) => setNewPromoDesc(e.target.value)}
+                      placeholder="Detalles sobre lo que incluye la promoción..."
+                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302] resize-none"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                      Horario / Días de Validez
-                    </label>
-                    <input
-                      type="text"
-                      value={newPromoSchedule}
-                      onChange={(e) => setNewPromoSchedule(e.target.value)}
-                      placeholder="Ej. De 7:00 AM a 11:30 AM"
-                      className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Descripción
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={newPromoDesc}
-                    onChange={(e) => setNewPromoDesc(e.target.value)}
-                    placeholder="Detalles sobre qué incluye la promoción..."
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-
-                <div className="flex justify-end pt-2">
                   <button
                     type="submit"
-                    className="px-6 py-2.5 bg-[#D90302] hover:bg-[#b00201] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors shadow-lg cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
                   >
-                    Crear Promoción
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Publicar Promoción</span>
                   </button>
-                </div>
-              </form>
-            </div>
+                </form>
 
-            {/* List Active Promos */}
-            <div className="space-y-4">
-              <h3 className="font-serif text-lg font-bold text-white">
-                Promociones Vigentes ({data.promos.length})
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {data.promos.map((promo) => (
-                  <div
-                    key={promo.id}
-                    className="p-5 rounded-2xl bg-[#121214] border border-white/10 flex flex-col justify-between gap-3 shadow-lg"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="text-xl">{promo.emoji}</span>
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#D90302] text-white">
-                          {promo.badge}
-                        </span>
-                      </div>
-                      <div className="flex items-baseline justify-between gap-2 mb-1">
-                        <h4 className="font-serif text-base font-bold text-white">
-                          {promo.title}
-                        </h4>
-                        <span className="text-sm font-black text-[#EBFA00]">
-                          {promo.highlightPrice}
-                        </span>
-                      </div>
-                      <p className="text-xs text-zinc-400 font-light leading-relaxed mb-2">
-                        {promo.description}
-                      </p>
-                      <p className="text-[11px] text-zinc-500 italic">
-                        * {promo.terms}
-                      </p>
-                    </div>
+                {/* Existing Promos List */}
+                <div className="space-y-2">
+                  <span className="text-xs font-bold text-zinc-300 block">
+                    Promociones Activas ({data.promos.length})
+                  </span>
 
-                    <div className="pt-3 border-t border-white/[0.06] flex justify-end">
+                  {data.promos.map((promo) => (
+                    <div
+                      key={promo.id}
+                      className="p-3 rounded-xl bg-[#141416] border border-white/10 flex items-start justify-between gap-3"
+                    >
+                      <div className="flex items-start gap-2.5 min-w-0">
+                        <span className="text-xl p-1.5 rounded-lg bg-white/5">{promo.emoji}</span>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-white truncate">{promo.title}</p>
+                          <p className="text-[11px] text-[#EBFA00] font-mono">{promo.highlightPrice}</p>
+                          <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-1">{promo.description}</p>
+                        </div>
+                      </div>
+
                       <button
                         onClick={() => {
-                          if (confirm(`¿Eliminar la promoción "${promo.title}"?`)) {
-                            deletePromo(promo.id);
-                          }
+                          deletePromo(promo.id);
+                          showToast(`Eliminada: ${promo.title}`);
                         }}
-                        className="text-xs text-zinc-400 hover:text-red-400 transition-colors flex items-center gap-1 cursor-pointer"
+                        className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0 cursor-pointer"
+                        title="Eliminar promoción"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        <span>Eliminar</span>
                       </button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ======================================================== */}
-        {/* MODULE 3: LANDING PAGE EDITOR */}
-        {/* ======================================================== */}
-        {activeTab === 'landing' && (
-          <form onSubmit={handleSaveLanding} className="space-y-8">
-            
-            {/* HERO SETTINGS */}
-            <div className="p-6 rounded-2xl bg-[#121214] border border-white/10 shadow-xl space-y-4">
-              <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#EBFA00]" />
-                Sección Hero (Portada)
-              </h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Sub-etiqueta (Tagline)
-                  </label>
-                  <input
-                    type="text"
-                    value={heroForm.tagline}
-                    onChange={(e) => setHeroForm({ ...heroForm, tagline: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Titular Línea 1
-                  </label>
-                  <input
-                    type="text"
-                    value={heroForm.headlineMain}
-                    onChange={(e) => setHeroForm({ ...heroForm, headlineMain: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Titular Línea Acento (Rojo)
-                  </label>
-                  <input
-                    type="text"
-                    value={heroForm.headlineAccent}
-                    onChange={(e) => setHeroForm({ ...heroForm, headlineAccent: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Titular Línea Ciudad
-                  </label>
-                  <input
-                    type="text"
-                    value={heroForm.headlineCity}
-                    onChange={(e) => setHeroForm({ ...heroForm, headlineCity: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                  Subtítulo Descriptivo
-                </label>
-                <textarea
-                  rows={2}
-                  value={heroForm.subheadline}
-                  onChange={(e) => setHeroForm({ ...heroForm, subheadline: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <ImageIcon className="w-3.5 h-3.5 text-[#03AF45]" />
-                  URL de Imagen de Fondo (Pega un enlace válido)
-                </label>
-                <input
-                  type="url"
-                  value={heroForm.bgImageUrl}
-                  onChange={(e) => setHeroForm({ ...heroForm, bgImageUrl: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white font-mono focus:outline-none focus:border-[#D90302]"
-                />
-              </div>
-            </div>
-
-            {/* ABOUT US SETTINGS */}
-            <div className="p-6 rounded-2xl bg-[#121214] border border-white/10 shadow-xl space-y-4">
-              <h3 className="font-serif text-lg font-bold text-white">
-                Sección Nosotros
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Título Principal
-                  </label>
-                  <input
-                    type="text"
-                    value={aboutForm.title}
-                    onChange={(e) => setAboutForm({ ...aboutForm, title: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Acento de Título (Rojo)
-                  </label>
-                  <input
-                    type="text"
-                    value={aboutForm.titleAccent}
-                    onChange={(e) => setAboutForm({ ...aboutForm, titleAccent: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                  Descripción Oficial
-                </label>
-                <textarea
-                  rows={2}
-                  value={aboutForm.description}
-                  onChange={(e) => setAboutForm({ ...aboutForm, description: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                />
-              </div>
-            </div>
-
-            {/* EVENTS SETTINGS */}
-            <div className="p-6 rounded-2xl bg-[#121214] border border-white/10 shadow-xl space-y-4">
-              <h3 className="font-serif text-lg font-bold text-white">
-                Sección Eventos & Banquetes
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Título Eventos
-                  </label>
-                  <input
-                    type="text"
-                    value={eventsForm.title}
-                    onChange={(e) => setEventsForm({ ...eventsForm, title: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Acento Título (Rojo)
-                  </label>
-                  <input
-                    type="text"
-                    value={eventsForm.titleAccent}
-                    onChange={(e) => setEventsForm({ ...eventsForm, titleAccent: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                  Descripción del Servicio
-                </label>
-                <textarea
-                  rows={2}
-                  value={eventsForm.description}
-                  onChange={(e) => setEventsForm({ ...eventsForm, description: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                  <ImageIcon className="w-3.5 h-3.5 text-[#03AF45]" />
-                  URL de Imagen de Banquetes (Pega un enlace válido)
-                </label>
-                <input
-                  type="url"
-                  value={eventsForm.imageUrl}
-                  onChange={(e) => setEventsForm({ ...eventsForm, imageUrl: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white font-mono focus:outline-none focus:border-[#D90302]"
-                />
-              </div>
-            </div>
-
-            {/* CONTACT SETTINGS */}
-            <div className="p-6 rounded-2xl bg-[#121214] border border-white/10 shadow-xl space-y-4">
-              <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#03AF45]" />
-                Datos de Contacto & Ubicación
-              </h3>
-
-              <div>
-                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                  Dirección Completa
-                </label>
-                <input
-                  type="text"
-                  value={contactForm.address}
-                  onChange={(e) => setContactForm({ ...contactForm, address: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Teléfono Fijo
-                  </label>
-                  <input
-                    type="text"
-                    value={contactForm.phone}
-                    onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    WhatsApp
-                  </label>
-                  <input
-                    type="text"
-                    value={contactForm.whatsapp}
-                    onChange={(e) => setContactForm({ ...contactForm, whatsapp: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                    Horario de Servicio
-                  </label>
-                  <input
-                    type="text"
-                    value={contactForm.schedule}
-                    onChange={(e) => setContactForm({ ...contactForm, schedule: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-[#18181b] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none focus:border-[#D90302]"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Save Button */}
-            <div className="flex justify-end pt-4">
-              <button
-                type="submit"
-                className="px-8 py-3.5 bg-[#03AF45] hover:bg-[#028f39] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xl flex items-center gap-2 cursor-pointer"
-              >
-                <Save className="w-4 h-4" />
-                <span>Guardar Cambios de Portada</span>
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* ======================================================== */}
-        {/* MODULE 4: GLOBAL SETTINGS & PANIC BUTTON */}
-        {/* ======================================================== */}
-        {activeTab === 'settings' && (
-          <div className="space-y-8">
-            {/* System Status */}
-            <div className="p-6 rounded-2xl bg-[#121214] border border-white/10 shadow-xl space-y-4">
-              <h3 className="font-serif text-lg font-bold text-white">
-                Estado del Sistema (CMS Local)
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                  <p className="text-zinc-500 uppercase font-semibold">Platillos Activos</p>
-                  <p className="text-xl font-bold text-white mt-1">{data.menuItems.length}</p>
-                </div>
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                  <p className="text-zinc-500 uppercase font-semibold">Categorías</p>
-                  <p className="text-xl font-bold text-white mt-1">{data.categories.length}</p>
-                </div>
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                  <p className="text-zinc-500 uppercase font-semibold">Promociones</p>
-                  <p className="text-xl font-bold text-white mt-1">{data.promos.length}</p>
-                </div>
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                  <p className="text-zinc-500 uppercase font-semibold">Almacenamiento</p>
-                  <p className="text-xl font-bold text-[#03AF45] mt-1">LocalStorage OK</p>
-                </div>
-              </div>
-            </div>
-
-            {/* THE PANIC BUTTON (PROMINENT RED BUTTON) */}
-            <div className="p-8 rounded-2xl bg-red-950/20 border border-red-600/30 shadow-2xl">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-red-600/20 text-red-500 shrink-0">
-                  <AlertTriangle className="w-8 h-8" />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="font-serif text-xl font-bold text-red-400">
-                    Botón de Pánico: Restablecer a Valores por Defecto
-                  </h3>
-                  <p className="text-xs sm:text-sm text-zinc-300 mt-1 leading-relaxed max-w-2xl">
-                    Si modificaste textos, precios o categorías y deseas regresar a la configuración original de fábrica (la "Semilla" de Tony's Grill), pulsa el botón a continuación. Esta acción limpia la clave de <code>localStorage</code> y recarga la aplicación con todos los datos oficiales.
-                  </p>
-
-                  <div className="mt-6">
-                    <button
-                      type="button"
-                      onClick={() => setShowPanicConfirm(true)}
-                      className="px-7 py-3.5 bg-[#D90302] hover:bg-[#b00201] text-white font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-red-900/40 flex items-center gap-2 cursor-pointer"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                      <span>Restablecer a Valores por Defecto</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Panic Confirmation Modal */}
-            {showPanicConfirm && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-                <div className="bg-[#161619] border border-red-500/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl">
-                  <div className="w-12 h-12 rounded-2xl bg-red-600/20 text-red-500 flex items-center justify-center mb-4">
-                    <AlertTriangle className="w-6 h-6" />
-                  </div>
-                  <h4 className="font-serif text-xl font-bold text-white mb-2">
-                    ¿Confirmas el restablecimiento total?
-                  </h4>
-                  <p className="text-xs text-zinc-300 mb-6 leading-relaxed">
-                    Se borrarán las modificaciones locales en menús, precios, portadas y promociones, volviendo a los datos iniciales predeterminados (DEFAULT_CMS_DATA).
-                  </p>
-                  <div className="flex gap-3 justify-end">
-                    <button
-                      onClick={() => setShowPanicConfirm(false)}
-                      className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-white font-semibold transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={handlePanicReset}
-                      className="px-5 py-2.5 rounded-xl bg-[#D90302] hover:bg-red-700 text-xs text-white font-bold uppercase tracking-wider transition-colors shadow-lg"
-                    >
-                      Sí, Restablecer Todo
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}
+
+            {/* ---------------------------------------------------- */}
+            {/* MODULE 4: GLOBAL SETTINGS & THE PANIC BUTTON */}
+            {/* ---------------------------------------------------- */}
+            {activeTab === 'settings' && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-red-500 mb-1">
+                    Ajustes Globales & Restablecimiento
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    Administre el almacenamiento local de la aplicación o restaure todos los valores a los iniciales de fábrica.
+                  </p>
+                </div>
+
+                {/* System Info Box */}
+                <div className="p-4 rounded-2xl bg-[#141416] border border-white/10 space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-zinc-400">Motor de Persistencia:</span>
+                    <span className="text-white font-mono font-bold">LocalStorage (Client-side)</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-zinc-400">Platillos en Base Local:</span>
+                    <span className="text-white font-mono font-bold">{data.menuItems.length}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-zinc-400">Promociones Activas:</span>
+                    <span className="text-white font-mono font-bold">{data.promos.length}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-zinc-400">Seguridad de Sesión:</span>
+                    <span className="text-[#03AF45] font-mono font-bold">SessionStorage (Activo)</span>
+                  </div>
+                </div>
+
+                {/* THE PANIC BUTTON */}
+                <div className="p-5 rounded-2xl bg-red-950/25 border border-red-500/30 space-y-3">
+                  <div className="flex items-center gap-2 text-red-400 font-bold text-xs uppercase tracking-wider">
+                    <AlertTriangle className="w-4 h-4 text-red-500" />
+                    <span>Botón de Emergencia (Panic Button)</span>
+                  </div>
+
+                  <p className="text-xs text-zinc-300 leading-relaxed font-light">
+                    Hacer clic en este botón purga la clave de <code>localStorage</code> y recarga de inmediato toda la plataforma utilizando la semilla oficial (<strong>DEFAULT_CMS_DATA</strong>).
+                  </p>
+
+                  <button
+                    onClick={() => setShowPanicConfirm(true)}
+                    className="w-full py-3 px-4 rounded-xl bg-[#D90302] hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-red-900/30"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span>Restablecer a Valores por Defecto</span>
+                  </button>
+                </div>
+
+                {/* Modal de Confirmación del Botón de Pánico */}
+                {showPanicConfirm && (
+                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+                    <div className="max-w-md w-full p-6 rounded-3xl bg-[#141416] border border-red-500/40 shadow-2xl">
+                      <div className="w-12 h-12 rounded-full bg-red-900/40 border border-red-500/40 text-red-400 flex items-center justify-center mb-4">
+                        <AlertTriangle className="w-6 h-6" />
+                      </div>
+                      <h4 className="font-serif text-lg font-bold text-white mb-2">
+                        ¿Confirmas el restablecimiento total?
+                      </h4>
+                      <p className="text-xs text-zinc-300 mb-6 leading-relaxed">
+                        Se borrarán todas las modificaciones guardadas localmente en menús, precios, portadas y promociones, volviendo a los datos iniciales predeterminados (DEFAULT_CMS_DATA).
+                      </p>
+                      <div className="flex gap-3 justify-end">
+                        <button
+                          onClick={() => setShowPanicConfirm(false)}
+                          className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-white font-semibold transition-colors cursor-pointer"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          onClick={handlePanicReset}
+                          className="px-5 py-2.5 rounded-xl bg-[#D90302] hover:bg-red-700 text-xs text-white font-bold uppercase tracking-wider transition-colors shadow-lg cursor-pointer"
+                        >
+                          Sí, Restablecer Todo
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
           </div>
-        )}
+        </aside>
+
+        {/* ====================================================== */}
+        {/* RIGHT PANEL: LIVE INTERACTIVE PREVIEW (65% - 70% WIDTH) */}
+        {/* ====================================================== */}
+        <main className="w-full lg:w-[65%] xl:w-[68%] flex flex-col h-full bg-[#050505] overflow-hidden">
+          
+          {/* Simulated Browser Bar */}
+          <div className="h-10 px-4 bg-[#0d0d10] border-b border-white/10 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80 inline-block" />
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500/80 inline-block" />
+              <span className="text-[10px] text-zinc-500 font-mono ml-2 hidden sm:inline">
+                Preview Mode
+              </span>
+            </div>
+
+            {/* URL Display */}
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 border border-white/10 text-[11px] font-mono text-zinc-300 max-w-sm w-full justify-center">
+              <span className="text-zinc-500">https://</span>
+              <span>tonysgrillgt.com</span>
+              <span className="text-[#EBFA00]">{previewPage === 'landing' ? '/' : `/${previewPage}`}</span>
+            </div>
+
+            {/* Reload preview action */}
+            <button
+              onClick={() => setPreviewKey(prev => prev + 1)}
+              className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+              title="Refrescar renderizado de vista previa"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Live Component Preview Viewport */}
+          <div className="flex-grow overflow-y-auto bg-[#070709] flex justify-center p-2 sm:p-4">
+            <div 
+              key={previewKey}
+              className={`transition-all duration-300 h-full ${
+                deviceMode === 'mobile'
+                  ? 'w-[390px] max-w-[390px] rounded-3xl border-4 border-zinc-800 shadow-2xl overflow-y-auto bg-[#080808]'
+                  : 'w-full rounded-2xl border border-white/10 shadow-2xl overflow-y-auto bg-[#080808]'
+              }`}
+            >
+              {/* Render the actual live components */}
+              {previewPage === 'landing' && <LandingPage />}
+              {previewPage === 'menu' && <WebMenuPage />}
+              {previewPage === 'promos' && <PromosPage />}
+            </div>
+          </div>
+
+        </main>
 
       </div>
     </div>
   );
 };
-

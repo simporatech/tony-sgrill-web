@@ -9,7 +9,8 @@ import {
   ExternalLink,
   MessageCircle,
   Instagram,
-  Facebook
+  Facebook,
+  Send
 } from 'lucide-react';
 import { useCmsData } from '../context/CmsContext';
 
@@ -18,10 +19,39 @@ export const Contact: React.FC = () => {
   const contact = data.contact;
   const [copied, setCopied] = useState<boolean>(false);
 
+  // Quick Contact Form states
+  const [senderName, setSenderName] = useState('');
+  const [senderMessage, setSenderMessage] = useState('');
+  const [senderPhone, setSenderPhone] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [sentSuccess, setSentSuccess] = useState(false);
+
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(contact.address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!senderName.trim() || !senderMessage.trim()) return;
+
+    setIsSending(true);
+
+    const message = `Hola Tony's Grill, mi nombre es ${senderName.trim()}.${senderPhone.trim() ? ` Teléfono: ${senderPhone.trim()}.` : ''} Quiero consultar lo siguiente:\n"${senderMessage.trim()}"`;
+    const waUrl = `https://wa.me/50252188115?text=${encodeURIComponent(message)}`;
+
+    // Redirect user to WhatsApp using wa.me API in a new tab
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+
+    setTimeout(() => {
+      setIsSending(false);
+      setSentSuccess(true);
+      setSenderName('');
+      setSenderMessage('');
+      setSenderPhone('');
+      setTimeout(() => setSentSuccess(false), 4000);
+    }, 400);
   };
 
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Tony's Grill " + contact.address)}`;
@@ -35,12 +65,12 @@ export const Contact: React.FC = () => {
       <div className="max-w-6xl mx-auto w-full my-auto">
         
         {/* Header */}
-        <div className="mb-8">
-          <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium block mb-2">
+        <div className="mb-6">
+          <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium block mb-1">
             {contact.eyebrow}
           </span>
-          <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white">
-            {contact.title} <span className="text-[#D90302]">{contact.titleAccent}</span>
+          <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-white">
+            Visítenos o <span className="text-[#D90302]">Escríbanos</span>
           </h2>
         </div>
 
@@ -48,10 +78,10 @@ export const Contact: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           
           {/* Info Details (6 cols) */}
-          <div className="lg:col-span-6 space-y-4 flex flex-col justify-between">
+          <div className="lg:col-span-6 space-y-3 flex flex-col justify-between">
             
             {/* Address */}
-            <div className="p-6 rounded-2xl bg-[#121212] border border-white/[0.06]">
+            <div className="p-5 rounded-2xl bg-[#121212] border border-white/[0.06]">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <MapPin className="w-4 h-4 text-[#D90302]" />
@@ -75,16 +105,16 @@ export const Contact: React.FC = () => {
                 </button>
               </div>
 
-              <p className="mt-3 text-sm font-medium text-white leading-relaxed">
+              <p className="mt-2 text-xs sm:text-sm font-medium text-white leading-relaxed">
                 {contact.address}
               </p>
 
-              <div className="mt-4 flex items-center gap-2">
+              <div className="mt-3 flex items-center gap-2">
                 <a
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-colors"
                 >
                   <Navigation className="w-3 h-3 text-[#EBFA00]" />
                   <span>Google Maps</span>
@@ -95,7 +125,7 @@ export const Contact: React.FC = () => {
                   href={wazeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-colors"
                 >
                   <span>Waze</span>
                   <ExternalLink className="w-2.5 h-2.5 text-zinc-500" />
@@ -104,7 +134,7 @@ export const Contact: React.FC = () => {
             </div>
 
             {/* Direct Phone & WhatsApp */}
-            <div className="p-6 rounded-2xl bg-[#121212] border border-white/[0.06] grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-5 rounded-2xl bg-[#121212] border border-white/[0.06] grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <div className="flex items-center gap-2 text-zinc-400 mb-1">
                   <Phone className="w-3.5 h-3.5 text-[#03AF45]" />
@@ -112,7 +142,7 @@ export const Contact: React.FC = () => {
                 </div>
                 <a 
                   href={`tel:${contact.phoneRaw}`}
-                  className="text-sm font-bold text-white hover:text-zinc-300"
+                  className="text-xs sm:text-sm font-bold text-white hover:text-zinc-300"
                 >
                   {contact.phone}
                 </a>
@@ -127,7 +157,7 @@ export const Contact: React.FC = () => {
                   href={`https://wa.me/${contact.whatsappRaw}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-bold text-white hover:text-[#03AF45]"
+                  className="text-xs sm:text-sm font-bold text-white hover:text-[#03AF45]"
                 >
                   {contact.whatsapp}
                 </a>
@@ -135,7 +165,7 @@ export const Contact: React.FC = () => {
             </div>
 
             {/* Schedule */}
-            <div className="p-4 rounded-xl bg-[#121212] border border-white/[0.06] flex items-center justify-between text-xs">
+            <div className="p-3.5 rounded-xl bg-[#121212] border border-white/[0.06] flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 text-zinc-400">
                 <Clock className="w-3.5 h-3.5 text-[#EBFA00]" />
                 <span className="font-semibold uppercase tracking-wider">Horario de servicio:</span>
@@ -145,45 +175,81 @@ export const Contact: React.FC = () => {
 
           </div>
 
-          {/* Clean Map View (NO dotted background pattern) (6 cols) */}
+          {/* Contact Us WhatsApp Form (6 cols) */}
           <div className="lg:col-span-6 flex flex-col">
-            <div className="relative w-full h-full min-h-[260px] rounded-2xl overflow-hidden border border-white/[0.08] bg-[#121212] flex flex-col justify-between p-6">
-              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
-                <span className="text-xs font-semibold text-zinc-400">
-                  Referencia de Ubicación
+            <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/[0.08] bg-[#121212] flex flex-col justify-between p-5 sm:p-6 shadow-xl">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 mb-4">
+                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <MessageCircle className="w-3.5 h-3.5 text-[#03AF45]" />
+                  <span>Mensaje Directo a WhatsApp</span>
                 </span>
-                <span className="text-[11px] text-zinc-500">
-                  {contact.reference}
+                <span className="text-[11px] text-[#EBFA00] font-mono">
+                  +502 5218 8115
                 </span>
               </div>
 
-              {/* Clean Map Pin Presentation without dots */}
-              <div className="my-auto py-6 text-center">
-                <div className="w-12 h-12 rounded-full bg-[#D90302]/15 text-[#D90302] flex items-center justify-center mx-auto mb-3">
-                  <MapPin className="w-6 h-6" />
+              <form onSubmit={handleContactSubmit} className="space-y-3.5 flex-grow flex flex-col justify-between">
+                <div>
+                  <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                    Su Nombre *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={senderName}
+                    onChange={(e) => setSenderName(e.target.value)}
+                    placeholder="Ej. Carlos Mendoza"
+                    className="w-full px-3.5 py-2.5 bg-[#141416] hover:bg-[#1a1a1e] border border-white/10 hover:border-white/20 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
+                  />
                 </div>
-                <h4 className="font-serif text-lg font-bold text-white">
-                  Tony's Grill
-                </h4>
-                <p className="text-xs text-zinc-400 max-w-sm mx-auto mt-1 leading-relaxed">
-                  {contact.address}
-                </p>
-                <div className="mt-4">
-                  <a
-                    href={googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#D90302] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#b00201] transition-colors"
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                    Teléfono (Opcional)
+                  </label>
+                  <input
+                    type="tel"
+                    value={senderPhone}
+                    onChange={(e) => setSenderPhone(e.target.value)}
+                    placeholder="+502 0000 0000"
+                    className="w-full px-3.5 py-2.5 bg-[#141416] hover:bg-[#1a1a1e] border border-white/10 hover:border-white/20 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                    Mensaje o Consulta *
+                  </label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={senderMessage}
+                    onChange={(e) => setSenderMessage(e.target.value)}
+                    placeholder="¿Desea consultar sobre el menú, un evento o hacer un pedido?"
+                    className="w-full px-3.5 py-2 bg-[#141416] hover:bg-[#1a1a1e] border border-white/10 hover:border-white/20 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors resize-none"
+                  />
+                </div>
+
+                <div className="pt-1">
+                  <button
+                    type="submit"
+                    disabled={isSending}
+                    className="w-full py-3 px-5 rounded-xl bg-[#03AF45] hover:bg-[#029139] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#03AF45]/20 cursor-pointer disabled:opacity-50"
                   >
-                    <span>Abrir en Google Maps</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>{isSending ? 'Abriendo WhatsApp...' : 'Enviar por WhatsApp'}</span>
+                  </button>
+                  {sentSuccess && (
+                    <p className="text-[11px] text-[#03AF45] text-center mt-1.5 font-medium animate-pulse">
+                      ✓ Redirigiendo a WhatsApp... ¡En breve te responderemos!
+                    </p>
+                  )}
                 </div>
-              </div>
+              </form>
 
-              <div className="border-t border-white/[0.06] pt-3 flex items-center justify-between text-[11px] text-zinc-500">
-                <span>Parqueo disponible</span>
-                <span>Chiquimula 20001</span>
+              <div className="border-t border-white/[0.06] pt-2.5 mt-3 flex items-center justify-between text-[11px] text-zinc-500">
+                <span>Atención inmediata en WhatsApp</span>
+                <span>Ref: {contact.reference}</span>
               </div>
             </div>
           </div>
