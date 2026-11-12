@@ -280,6 +280,7 @@ const STORAGE_FALLBACK_KEY = 'tonys_grill_cms_data';
 export interface CmsContextType {
   data: CmsData;
   isLoading: boolean;
+  isInitialLoading: boolean;
   isCloudSync: boolean;
   dataError: string | null;
   isRetrying: boolean;
@@ -316,8 +317,21 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [isLoading, setIsLoading] = useState(false);
   const [isRetrying, setIsRetrying] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(() => isSupabaseConfigured());
   const [dataError, setDataError] = useState<string | null>(null);
   const isCloudSync = isSupabaseConfigured();
+
+  // Safety fallback timeout: ensure loading screen disappears after at most 2.8s even on slow 3G
+  useEffect(() => {
+    if (!isSupabaseConfigured()) {
+      setIsInitialLoading(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 2800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [isMaintenanceMode, setIsMaintenanceModeState] = useState<boolean>(() => {
     try {
@@ -427,6 +441,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } finally {
       setIsLoading(false);
       setIsRetrying(false);
+      setIsInitialLoading(false);
     }
   }, []);
 
@@ -721,6 +736,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       value={{
         data,
         isLoading,
+        isInitialLoading,
         isCloudSync,
         dataError,
         isRetrying,
