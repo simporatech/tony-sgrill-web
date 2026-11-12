@@ -25,6 +25,8 @@ function AppContent() {
           <Route path="/promos" element={<PromosPage />} />
           <Route path="/menu-pdf" element={<PdfMenuPage />} />
           <Route path="/menu" element={<WebMenuPage />} />
+          {/* Catch-all route to prevent blank page on IDE webview proxy paths */}
+          <Route path="*" element={<LandingPage />} />
         </Routes>
       </main>
 

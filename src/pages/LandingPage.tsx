@@ -11,7 +11,7 @@ export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth">
+    <>
       {/* 1. Hero Section */}
       <Hero />
 
@@ -31,6 +31,6 @@ export const LandingPage: React.FC = () => {
 
       {/* 6. Contact & Location */}
       <Contact />
-    </div>
+    </>
   );
 };

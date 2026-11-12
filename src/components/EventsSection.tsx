@@ -73,3 +73,4 @@ export const EventsSection: React.FC = () => {
     </section>
   );
 };
+
