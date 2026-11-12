@@ -10,7 +10,7 @@ interface AdminLoginGateProps {
 }
 
 export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({ onAuthenticated }) => {
-  const [email, setEmail] = useState('admin@tonysgrill.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,12 +20,12 @@ export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({ onAuthenticated 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!password.trim()) {
-      setErrorMessage('Por favor ingrese la contraseña de administrador.');
-      return;
-    }
     if (!email.trim()) {
       setErrorMessage('Por favor ingrese su correo electrónico de Supabase.');
+      return;
+    }
+    if (!password.trim()) {
+      setErrorMessage('Por favor ingrese la contraseña de administrador.');
       return;
     }
 
@@ -40,7 +40,7 @@ export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({ onAuthenticated 
       }
 
       // Real Supabase Authentication
-      const resolvedEmail = email.includes('@') ? email.trim() : `${email.trim()}@tonysgrill.com`;
+      const resolvedEmail = email.trim();
       const { data, error } = await supabase.auth.signInWithPassword({
         email: resolvedEmail,
         password: password.trim(),
@@ -143,7 +143,7 @@ export const AdminLoginGate: React.FC<AdminLoginGateProps> = ({ onAuthenticated 
                     setEmail(e.target.value);
                     if (errorMessage) setErrorMessage(null);
                   }}
-                  placeholder="admin@tonysgrill.com"
+                  placeholder="correo@ejemplo.com"
                   disabled={isLoading}
                   className="w-full pl-10 pr-4 py-3 bg-[#101012] hover:bg-[#141416] focus:bg-[#141416] border border-white/10 focus:border-[#D90302] rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-[#D90302]/40 transition-all font-mono"
                 />

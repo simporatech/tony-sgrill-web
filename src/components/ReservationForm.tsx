@@ -61,7 +61,7 @@ export const ReservationForm: React.FC<ReservationFormProps> = ({ prefilledDish 
   return (
     <section 
       id="reservar" 
-      className="relative h-screen min-h-screen snap-start flex items-center justify-center bg-[#080808] text-white px-4 sm:px-6 lg:px-8 py-16"
+      className="relative min-h-screen flex items-center justify-center bg-[#080808] text-white px-4 sm:px-6 lg:px-8 py-20"
     >
       <div className="max-w-4xl mx-auto w-full flex flex-col justify-center">
         

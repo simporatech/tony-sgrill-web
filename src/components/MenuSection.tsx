@@ -16,7 +16,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
   return (
     <section 
       id="menu" 
-      className="relative min-h-screen lg:h-screen snap-start flex items-center justify-center bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-16"
+      className="relative min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-20"
     >
       <div className="max-w-6xl mx-auto w-full flex flex-col justify-center">
         

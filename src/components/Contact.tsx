@@ -60,7 +60,7 @@ export const Contact: React.FC = () => {
   return (
     <section 
       id="contacto" 
-      className="relative h-screen min-h-screen snap-start flex flex-col justify-between bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 pt-20 pb-8"
+      className="relative min-h-screen flex flex-col justify-between bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 pt-20 pb-12"
     >
       <div className="max-w-6xl mx-auto w-full my-auto">
         

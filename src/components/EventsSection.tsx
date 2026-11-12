@@ -10,7 +10,7 @@ export const EventsSection: React.FC = () => {
   return (
     <section 
       id="eventos" 
-      className="relative min-h-screen lg:h-screen snap-start flex items-center justify-center bg-[#080808] text-white px-4 sm:px-6 lg:px-8 py-16"
+      className="relative min-h-screen flex items-center justify-center bg-[#080808] text-white px-4 sm:px-6 lg:px-8 py-20"
     >
       <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
         

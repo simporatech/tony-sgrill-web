@@ -6,13 +6,6 @@
   html {
     scroll-behavior: smooth;
     color-scheme: dark;
-    scroll-snap-type: y proximity;
-  }
-  
-  @media (min-width: 1024px) {
-    html {
-      scroll-snap-type: y mandatory;
-    }
   }
   
   body {

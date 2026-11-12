@@ -9,7 +9,7 @@ export const Hero: React.FC = () => {
   return (
     <section 
       id="inicio"
-      className="relative min-h-screen lg:h-screen snap-start flex items-center justify-center overflow-hidden bg-[#080808] px-4 sm:px-6 lg:px-8"
+      className="relative min-h-screen lg:min-h-screen flex items-center justify-center overflow-hidden bg-[#080808] px-4 sm:px-6 lg:px-8 py-20"
     >
       {/* Background Image with Dark Minimal Scrim */}
       <div className="absolute inset-0 z-0">
