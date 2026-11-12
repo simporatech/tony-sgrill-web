@@ -260,13 +260,39 @@ export const Contact: React.FC = () => {
 
       {/* Integrated Compact Minimal Footer */}
       <div className="max-w-6xl mx-auto w-full pt-4 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-500">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <span className="font-serif font-bold text-zinc-300">TONY'S GRILL</span>
           <span>•</span>
           <span>© {new Date().getFullYear()} {contact.domain}</span>
+          <span className="hidden md:inline">•</span>
+          <span className="hidden md:inline text-[11px]">
+            Hecho por{' '}
+            <a
+              href="https://simpora.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-400 hover:text-[#EBFA00] underline decoration-zinc-700 underline-offset-2 transition-colors font-medium"
+            >
+              SIMPORA
+            </a>
+          </span>
         </div>
 
         <div className="flex items-center gap-4">
+          <a
+            href="/politicas-de-privacidad"
+            className="hover:text-zinc-300 transition-colors text-[11px]"
+          >
+            Privacidad
+          </a>
+          <span>•</span>
+          <a
+            href="/terminos-y-condiciones"
+            className="hover:text-zinc-300 transition-colors text-[11px]"
+          >
+            Términos
+          </a>
+          <span>•</span>
           <a
             href={contact.instagramUrl}
             target="_blank"

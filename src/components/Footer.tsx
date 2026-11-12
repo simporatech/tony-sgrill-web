@@ -204,13 +204,32 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Copyright & Rights */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
-          <p>© {new Date().getFullYear()} {RESTAURANT_INFO.domain}. Todos los derechos reservados.</p>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <p>© {new Date().getFullYear()} {RESTAURANT_INFO.domain}. Todos los derechos reservados.</p>
+            <span className="hidden sm:inline">•</span>
+            <p className="text-[11px] text-zinc-500">
+              Hecho por{' '}
+              <a
+                href="https://simpora.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-400 hover:text-[#EBFA00] transition-colors underline decoration-zinc-700 underline-offset-2 font-medium"
+              >
+                SIMPORA
+              </a>
+            </p>
+          </div>
+
           <div className="flex items-center gap-4">
-            <span className="hover:text-zinc-400 cursor-pointer">Políticas de Privacidad</span>
+            <Link to="/politicas-de-privacidad" className="hover:text-zinc-300 transition-colors">
+              Políticas de Privacidad
+            </Link>
             <span>•</span>
-            <span className="hover:text-zinc-400 cursor-pointer">Términos de Reservación</span>
+            <Link to="/terminos-y-condiciones" className="hover:text-zinc-300 transition-colors">
+              Términos y Condiciones
+            </Link>
             <span>•</span>
-            <span className="text-[#EBFA00]">Chiquimula, Guatemala</span>
+            <span className="text-[#EBFA00]">Chiquimula, GT</span>
           </div>
         </div>
 

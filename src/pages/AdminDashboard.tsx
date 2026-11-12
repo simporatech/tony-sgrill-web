@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useCmsData, CmsMenuItem, CmsPromoItem } from '../context/CmsContext';
 import { CustomSelect } from '../components/ui/CustomSelect';
+import { ImageUploader } from '../components/ui/ImageUploader';
 import { AdminLoginGate } from '../components/AdminLoginGate';
 import { authService } from '../services/authService';
 
@@ -424,15 +425,11 @@ export const AdminDashboard: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
-                      URL Imagen de Fondo (Mock Upload)
-                    </label>
-                    <input
-                      type="url"
+                    <ImageUploader
+                      label="Imagen de Fondo del Hero"
                       value={data.hero.bgImageUrl}
-                      onChange={(e) => updateHero({ bgImageUrl: e.target.value })}
-                      placeholder="https://..."
-                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302] font-mono text-[11px]"
+                      onChange={(url) => updateHero({ bgImageUrl: url })}
+                      helperText="Compresión automática WebP ≤ 200KB (1920px max)"
                     />
                   </div>
                 </div>
@@ -513,14 +510,11 @@ export const AdminDashboard: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
-                      URL Imagen de Eventos (Mock Upload)
-                    </label>
-                    <input
-                      type="url"
+                    <ImageUploader
+                      label="Imagen de Fondo de Eventos"
                       value={data.events.imageUrl}
-                      onChange={(e) => updateEvents({ imageUrl: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#1b1b1e] border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#D90302] font-mono text-[11px]"
+                      onChange={(url) => updateEvents({ imageUrl: url })}
+                      helperText="Compresión automática WebP ≤ 200KB (1920px max)"
                     />
                   </div>
                 </div>

@@ -7,6 +7,8 @@ import { PromosPage } from './pages/PromosPage';
 import { PdfMenuPage } from './pages/PdfMenuPage';
 import { WebMenuPage } from './pages/WebMenuPage';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { TermsPage } from './pages/TermsPage';
+import { PrivacyPage } from './pages/PrivacyPage';
 import { CmsProvider } from './context/CmsContext';
 import { MessageCircle } from 'lucide-react';
 import { RESTAURANT_INFO } from './data/restaurantData';
@@ -28,6 +30,8 @@ function AppContent() {
           <Route path="/promos" element={<PromosPage />} />
           <Route path="/menu-pdf" element={<PdfMenuPage />} />
           <Route path="/menu" element={<WebMenuPage />} />
+          <Route path="/terminos-y-condiciones" element={<TermsPage />} />
+          <Route path="/politicas-de-privacidad" element={<PrivacyPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
           {/* Catch-all route to prevent blank page on IDE webview proxy paths */}
           <Route path="*" element={<LandingPage />} />
