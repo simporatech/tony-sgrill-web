@@ -1,55 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Hero } from '../components/Hero';
-import { AboutAndEvents } from '../components/AboutAndEvents';
+import { AboutSection } from '../components/AboutSection';
+import { EventsSection } from '../components/EventsSection';
 import { MenuSection } from '../components/MenuSection';
-import { Reviews } from '../components/Reviews';
 import { ReservationForm } from '../components/ReservationForm';
 import { Contact } from '../components/Contact';
-import { PdfMenuModal } from '../components/PdfMenuModal';
 import { useNavigate } from 'react-router-dom';
 
 export const LandingPage: React.FC = () => {
-  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
-  const [prefilledDish, setPrefilledDish] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSelectDishForReservation = (dishName: string) => {
-    setPrefilledDish(dishName);
-    const elem = document.getElementById('reservar');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <>
-      {/* 2. Hero Section */}
+    <div className="h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth">
+      {/* 1. Hero Section */}
       <Hero />
 
-      {/* 3. About Us & Events */}
-      <AboutAndEvents />
+      {/* 2. About Us */}
+      <AboutSection />
 
-      {/* Menu Section (Web Showcase) */}
+      {/* 3. Events & Banquets */}
+      <EventsSection />
+
+      {/* 4. Menu Showcase */}
       <MenuSection
         onOpenPdfMenu={() => navigate('/menu-pdf')}
-        onSelectItemForReservation={handleSelectDishForReservation}
       />
 
-      {/* 4. Customer Reviews (Google Reviews Simulation) */}
-      <Reviews />
+      {/* 5. Reservation Form */}
+      <ReservationForm />
 
-      {/* 5. Reserve a Table */}
-      <ReservationForm prefilledDish={prefilledDish} />
-
-      {/* 6. Contact Us */}
+      {/* 6. Contact & Location */}
       <Contact />
-
-      {/* PDF Modal */}
-      <PdfMenuModal
-        isOpen={isPdfModalOpen}
-        onClose={() => setIsPdfModalOpen(false)}
-      />
-    </>
+    </div>
   );
 };
-

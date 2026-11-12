@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { 
   MapPin, 
   Phone, 
   Clock, 
-  Send, 
   Navigation, 
   Copy, 
   Check, 
   ExternalLink,
   MessageCircle,
-  Share2
+  Instagram,
+  Facebook
 } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 
@@ -27,48 +26,43 @@ export const Contact: React.FC = () => {
   const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent("Tony's Grill Chiquimula")}`;
 
   return (
-    <section id="contacto" className="relative py-24 sm:py-32 bg-[#080808] text-white overflow-hidden">
-      
-      {/* Background glow */}
-      <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-[#D90302]/8 blur-[160px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section 
+      id="contacto" 
+      className="relative h-screen min-h-screen snap-start flex flex-col justify-between bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 pt-20 pb-8"
+    >
+      <div className="max-w-6xl mx-auto w-full my-auto">
         
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-bold uppercase tracking-widest text-[#EBFA00] mb-3">
-            <MapPin className="w-3.5 h-3.5" />
-            Visítanos en Chiquimula
-          </div>
-          <h2 className="font-serif text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Ubicación & <span className="gold-gradient-text">Contacto Directo</span>
+        {/* Header */}
+        <div className="mb-8">
+          <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium block mb-2">
+            Ubicación
+          </span>
+          <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white">
+            Visítenos en <span className="text-[#D90302]">Chiquimula</span>
           </h2>
-          <p className="mt-4 text-zinc-400 text-sm sm:text-base">
-            Estamos listos para recibirte con el fuego encendido y la mejor atención de la región oriente.
-          </p>
         </div>
 
         {/* Contact Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           
-          {/* Information Cards (5 cols) */}
-          <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
+          {/* Info Details (6 cols) */}
+          <div className="lg:col-span-6 space-y-4 flex flex-col justify-between">
             
-            {/* Address Card */}
-            <div className="p-6 rounded-2xl glass-card border border-white/10 hover:border-white/20 transition-all">
+            {/* Address */}
+            <div className="p-6 rounded-2xl bg-[#121212] border border-white/[0.06]">
               <div className="flex items-start justify-between">
-                <div className="p-3 rounded-xl bg-[#D90302]/15 text-[#D90302]">
-                  <MapPin className="w-6 h-6" />
+                <div className="flex items-center gap-2 text-zinc-400">
+                  <MapPin className="w-4 h-4 text-[#D90302]" />
+                  <span className="text-xs font-semibold uppercase tracking-wider">Dirección</span>
                 </div>
                 <button
                   onClick={handleCopyAddress}
-                  className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-semibold text-zinc-400 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
-                  title="Copiar dirección"
+                  className="text-[11px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   {copied ? (
                     <>
                       <Check className="w-3 h-3 text-[#03AF45]" />
-                      <span className="text-[#03AF45]">¡Copiado!</span>
+                      <span className="text-[#03AF45]">Copiado</span>
                     </>
                   ) : (
                     <>
@@ -79,10 +73,7 @@ export const Contact: React.FC = () => {
                 </button>
               </div>
 
-              <h3 className="mt-4 text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                Dirección Oficial
-              </h3>
-              <p className="mt-1 text-sm font-semibold text-white leading-relaxed">
+              <p className="mt-3 text-sm font-medium text-white leading-relaxed">
                 {RESTAURANT_INFO.address}
               </p>
 
@@ -91,184 +82,144 @@ export const Contact: React.FC = () => {
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                  className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-colors"
                 >
-                  <Navigation className="w-3.5 h-3.5 text-[#EBFA00]" />
+                  <Navigation className="w-3 h-3 text-[#EBFA00]" />
                   <span>Google Maps</span>
-                  <ExternalLink className="w-3 h-3 text-zinc-500" />
+                  <ExternalLink className="w-2.5 h-2.5 text-zinc-500" />
                 </a>
 
                 <a
                   href={wazeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                  className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-colors"
                 >
                   <span>Waze</span>
-                  <ExternalLink className="w-3 h-3 text-zinc-500" />
+                  <ExternalLink className="w-2.5 h-2.5 text-zinc-500" />
                 </a>
               </div>
             </div>
 
-            {/* Phone & WhatsApp Card */}
-            <div className="p-6 rounded-2xl glass-card border border-white/10 hover:border-white/20 transition-all">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-[#03AF45]/15 text-[#03AF45]">
-                  <Phone className="w-6 h-6" />
+            {/* Direct Phone & WhatsApp */}
+            <div className="p-6 rounded-2xl bg-[#121212] border border-white/[0.06] grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <div className="flex items-center gap-2 text-zinc-400 mb-1">
+                  <Phone className="w-3.5 h-3.5 text-[#03AF45]" />
+                  <span className="text-xs uppercase tracking-wider font-semibold">Teléfono</span>
                 </div>
-                <div>
-                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                    Líneas de Atención
-                  </h3>
-                  <div className="mt-1 space-y-1">
-                    <p className="text-sm font-bold text-white flex items-center gap-2">
-                      <span>Teléfono Fijo:</span>
-                      <a 
-                        href={`tel:${RESTAURANT_INFO.phoneRaw}`} 
-                        className="text-[#EBFA00] hover:underline"
-                      >
-                        {RESTAURANT_INFO.phone}
-                      </a>
-                    </p>
-                    <p className="text-sm font-bold text-white flex items-center gap-2">
-                      <span>WhatsApp Directo:</span>
-                      <a 
-                        href={`https://wa.me/${RESTAURANT_INFO.whatsappRaw}?text=Hola%20Tony's%20Grill,%20deseo%20hacer%20un%20pedido%20o%20consulta`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-[#03AF45] hover:underline"
-                      >
-                        {RESTAURANT_INFO.whatsapp}
-                      </a>
-                    </p>
-                  </div>
-                </div>
+                <a 
+                  href={`tel:${RESTAURANT_INFO.phoneRaw}`}
+                  className="text-sm font-bold text-white hover:text-zinc-300"
+                >
+                  {RESTAURANT_INFO.phone}
+                </a>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-white/10 flex gap-2">
-                <a
+              <div>
+                <div className="flex items-center gap-2 text-zinc-400 mb-1">
+                  <MessageCircle className="w-3.5 h-3.5 text-[#03AF45]" />
+                  <span className="text-xs uppercase tracking-wider font-semibold">WhatsApp</span>
+                </div>
+                <a 
                   href={`https://wa.me/${RESTAURANT_INFO.whatsappRaw}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2 bg-[#03AF45] hover:bg-[#028f39] text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition-all shadow-md"
+                  className="text-sm font-bold text-white hover:text-[#03AF45]"
                 >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Escribir por WhatsApp</span>
+                  {RESTAURANT_INFO.whatsapp}
                 </a>
               </div>
             </div>
 
-            {/* Schedule Card */}
-            <div className="p-6 rounded-2xl glass-card border border-white/10 hover:border-white/20 transition-all">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-[#EBFA00]/15 text-[#EBFA00]">
-                  <Clock className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-                    Horario de Servicio
-                  </h3>
-                  <p className="mt-1 text-base font-extrabold text-white">
-                    {RESTAURANT_INFO.schedule}
-                  </p>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    Cocina continua: Desayunos, Almuerzos, Cafetería & Cenas a la Brasa.
-                  </p>
-                </div>
+            {/* Schedule */}
+            <div className="p-4 rounded-xl bg-[#121212] border border-white/[0.06] flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2 text-zinc-400">
+                <Clock className="w-3.5 h-3.5 text-[#EBFA00]" />
+                <span className="font-semibold uppercase tracking-wider">Horario de servicio:</span>
               </div>
-              
-              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#03AF45]/15 border border-[#03AF45]/30 text-[#03AF45] text-xs font-bold">
-                <span className="w-2 h-2 rounded-full bg-[#03AF45] animate-ping" />
-                <span>Abierto Hoy de 7:00 AM a 9:45 PM</span>
-              </div>
+              <span className="font-bold text-white">7:00 AM - 9:45 PM</span>
             </div>
 
           </div>
 
-          {/* Interactive Map Visual (7 cols) */}
-          <div className="lg:col-span-7 flex flex-col">
-            <div className="relative w-full h-full min-h-[420px] rounded-3xl overflow-hidden border border-white/15 shadow-2xl glass-panel group flex flex-col justify-between">
-              
-              {/* Top Bar of the Map view */}
-              <div className="p-4 bg-black/60 backdrop-blur-md border-b border-white/10 flex items-center justify-between z-10">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#D90302]" />
-                  <div className="w-3 h-3 rounded-full bg-[#EBFA00]" />
-                  <div className="w-3 h-3 rounded-full bg-[#03AF45]" />
-                  <span className="text-xs font-semibold text-zinc-400 ml-2">
-                    Ubicación Satelital • Chiquimula, GT
-                  </span>
-                </div>
-
-                <a
-                  href={googleMapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#EBFA00] hover:underline font-bold flex items-center gap-1"
-                >
-                  Abrir Mapa Completo
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+          {/* Clean Map View (NO dotted background pattern) (6 cols) */}
+          <div className="lg:col-span-6 flex flex-col">
+            <div className="relative w-full h-full min-h-[260px] rounded-2xl overflow-hidden border border-white/[0.08] bg-[#121212] flex flex-col justify-between p-6">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+                <span className="text-xs font-semibold text-zinc-400">
+                  Referencia de Ubicación
+                </span>
+                <span className="text-[11px] text-zinc-500">
+                  Frente a zona vial 8
+                </span>
               </div>
 
-              {/* Map Illustration / Embed Layer */}
-              <div className="relative flex-grow flex items-center justify-center p-6 bg-gradient-to-b from-[#111113] via-[#0d0d0f] to-[#080808]">
-                {/* Visual stylized street grid */}
-                <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />
-                
-                {/* Interactive Pin Highlight */}
-                <div className="relative z-10 flex flex-col items-center text-center p-6 rounded-3xl bg-black/80 backdrop-blur-xl border border-white/15 max-w-md shadow-2xl">
-                  <div className="relative mb-3">
-                    <span className="absolute -inset-2 rounded-full bg-[#D90302]/30 animate-ping" />
-                    <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#D90302] to-[#8a0000] p-0.5 shadow-xl flex items-center justify-center">
-                      <div className="w-full h-full bg-[#0e0e0e] rounded-[14px] flex items-center justify-center">
-                        <MapPin className="w-7 h-7 text-[#EBFA00]" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <h4 className="font-serif text-xl font-bold text-white">
-                    Tony's Grill Chiquimula
-                  </h4>
-                  <p className="text-xs text-zinc-300 mt-1 max-w-xs">
-                    9 Calle, 15 Avenida, zona 6 colonia las lomas, Frente a zona vial 8.
-                  </p>
-
-                  <div className="mt-4 pt-4 border-t border-white/10 w-full flex flex-col sm:flex-row items-center justify-center gap-2">
-                    <a
-                      href={googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-lg"
-                    >
-                      <Navigation className="w-3.5 h-3.5" />
-                      <span>Cómo Llegar (Ruta)</span>
-                    </a>
-
-                    <a
-                      href={`tel:${RESTAURANT_INFO.phoneRaw}`}
-                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
-                    >
-                      <Phone className="w-3.5 h-3.5 text-[#03AF45]" />
-                      <span>Llamar al Local</span>
-                    </a>
-                  </div>
+              {/* Clean Map Pin Presentation without dots */}
+              <div className="my-auto py-6 text-center">
+                <div className="w-12 h-12 rounded-full bg-[#D90302]/15 text-[#D90302] flex items-center justify-center mx-auto mb-3">
+                  <MapPin className="w-6 h-6" />
+                </div>
+                <h4 className="font-serif text-lg font-bold text-white">
+                  Tony's Grill
+                </h4>
+                <p className="text-xs text-zinc-400 max-w-sm mx-auto mt-1 leading-relaxed">
+                  9 Calle, 15 Avenida, zona 6 colonia las lomas de Chiquimula, Frente a zona vial 8 Guatemala.
+                </p>
+                <div className="mt-4">
+                  <a
+                    href={googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#D90302] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#b00201] transition-colors"
+                  >
+                    <span>Abrir en Google Maps</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                 </div>
               </div>
 
-              {/* Bottom bar */}
-              <div className="p-3 bg-black/70 backdrop-blur-md border-t border-white/10 flex items-center justify-between text-[11px] text-zinc-400">
-                <span>Parqueo seguro disponible en el establecimiento</span>
-                <span className="text-[#03AF45] font-semibold">● Frente a zona vial 8</span>
+              <div className="border-t border-white/[0.06] pt-3 flex items-center justify-between text-[11px] text-zinc-500">
+                <span>Parqueo disponible</span>
+                <span>Chiquimula 20001</span>
               </div>
-
             </div>
           </div>
 
         </div>
 
       </div>
+
+      {/* Integrated Compact Minimal Footer */}
+      <div className="max-w-6xl mx-auto w-full pt-4 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-500">
+        <div className="flex items-center gap-4">
+          <span className="font-serif font-bold text-zinc-300">TONY'S GRILL</span>
+          <span>•</span>
+          <span>© {new Date().getFullYear()} tonysgrillgt.com</span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <a
+            href={RESTAURANT_INFO.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors flex items-center gap-1.5"
+          >
+            <Instagram className="w-3.5 h-3.5" />
+            <span>@jariaga68</span>
+          </a>
+
+          <a
+            href={RESTAURANT_INFO.facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white transition-colors flex items-center gap-1.5"
+          >
+            <Facebook className="w-3.5 h-3.5" />
+            <span>/tonysgrillgt</span>
+          </a>
+        </div>
+      </div>
     </section>
   );
 };
-

@@ -39,8 +39,8 @@ export const Navbar: React.FC = () => {
     { name: 'Promos', path: '/promos', badge: 'Ofertas' },
     { name: 'Menú (Web)', path: '/menu' },
     { name: 'Menú (PDF)', path: '/menu-pdf', icon: FileText },
-    { name: 'Nosotros & Eventos', path: '/#nosotros' },
-    { name: 'Reseñas', path: '/#resenas' },
+    { name: 'Nosotros', path: '/#nosotros' },
+    { name: 'Eventos', path: '/#eventos' },
     { name: 'Contacto', path: '/#contacto' },
   ];
 
@@ -247,15 +247,15 @@ export const Navbar: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className="px-4 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white font-medium text-sm transition-colors"
                 >
-                  Nosotros & Banquetes
+                  Nosotros
                 </a>
 
                 <a
-                  href="/#resenas"
+                  href="/#eventos"
                   onClick={() => setMobileMenuOpen(false)}
                   className="px-4 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white font-medium text-sm transition-colors"
                 >
-                  Opiniones de Clientes (Google)
+                  Eventos & Banquetes
                 </a>
 
                 <a
