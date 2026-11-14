@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ArrowRight, FileText } from 'lucide-react';
-import { FEATURED_DISHES } from '../data/restaurantData';
 import { useCmsData } from '../context/CmsContext';
 import { SupabaseDataErrorFallback } from './SupabaseDataErrorFallback';
 
@@ -9,9 +8,48 @@ interface MenuSectionProps {
   onSelectItemForReservation?: (dishName: string) => void;
 }
 
+const CATEGORY_FALLBACK_IMAGES: Record<string, string[]> = {
+  carnes: [
+    'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=1200&q=80',
+  ],
+  pizzas: ['https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80'],
+  pastas: ['https://images.unsplash.com/photo-1621996346565-e3d5d6281728?auto=format&fit=crop&w=1200&q=80'],
+  hamburguesas: ['https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1200&q=80'],
+  desayunos: ['https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=1200&q=80'],
+  mariscos: ['https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1200&q=80'],
+  antojitos: ['https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1200&q=80'],
+};
+
+const SIGNATURE_IDS = ['car-01', 'car-05', 'car-06'];
+
 export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
-  const { dataError, isRetrying, refetchData } = useCmsData();
-  const previewDishes = FEATURED_DISHES.slice(0, 3);
+  const { data, dataError, isRetrying, refetchData } = useCmsData();
+
+  // Select 3 real signature dishes directly from the active menu (Supabase / CMS)
+  const previewDishes = useMemo(() => {
+    const items = data.menuItems || [];
+    const byId = SIGNATURE_IDS.map((id) => items.find((item) => item.id === id)).filter(
+      (item): item is NonNullable<typeof item> => Boolean(item)
+    );
+
+    if (byId.length === 3) {
+      return byId;
+    }
+
+    const carnes = items.filter((item) => item.category_id === 'carnes');
+    if (carnes.length >= 3) {
+      return carnes.slice(0, 3);
+    }
+
+    return items.slice(0, 3);
+  }, [data.menuItems]);
+
+  const getDishImage = (categoryId: string, index: number) => {
+    const pool = CATEGORY_FALLBACK_IMAGES[categoryId] || CATEGORY_FALLBACK_IMAGES.carnes;
+    return pool[index % pool.length];
+  };
 
   return (
     <section 
@@ -61,14 +99,14 @@ export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {previewDishes.map((dish) => (
+            {previewDishes.map((dish, idx) => (
               <div
                 key={dish.id}
                 className="group rounded-2xl overflow-hidden bg-[#121212] border border-white/[0.06] hover:border-white/20 transition-all duration-300 flex flex-col"
               >
                 <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-zinc-900">
                   <img
-                    src={dish.image}
+                    src={getDishImage(dish.category_id, idx)}
                     alt={dish.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-90"
                     loading="lazy"
@@ -77,17 +115,17 @@ export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
 
                 <div className="p-6 flex flex-col justify-between flex-grow">
                   <div>
-                    <div className="flex items-baseline justify-between gap-2 mb-2">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-medium block mb-1.5">
+                      {dish.category_name}
+                    </span>
+                    <div className="flex items-baseline justify-between gap-2">
                       <h3 className="font-serif text-lg font-bold text-white group-hover:text-[#EBFA00] transition-colors leading-snug">
                         {dish.name}
                       </h3>
-                      <span className="text-sm font-bold text-white shrink-0 font-serif">
-                        {dish.price}
+                      <span className="text-sm font-bold text-[#EBFA00] shrink-0 font-serif">
+                        Q{Number(dish.price).toFixed(2)}
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-400 font-light leading-relaxed">
-                      {dish.description}
-                    </p>
                   </div>
 
                   <div className="mt-6 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs">

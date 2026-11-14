@@ -61,57 +61,57 @@ export const MENU_CATEGORIES = [
 
 export const FEATURED_DISHES: MenuItem[] = [
   {
-    id: '1',
-    name: 'Tomahawk Grill Master (32 oz)',
+    id: 'car-01',
+    name: 'Lomito 8 Onzas',
     category: 'cortes',
-    price: 'Q 345',
-    description: 'Corte supremo sellado a la brasa con mantequilla de romero, ajo rostizado y sal volcánica. Acompañado de papas trufadas y vegetales asados.',
-    tag: 'Firma de la Casa',
+    price: 'Q155.00',
+    description: 'Corte clásico de la casa preparado a la parrilla.',
+    tag: 'Carnes & Parrilladas',
     image: 'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=1200&q=80'
   },
   {
-    id: '2',
-    name: 'Ribeye Prime Angus (14 oz)',
+    id: 'car-05',
+    name: 'Parrillada para 2 Personas',
     category: 'cortes',
-    price: 'Q 220',
-    description: 'Marmoleo excepcional, asado al término deseado con chimichurri casero de finas hierbas y tortillas calientes al carbón.',
-    tag: 'Favorito',
+    price: 'Q219.00',
+    description: 'Selección de carnes a la parrilla ideal para compartir.',
+    tag: 'Carnes & Parrilladas',
     image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80'
   },
   {
-    id: '3',
-    name: 'Pizza Napolitana Tony\'s Especial',
-    category: 'pizzas',
-    price: 'Q 115',
-    description: 'Masa fermentada 48 horas, salsa pomodoro San Marzano, mozzarella fior di latte, prosciutto di Parma, rúcula fresca y reducción balsámica.',
-    tag: 'Artesanal',
-    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80'
+    id: 'car-06',
+    name: 'Entraña',
+    category: 'cortes',
+    price: 'Q165.00',
+    description: 'Corte jugoso asado a la brasa.',
+    tag: 'Carnes & Parrilladas',
+    image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=1200&q=80'
   },
   {
-    id: '4',
-    name: 'Fettuccine Alfredo con Entraña a la Brasa',
+    id: 'car-04',
+    name: 'Mar y Tierra (Combo)',
+    category: 'cortes',
+    price: 'Q169.00',
+    description: 'Combinación especial de corte a la parrilla y mariscos.',
+    tag: 'Carnes & Parrilladas',
+    image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1200&q=80'
+  },
+  {
+    id: 'pas-02',
+    name: 'Pasta Alfredo con Pollo',
     category: 'pastas',
-    price: 'Q 145',
-    description: 'Pasta hecha a mano bañada en cremosa salsa de queso parmesano Reggiano añejo y tiras tiernas de entraña asada al quebracho.',
-    tag: 'Chef Choice',
+    price: 'Q99.00',
+    description: 'Pasta en salsa Alfredo acompañada de pollo a la plancha.',
+    tag: 'Pastas',
     image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281728?auto=format&fit=crop&w=1200&q=80'
   },
   {
-    id: '5',
-    name: 'Burger Tony\'s Black Angus',
-    category: 'hamburguesas',
-    price: 'Q 95',
-    description: '220g de blend de puyazo y picaña, queso gouda ahumado, mermelada de tocino al bourbon, cebolla caramelizada y pan brioche horneado a diario.',
-    tag: 'Best Seller',
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1200&q=80'
-  },
-  {
-    id: '6',
-    name: 'Desayuno Campirano Chiquimulteco',
+    id: 'des-05',
+    name: 'Desayuno Típico',
     category: 'desayunos',
-    price: 'Q 68',
-    description: 'Huevos al gusto, longaniza artesanal asada, frijoles volteados de la casa, plátanos caramelizados, queso fresco de la región y crema pura.',
-    tag: 'Tradición',
+    price: 'Q48.00',
+    description: 'Desayuno tradicional de la casa.',
+    tag: 'Desayunos & Omelettes',
     image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=1200&q=80'
   }
 ];
