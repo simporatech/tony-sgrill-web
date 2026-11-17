@@ -36,9 +36,7 @@ export const Navbar: React.FC = () => {
 
   const navLinks = [
     { name: 'Inicio', path: '/' },
-    { name: 'Promos', path: '/promos', badge: 'Ofertas' },
-    { name: 'Menú (Web)', path: '/menu' },
-    { name: 'Menú (PDF)', path: '/menu-pdf', icon: FileText },
+    { name: 'Menú', path: '/menu' },
     { name: 'Nosotros', path: '/#nosotros' },
     { name: 'Eventos', path: '/#eventos' },
     { name: 'Contacto', path: '/#contacto' },
@@ -106,15 +104,7 @@ export const Navbar: React.FC = () => {
                         : 'text-zinc-300 hover:text-white hover:bg-white/[0.08]'
                     }`}
                   >
-                    {link.icon && (
-                      <link.icon className={`w-3.5 h-3.5 ${active ? 'text-white' : 'text-[#EBFA00]'} group-hover:rotate-6 transition-transform`} />
-                    )}
                     <span>{link.name}</span>
-                    {link.badge && (
-                      <span className="px-1.5 py-0.2 text-[9px] font-bold rounded-full bg-[#D90302] text-white uppercase tracking-wider animate-pulse">
-                        {link.badge}
-                      </span>
-                    )}
                   </Link>
                 );
               })}
@@ -205,41 +195,15 @@ export const Navbar: React.FC = () => {
                 </Link>
 
                 <Link
-                  to="/promos"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl bg-gradient-to-r from-[#D90302]/15 to-transparent border border-[#D90302]/30 text-white font-medium text-sm flex items-center justify-between"
-                >
-                  <span className="flex items-center gap-2">
-                    <Tag className="w-4 h-4 text-[#EBFA00]" />
-                    Promociones & Ofertas
-                  </span>
-                  <span className="px-2 py-0.5 text-[10px] font-bold bg-[#D90302] text-white rounded-full">
-                    Activas
-                  </span>
-                </Link>
-
-                <Link
                   to="/menu"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white font-medium text-sm transition-colors flex items-center justify-between"
+                  className="px-4 py-3 rounded-xl bg-gradient-to-r from-[#D90302]/15 to-transparent border border-[#D90302]/30 text-white font-medium text-sm transition-colors flex items-center justify-between"
                 >
                   <span className="flex items-center gap-2">
                     <UtensilsCrossed className="w-4 h-4 text-[#D90302]" />
-                    Menú Completo (Web)
+                    Menú Completo & PDF
                   </span>
-                  <span className="text-xs text-[#EBFA00] font-bold">Sin imágenes</span>
-                </Link>
-
-                <Link
-                  to="/menu-pdf"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white font-medium text-sm flex items-center justify-between"
-                >
-                  <span className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-[#EBFA00]" />
-                    Menú Digital (PDF Oficial)
-                  </span>
-                  <span className="text-xs text-zinc-400">Visor & Descarga</span>
+                  <span className="text-xs text-[#EBFA00] font-bold">Interactivo</span>
                 </Link>
 
                 <a

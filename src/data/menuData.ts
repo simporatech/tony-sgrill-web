@@ -25,6 +25,58 @@ export const MENU_FILTER_CATEGORIES: MenuCategoryFilter[] = [
   { label: 'Promociones', slug: 'promociones' },
 ];
 
+/**
+ * Exact visual pages extracted from public/tonys-grill-menu.pdf
+ * mapped to each menu category so dishes stay pure text/editorial
+ * while complementing with the authentic printed menu photography.
+ */
+export const CATEGORY_PDF_PAGES: Record<string, { title: string; image: string }[]> = {
+  desayunos: [
+    { title: 'Portada Desayunos', image: '/menu-pages/page-01.jpg' },
+    { title: 'Omelettes & Desayunos', image: '/menu-pages/page-02.jpg' },
+    { title: 'Panqueques, Muffins & Kids', image: '/menu-pages/page-03.jpg' },
+    { title: 'Livianos & Extras', image: '/menu-pages/page-04.jpg' },
+  ],
+  'asados-y-carnes': [
+    { title: 'Asados & Carnes', image: '/menu-pages/page-06.jpg' },
+    { title: 'Combos Mar y Tierra', image: '/menu-pages/page-07.jpg' },
+    { title: 'Parrilladas Familiares', image: '/menu-pages/page-08.jpg' },
+    { title: 'Aire, Mar y Tierra & Entraña', image: '/menu-pages/page-17.jpg' },
+    { title: 'Sizzling Fajitas & Pinchos', image: '/menu-pages/page-18.jpg' },
+    { title: 'Pollo a la Parrilla', image: '/menu-pages/page-19.jpg' },
+  ],
+  sopas: [
+    { title: 'Sopas, Tapado & Ceviches', image: '/menu-pages/page-16.jpg' },
+    { title: 'Mariscos Especiales', image: '/menu-pages/page-14.jpg' },
+  ],
+  crepas: [
+    { title: 'Crepas Dulces, Saladas & Postres', image: '/menu-pages/page-20.jpg' },
+    { title: 'American Doughnuts', image: '/menu-pages/page-26.jpg' },
+  ],
+  'pizzas-y-lasanas': [
+    { title: 'Pizzas Artesanales', image: '/menu-pages/page-27.jpg' },
+    { title: 'Combo Pizzas', image: '/menu-pages/page-28.jpg' },
+    { title: 'Lasaña Bolognesa & Calzones', image: '/menu-pages/page-15.jpg' },
+    { title: 'Pastas', image: '/menu-pages/page-22.jpg' },
+  ],
+  bebidas: [
+    { title: "Tony's Fresh • Refrescantes", image: '/menu-pages/page-30.jpg' },
+    { title: 'Cóctelería & 2x1', image: '/menu-pages/page-31.jpg' },
+    { title: 'Cócteles & Cubetazos', image: '/menu-pages/page-32.jpg' },
+  ],
+  promociones: [
+    { title: 'Antojitos Dulces y Salados', image: '/menu-pages/page-09.jpg' },
+    { title: 'Antojitos Especiales', image: '/menu-pages/page-10.jpg' },
+    { title: 'Antojitos Tradicionales & Al Horno', image: '/menu-pages/page-11.jpg' },
+    { title: 'Antojitos Típicos & Sandwiches', image: '/menu-pages/page-12.jpg' },
+    { title: 'Hamburguesas', image: '/menu-pages/page-23.jpg' },
+    { title: 'Menú Infantil', image: '/menu-pages/page-25.jpg' },
+    { title: 'Antojitos Chapines', image: '/menu-pages/page-33.jpg' },
+    { title: 'Promos Cubetazo & Garnachas', image: '/menu-pages/page-34.jpg' },
+    { title: 'Sangría 2x1 & Carpaccio', image: '/menu-pages/page-35.jpg' },
+  ],
+};
+
 export const OFFICIAL_PHONE_LINES = [
   {
     label: 'Línea 1',

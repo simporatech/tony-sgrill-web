@@ -9,10 +9,15 @@ import {
   Phone,
   X,
   Download,
+  Plus,
+  Check,
+  ZoomIn,
+  BookOpen,
 } from 'lucide-react';
 import {
   menuData,
   MENU_FILTER_CATEGORIES,
+  CATEGORY_PDF_PAGES,
   OFFICIAL_EXTERNAL_MENU_URL,
   MenuDataItem,
 } from '../data/menuData';
@@ -28,8 +33,10 @@ export const WebMenuPage: React.FC = () => {
   const [activeCategorySlug, setActiveCategorySlug] = useState<string>('todos');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isDeepLinked, setIsDeepLinked] = useState<boolean>(false);
+  const [selectedOrderItems, setSelectedOrderItems] = useState<string[]>([]);
+  const [zoomedPage, setZoomedPage] = useState<{ title: string; image: string } | null>(null);
 
-  // Requirement 2: AI Agent Deep Linking (?categoria=<slug>) inside /menu
+  // Requirement 2: AI Agent Deep Linking (?categoria=<slug>)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -76,6 +83,14 @@ export const WebMenuPage: React.FC = () => {
     }
   };
 
+  const toggleOrderItem = (dishName: string) => {
+    setSelectedOrderItems((prev) =>
+      prev.includes(dishName)
+        ? prev.filter((item) => item !== dishName)
+        : [...prev, dishName]
+    );
+  };
+
   const activeCategoryLabel = useMemo(() => {
     return (
       MENU_FILTER_CATEGORIES.find((c) => c.slug === activeCategorySlug)?.label ||
@@ -83,22 +98,27 @@ export const WebMenuPage: React.FC = () => {
     );
   }, [activeCategorySlug]);
 
-  const filteredItems: MenuDataItem[] = useMemo(() => {
+  const visibleCategories = useMemo(() => {
+    const base = MENU_FILTER_CATEGORIES.filter((c) => c.slug !== 'todos');
+    if (activeCategorySlug === 'todos') return base;
+    return base.filter((c) => c.slug === activeCategorySlug);
+  }, [activeCategorySlug]);
+
+  const filterDishesForCategory = (slug: string): MenuDataItem[] => {
+    const q = searchQuery.trim().toLowerCase();
     return menuData.filter((item) => {
-      const matchCat =
-        activeCategorySlug === 'todos' || item.slugCategoria === activeCategorySlug;
-      const q = searchQuery.trim().toLowerCase();
-      const matchSearch =
-        !q ||
+      if (item.slugCategoria !== slug) return false;
+      if (!q) return true;
+      return (
         item.nombre.toLowerCase().includes(q) ||
         item.descripcion.toLowerCase().includes(q) ||
-        item.categoria.toLowerCase().includes(q);
-      return matchCat && matchSearch;
+        item.categoria.toLowerCase().includes(q)
+      );
     });
-  }, [activeCategorySlug, searchQuery]);
+  };
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white pt-28 pb-28 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#080808] text-white pt-28 pb-32 relative overflow-hidden font-sans">
       {/* Subtle Ambient Glow */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#D90302]/10 blur-[180px] rounded-full pointer-events-none" />
 
@@ -116,7 +136,7 @@ export const WebMenuPage: React.FC = () => {
             </h1>
 
             <p className="mt-3 text-sm sm:text-base text-zinc-400 font-light leading-relaxed">
-              Explora nuestras secciones y ordena directamente por llamada telefónica con atención inmediata.
+              Visualiza las páginas reales de nuestra carta por categoría, selecciona tus platillos y ordena directamente por llamada telefónica.
             </p>
           </div>
 
@@ -133,7 +153,7 @@ export const WebMenuPage: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => openCallModal()}
+              onClick={() => openCallModal(selectedOrderItems.length > 0 ? selectedOrderItems.join(', ') : undefined)}
               className="px-5 py-3 rounded-full bg-[#D90302] hover:bg-[#b00201] text-xs font-bold text-white uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-[#D90302]/30 cursor-pointer"
             >
               <Phone className="w-4 h-4 text-[#EBFA00]" />
@@ -179,7 +199,7 @@ export const WebMenuPage: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar platillo o bebida..."
+                placeholder="Buscar platillo..."
                 className="w-full pl-10 pr-4 py-2.5 bg-[#121215] border border-white/10 rounded-full text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
               />
             </div>
@@ -198,7 +218,7 @@ export const WebMenuPage: React.FC = () => {
         ) : activeTab === 'interactive' ? (
           <>
             {/* Sticky Horizontal Scrolling Category Filter */}
-            <div className="sticky top-20 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 bg-[#080808]/95 backdrop-blur-xl border-b border-white/[0.06] mb-6">
+            <div className="sticky top-20 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 bg-[#080808]/95 backdrop-blur-xl border-b border-white/[0.06] mb-8">
               <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
                 {MENU_FILTER_CATEGORIES.map((cat) => {
                   const isActive = activeCategorySlug === cat.slug;
@@ -227,7 +247,7 @@ export const WebMenuPage: React.FC = () => {
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  className="mb-6 p-3.5 sm:p-4 rounded-2xl bg-[#141417] border border-[#D90302]/40 flex flex-wrap items-center justify-between gap-3"
+                  className="mb-8 p-3.5 sm:p-4 rounded-2xl bg-[#141417] border border-[#D90302]/40 flex flex-wrap items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-2.5 text-xs sm:text-sm">
                     <span className="w-2 h-2 rounded-full bg-[#D90302] animate-pulse" />
@@ -256,84 +276,152 @@ export const WebMenuPage: React.FC = () => {
               )}
             </AnimatePresence>
 
-            {/* Menu Cards Grid */}
-            {filteredItems.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                {filteredItems.map((item) => (
-                  <motion.article
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="group rounded-2xl overflow-hidden bg-[#121215] border border-white/[0.07] hover:border-[#D90302]/40 transition-all duration-300 flex flex-col shadow-xl"
-                  >
-                    <div className="relative h-48 w-full overflow-hidden bg-zinc-900">
-                      <img
-                        src={item.imagen}
-                        alt={item.nombre}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-90"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#121215] via-transparent to-transparent opacity-80" />
+            {/* Category Sections: Official PDF Page Photos + Text-Only Digital Menu Items */}
+            <div className="space-y-16">
+              {visibleCategories.map((cat) => {
+                const itemsInCat = filterDishesForCategory(cat.slug);
+                const pdfPages = CATEGORY_PDF_PAGES[cat.slug] || [];
 
-                      {item.destacado && (
-                        <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#D90302] text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
-                          <Sparkles className="w-3 h-3 text-[#EBFA00]" />
-                          <span>Destacado</span>
-                        </span>
-                      )}
+                if (searchQuery.trim() && itemsInCat.length === 0) {
+                  return null;
+                }
 
-                      <span className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/15 font-serif text-sm font-bold text-[#EBFA00]">
-                        Q{item.precioQ.toFixed(2)}
+                return (
+                  <section key={cat.slug} id={cat.slug} className="scroll-mt-36">
+                    {/* Category Title Bar */}
+                    <div className="flex items-center justify-between gap-3 mb-6 pb-3 border-b border-white/[0.08]">
+                      <div className="flex items-center gap-3">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#D90302]" />
+                        <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                          {cat.label}
+                        </h2>
+                      </div>
+                      <span className="text-[11px] text-zinc-500 font-mono">
+                        {itemsInCat.length} {itemsInCat.length === 1 ? 'opción' : 'opciones'}
                       </span>
                     </div>
 
-                    <div className="p-5 flex flex-col justify-between flex-grow">
-                      <div>
-                        <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-semibold block mb-1">
-                          {item.categoria}
-                        </span>
-                        <h2 className="font-serif text-lg font-bold text-white group-hover:text-[#EBFA00] transition-colors leading-snug">
-                          {item.nombre}
-                        </h2>
-                        <p className="mt-2 text-xs text-zinc-400 font-light leading-relaxed">
-                          {item.descripcion}
-                        </p>
-                      </div>
+                    {/* Official PDF Page Photos for this Category */}
+                    {pdfPages.length > 0 && !searchQuery.trim() && (
+                      <div className="mb-8">
+                        <div className="flex items-center gap-2 text-xs text-zinc-400 mb-3">
+                          <BookOpen className="w-3.5 h-3.5 text-[#EBFA00]" />
+                          <span className="uppercase tracking-wider font-semibold text-[11px]">
+                            Páginas del Menú Original ({cat.label}) — Toca para ampliar
+                          </span>
+                        </div>
 
-                      <div className="mt-5 pt-4 border-t border-white/[0.06]">
-                        <button
-                          type="button"
-                          onClick={() => openCallModal(item.nombre)}
-                          className="w-full py-2.5 px-4 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md shadow-[#D90302]/20 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
-                        >
-                          <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
-                          <span>📞 Ordenar por Llamada</span>
-                        </button>
+                        <div className="flex gap-4 overflow-x-auto pb-3 no-scrollbar">
+                          {pdfPages.map((page) => (
+                            <button
+                              key={page.image}
+                              type="button"
+                              onClick={() => setZoomedPage(page)}
+                              className="group relative shrink-0 w-48 sm:w-56 rounded-2xl overflow-hidden bg-[#121215] border border-white/10 hover:border-[#D90302]/60 transition-all shadow-xl cursor-pointer text-left"
+                            >
+                              <div className="aspect-[3/4] w-full overflow-hidden bg-zinc-900">
+                                <img
+                                  src={page.image}
+                                  alt={page.title}
+                                  loading="lazy"
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                              </div>
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors flex items-center justify-center">
+                                <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-full bg-black/80 text-white text-[11px] font-semibold flex items-center gap-1.5 border border-white/15">
+                                  <ZoomIn className="w-3.5 h-3.5 text-[#EBFA00]" />
+                                  <span>Ampliar</span>
+                                </span>
+                              </div>
+                              <div className="p-2.5 bg-[#121215] border-t border-white/[0.06]">
+                                <p className="text-[11px] font-medium text-zinc-300 truncate">
+                                  {page.title}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
                       </div>
+                    )}
+
+                    {/* Text-Only Digital Menu List (NO Dish Images) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {itemsInCat.map((item) => {
+                        const isAdded = selectedOrderItems.includes(item.nombre);
+                        return (
+                          <div
+                            key={item.id}
+                            className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
+                              isAdded
+                                ? 'bg-[#17171b] border-[#D90302]/60 shadow-lg'
+                                : 'bg-[#101013] hover:bg-[#141418] border-white/[0.06] hover:border-white/15'
+                            }`}
+                          >
+                            <div>
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h3 className="font-serif text-base sm:text-lg font-bold text-white leading-snug">
+                                    {item.nombre}
+                                  </h3>
+                                  {item.destacado && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider">
+                                      <Sparkles className="w-2.5 h-2.5" />
+                                      <span>Destacado</span>
+                                    </span>
+                                  )}
+                                </div>
+
+                                <span className="font-serif text-base sm:text-lg font-bold text-[#EBFA00] shrink-0">
+                                  Q{item.precioQ.toFixed(2)}
+                                </span>
+                              </div>
+
+                              <p className="mt-1.5 text-xs text-zinc-400 font-light leading-relaxed">
+                                {item.descripcion}
+                              </p>
+                            </div>
+
+                            {/* Actions: Agregar al pedido + Pedir por Llamada */}
+                            <div className="pt-3 border-t border-white/[0.05] flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => toggleOrderItem(item.nombre)}
+                                className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
+                                  isAdded
+                                    ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
+                                    : 'bg-white/[0.04] hover:bg-white/[0.09] border-white/10 text-zinc-300 hover:text-white'
+                                }`}
+                              >
+                                {isAdded ? (
+                                  <>
+                                    <Check className="w-3.5 h-3.5" />
+                                    <span>Agregado al pedido</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span>Agregar al pedido</span>
+                                  </>
+                                )}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => openCallModal(item.nombre)}
+                                className="py-2 px-3.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-[#D90302]/20 shrink-0"
+                              >
+                                <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
+                                <span>Pedir por Llamada</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  </motion.article>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-20 rounded-2xl bg-[#101012] border border-white/[0.06]">
-                <Utensils className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-                <h3 className="font-serif text-lg font-bold text-zinc-300">
-                  No encontramos platillos para &quot;{searchQuery}&quot;
-                </h3>
-                <p className="text-xs text-zinc-500 mt-1">
-                  Intenta con otro término o restablece los filtros.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleClearFilter}
-                  className="mt-4 px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 text-xs text-white transition-colors cursor-pointer"
-                >
-                  Ver menú completo
-                </button>
-              </div>
-            )}
+                  </section>
+                );
+              })}
+            </div>
           </>
         ) : (
           /* Ver Menú Original (PDF) Tab */
@@ -350,7 +438,7 @@ export const WebMenuPage: React.FC = () => {
 
               <div className="flex flex-wrap items-center gap-2.5">
                 <a
-                  href="/menu.pdf"
+                  href="/tonys-grill-menu.pdf"
                   download="Menu_Tonys_Grill.pdf"
                   className="px-4 py-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-white border border-white/15 transition-colors flex items-center gap-1.5"
                 >
@@ -372,7 +460,7 @@ export const WebMenuPage: React.FC = () => {
 
             <div className="w-full h-[70vh] min-h-[500px] bg-[#0a0a0c]">
               <iframe
-                src="/menu.pdf#view=FitH"
+                src="/tonys-grill-menu.pdf#view=FitH"
                 title="Menú Original Tony's Grill PDF"
                 className="w-full h-full border-0"
               />
@@ -380,6 +468,89 @@ export const WebMenuPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Pre-Selected Order Floating Summary (above mobile action bar) */}
+      <AnimatePresence>
+        {selectedOrderItems.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 24 }}
+            className="fixed bottom-20 md:bottom-24 inset-x-4 sm:inset-x-auto sm:left-6 sm:max-w-md z-40 p-4 rounded-2xl bg-[#141418]/95 border border-[#D90302]/40 shadow-2xl flex items-center justify-between gap-4 backdrop-blur-xl"
+          >
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                <Check className="w-4 h-4 text-[#03AF45] shrink-0" />
+                <span>
+                  {selectedOrderItems.length}{' '}
+                  {selectedOrderItems.length === 1 ? 'platillo en tu pedido' : 'platillos en tu pedido'}
+                </span>
+              </p>
+              <p className="text-[11px] text-zinc-400 truncate mt-0.5">
+                {selectedOrderItems.join(', ')}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => openCallModal(selectedOrderItems.join(', '))}
+                className="px-3.5 py-2 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer"
+              >
+                <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
+                <span>Llamar</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedOrderItems([])}
+                aria-label="Limpiar pedido"
+                className="p-1.5 text-zinc-400 hover:text-white text-xs cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Lightbox Modal for Zoomed PDF Menu Page */}
+      <AnimatePresence>
+        {zoomedPage && (
+          <div
+            onClick={() => setZoomedPage(null)}
+            className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-2xl w-full max-h-[90vh] flex flex-col rounded-2xl overflow-hidden bg-[#121215] border border-white/15 shadow-2xl"
+            >
+              <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+                <span className="text-xs font-semibold text-white">
+                  {zoomedPage.title}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setZoomedPage(null)}
+                  className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="overflow-y-auto p-2 bg-black flex justify-center">
+                <img
+                  src={zoomedPage.image}
+                  alt={zoomedPage.title}
+                  className="w-full h-auto rounded-lg"
+                />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
