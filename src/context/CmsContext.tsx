@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
+import {
+  CATEGORY_PDF_PAGES,
+  MENU_FILTER_CATEGORIES,
+  menuData,
+} from '../data/menuData';
 
 export interface CmsHeroData {
   tagline: string;
@@ -55,9 +60,15 @@ export interface CmsContactData {
   domain: string;
 }
 
+export interface CmsPdfPage {
+  title: string;
+  image: string;
+}
+
 export interface CmsCategory {
   id: string;
   label: string;
+  pdf_pages?: CmsPdfPage[];
 }
 
 export interface CmsMenuItem {
@@ -65,7 +76,9 @@ export interface CmsMenuItem {
   category_id: string;
   category_name: string;
   name: string;
+  description?: string;
   price: number;
+  destacado?: boolean;
 }
 
 export interface CmsPromoItem {
@@ -141,64 +154,20 @@ export const DEFAULT_CMS_DATA: CmsData = {
     facebookUrl: 'https://facebook.com/tonysgrillgt',
     domain: 'tonysgrillgt.com',
   },
-  categories: [
-    { id: 'carnes', label: 'Carnes & Parrilladas' },
-    { id: 'desayunos', label: 'Desayunos & Omelettes' },
-    { id: 'mariscos', label: 'Mariscos' },
-    { id: 'pastas', label: 'Pastas' },
-    { id: 'hamburguesas', label: 'Hamburguesas' },
-    { id: 'antojitos', label: 'Antojitos Típicos & Especiales' },
-    { id: 'pizzas', label: 'Pizzas' },
-  ],
-  menuItems: [
-    // Desayunos & Omelettes
-    { id: 'des-01', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'American Cheese Omelette', price: 45.00 },
-    { id: 'des-02', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'Spanish Omelette', price: 48.00 },
-    { id: 'des-03', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'Desayuno Económico', price: 35.00 },
-    { id: 'des-04', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'Desayuno Super', price: 45.00 },
-    { id: 'des-05', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'Desayuno Típico', price: 48.00 },
-    { id: 'des-06', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'Panqueques Simples (3 porciones)', price: 38.00 },
-    { id: 'des-07', category_id: 'desayunos', category_name: 'Desayunos & Omelettes', name: 'Tostadas Francesas Simples (2 porciones)', price: 33.00 },
-
-    // Carnes & Parrilladas
-    { id: 'car-01', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Lomito 8 Onzas', price: 155.00 },
-    { id: 'car-02', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Puyazo Americano', price: 140.00 },
-    { id: 'car-03', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Churrasquito Económico', price: 70.00 },
-    { id: 'car-04', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Mar y Tierra (Combo)', price: 169.00 },
-    { id: 'car-05', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Parrillada para 2 Personas', price: 219.00 },
-    { id: 'car-06', category_id: 'carnes', category_name: 'Carnes & Parrilladas', name: 'Entraña', price: 165.00 },
-
-    // Mariscos
-    { id: 'mar-01', category_id: 'mariscos', category_name: 'Mariscos', name: 'Salmón', price: 149.00 },
-    { id: 'mar-02', category_id: 'mariscos', category_name: 'Mariscos', name: 'Róbalo', price: 125.00 },
-    { id: 'mar-03', category_id: 'mariscos', category_name: 'Mariscos', name: 'Mojarra', price: 70.00 },
-    { id: 'mar-04', category_id: 'mariscos', category_name: 'Mariscos', name: 'Ceviche Pequeño', price: 75.00 },
-    { id: 'mar-05', category_id: 'mariscos', category_name: 'Mariscos', name: 'Tapado', price: 165.00 },
-
-    // Pastas
-    { id: 'pas-01', category_id: 'pastas', category_name: 'Pastas', name: 'Pollo Parmesano', price: 99.00 },
-    { id: 'pas-02', category_id: 'pastas', category_name: 'Pastas', name: 'Pasta Alfredo con Pollo', price: 99.00 },
-    { id: 'pas-03', category_id: 'pastas', category_name: 'Pastas', name: 'Pasta Bolognesa', price: 90.00 },
-    { id: 'pas-04', category_id: 'pastas', category_name: 'Pastas', name: 'Pasta al Ajillo con Camarones', price: 135.00 },
-
-    // Hamburguesas
-    { id: 'ham-01', category_id: 'hamburguesas', category_name: 'Hamburguesas', name: 'Hamburguesa Gemelas', price: 59.00 },
-    { id: 'ham-02', category_id: 'hamburguesas', category_name: 'Hamburguesas', name: 'Deluxe con Queso', price: 49.00 },
-    { id: 'ham-03', category_id: 'hamburguesas', category_name: 'Hamburguesas', name: 'Torito', price: 59.00 },
-    { id: 'ham-04', category_id: 'hamburguesas', category_name: 'Hamburguesas', name: 'Menú Infantil (Hamburguesa, Papas y Gaseosa)', price: 40.00 },
-
-    // Antojitos Típicos & Especiales
-    { id: 'ant-01', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Mexican Quesadillas', price: 60.00 },
-    { id: 'ant-02', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Burrito Chapín', price: 60.00 },
-    { id: 'ant-03', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Chuchitos', price: 35.00 },
-    { id: 'ant-04', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Rellenitos', price: 35.00 },
-    { id: 'ant-05', category_id: 'antojitos', category_name: 'Antojitos Típicos & Especiales', name: 'Enchiladas', price: 35.00 },
-
-    // Pizzas
-    { id: 'piz-01', category_id: 'pizzas', category_name: 'Pizzas', name: 'Pizza Peperoni (Mediana)', price: 55.00 },
-    { id: 'piz-02', category_id: 'pizzas', category_name: 'Pizzas', name: 'Pizza Margarita (Mediana)', price: 75.00 },
-    { id: 'piz-03', category_id: 'pizzas', category_name: 'Pizzas', name: 'Pizza Americana (Mediana)', price: 119.00 },
-  ],
+  categories: MENU_FILTER_CATEGORIES.filter((c) => c.slug !== 'todos').map((c) => ({
+    id: c.slug,
+    label: c.label,
+    pdf_pages: CATEGORY_PDF_PAGES[c.slug] || [],
+  })),
+  menuItems: menuData.map((item) => ({
+    id: item.id,
+    category_id: item.slugCategoria,
+    category_name: item.categoria,
+    name: item.nombre,
+    description: item.descripcion,
+    price: item.precioQ,
+    destacado: item.destacado,
+  })),
   promos: [
     {
       id: 'promo-1',
@@ -399,27 +368,40 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return;
       }
 
-      if (landingRow) {
-        setData((prev) => ({
-          ...prev,
-          hero: landingRow.hero || prev.hero,
-          about: landingRow.about || prev.about,
-          events: landingRow.events || prev.events,
-          contact: landingRow.contact || prev.contact,
-          categories: categoriesData && categoriesData.length > 0
-            ? categoriesData.map(c => ({ id: c.id, label: c.name }))
+      setData((prev) => ({
+        ...prev,
+        hero: landingRow?.hero || prev.hero,
+        about: landingRow?.about || prev.about,
+        events: landingRow?.events || prev.events,
+        contact: landingRow?.contact || prev.contact,
+        categories:
+          categoriesData && categoriesData.length > 0
+            ? categoriesData.map((c) => ({
+                id: c.id,
+                label: c.name,
+                pdf_pages:
+                  Array.isArray(c.pdf_pages) && c.pdf_pages.length > 0
+                    ? c.pdf_pages
+                    : CATEGORY_PDF_PAGES[c.id] || [],
+              }))
             : prev.categories,
-          menuItems: menuItemsData && menuItemsData.length > 0
-            ? menuItemsData.map(item => ({
+        menuItems:
+          menuItemsData && menuItemsData.length > 0
+            ? menuItemsData.map((item) => ({
                 id: item.id,
                 category_id: item.category_id,
-                category_name: categoriesData?.find(c => c.id === item.category_id)?.name || 'General',
+                category_name:
+                  categoriesData?.find((c) => c.id === item.category_id)?.name ||
+                  'General',
                 name: item.name,
+                description: item.description || '',
                 price: Number(item.price),
+                destacado: Boolean(item.destacado),
               }))
             : prev.menuItems,
-          promos: promosData && promosData.length > 0
-            ? promosData.map(p => ({
+        promos:
+          promosData && promosData.length > 0
+            ? promosData.map((p) => ({
                 id: p.id,
                 emoji: p.emoji || '🍳',
                 badge: p.badge || '',
@@ -432,8 +414,7 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 accentColor: p.accent_color || '#D90302',
               }))
             : prev.promos,
-        }));
-      }
+      }));
       setDataError(null);
     } catch (err: any) {
       console.warn('Supabase fetch encountered an issue:', err);
@@ -557,7 +538,9 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           id: newItem.id,
           category_id: newItem.category_id,
           name: newItem.name,
+          description: newItem.description || '',
           price: newItem.price,
+          destacado: Boolean(newItem.destacado),
         });
       } catch (err) {
         console.error('Supabase addMenuItem failed:', err);
@@ -577,8 +560,10 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         const payload: any = {};
         if (updates.name !== undefined) payload.name = updates.name;
+        if (updates.description !== undefined) payload.description = updates.description;
         if (updates.price !== undefined) payload.price = updates.price;
         if (updates.category_id !== undefined) payload.category_id = updates.category_id;
+        if (updates.destacado !== undefined) payload.destacado = updates.destacado;
 
         await supabase.from('menu_items').update(payload).eq('id', id);
       } catch (err) {

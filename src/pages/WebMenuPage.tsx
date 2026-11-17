@@ -15,18 +15,15 @@ import {
   BookOpen,
 } from 'lucide-react';
 import {
-  menuData,
-  MENU_FILTER_CATEGORIES,
   CATEGORY_PDF_PAGES,
   OFFICIAL_EXTERNAL_MENU_URL,
-  MenuDataItem,
 } from '../data/menuData';
-import { useCmsData } from '../context/CmsContext';
+import { useCmsData, CmsMenuItem } from '../context/CmsContext';
 import { useCallModal } from '../context/CallModalContext';
 import { SupabaseDataErrorFallback } from '../components/SupabaseDataErrorFallback';
 
 export const WebMenuPage: React.FC = () => {
-  const { dataError, isRetrying, refetchData } = useCmsData();
+  const { data, dataError, isRetrying, refetchData } = useCmsData();
   const { openCallModal } = useCallModal();
 
   const [activeTab, setActiveTab] = useState<'interactive' | 'pdf'>('interactive');
@@ -36,7 +33,11 @@ export const WebMenuPage: React.FC = () => {
   const [selectedOrderItems, setSelectedOrderItems] = useState<string[]>([]);
   const [zoomedPage, setZoomedPage] = useState<{ title: string; image: string } | null>(null);
 
-  // Requirement 2: AI Agent Deep Linking (?categoria=<slug>)
+  const filterCategories = useMemo(() => {
+    return [{ id: 'todos', label: 'Todos' }, ...data.categories];
+  }, [data.categories]);
+
+  // AI Agent Deep Linking (?categoria=<slug>) synced with Supabase categories
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -44,17 +45,17 @@ export const WebMenuPage: React.FC = () => {
     const categoriaParam = params.get('categoria')?.trim().toLowerCase();
 
     if (categoriaParam) {
-      const matched = MENU_FILTER_CATEGORIES.find(
-        (c) => c.slug.toLowerCase() === categoriaParam
+      const matched = filterCategories.find(
+        (c) => c.id.toLowerCase() === categoriaParam
       );
 
       if (matched) {
-        setActiveCategorySlug(matched.slug);
+        setActiveCategorySlug(matched.id);
         setActiveTab('interactive');
-        setIsDeepLinked(matched.slug !== 'todos');
+        setIsDeepLinked(matched.id !== 'todos');
       }
     }
-  }, []);
+  }, [filterCategories]);
 
   const handleSelectCategory = (slug: string) => {
     setActiveCategorySlug(slug);
@@ -93,26 +94,24 @@ export const WebMenuPage: React.FC = () => {
 
   const activeCategoryLabel = useMemo(() => {
     return (
-      MENU_FILTER_CATEGORIES.find((c) => c.slug === activeCategorySlug)?.label ||
-      'Todos'
+      filterCategories.find((c) => c.id === activeCategorySlug)?.label || 'Todos'
     );
-  }, [activeCategorySlug]);
+  }, [filterCategories, activeCategorySlug]);
 
   const visibleCategories = useMemo(() => {
-    const base = MENU_FILTER_CATEGORIES.filter((c) => c.slug !== 'todos');
-    if (activeCategorySlug === 'todos') return base;
-    return base.filter((c) => c.slug === activeCategorySlug);
-  }, [activeCategorySlug]);
+    if (activeCategorySlug === 'todos') return data.categories;
+    return data.categories.filter((c) => c.id === activeCategorySlug);
+  }, [data.categories, activeCategorySlug]);
 
-  const filterDishesForCategory = (slug: string): MenuDataItem[] => {
+  const filterDishesForCategory = (categoryId: string): CmsMenuItem[] => {
     const q = searchQuery.trim().toLowerCase();
-    return menuData.filter((item) => {
-      if (item.slugCategoria !== slug) return false;
+    return data.menuItems.filter((item) => {
+      if (item.category_id !== categoryId) return false;
       if (!q) return true;
       return (
-        item.nombre.toLowerCase().includes(q) ||
-        item.descripcion.toLowerCase().includes(q) ||
-        item.categoria.toLowerCase().includes(q)
+        item.name.toLowerCase().includes(q) ||
+        (item.description && item.description.toLowerCase().includes(q)) ||
+        (item.category_name && item.category_name.toLowerCase().includes(q))
       );
     });
   };
@@ -220,13 +219,13 @@ export const WebMenuPage: React.FC = () => {
             {/* Sticky Horizontal Scrolling Category Filter */}
             <div className="sticky top-20 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 bg-[#080808]/95 backdrop-blur-xl border-b border-white/[0.06] mb-8">
               <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                {MENU_FILTER_CATEGORIES.map((cat) => {
-                  const isActive = activeCategorySlug === cat.slug;
+                {filterCategories.map((cat) => {
+                  const isActive = activeCategorySlug === cat.id;
                   return (
                     <button
-                      key={cat.slug}
+                      key={cat.id}
                       type="button"
-                      onClick={() => handleSelectCategory(cat.slug)}
+                      onClick={() => handleSelectCategory(cat.id)}
                       className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
                         isActive
                           ? 'bg-[#D90302] text-white border-[#D90302] shadow-md shadow-[#D90302]/25'
@@ -276,18 +275,21 @@ export const WebMenuPage: React.FC = () => {
               )}
             </AnimatePresence>
 
-            {/* Category Sections: Official PDF Page Photos + Text-Only Digital Menu Items */}
+            {/* Category Sections: Official PDF Page Photos + Text-Only Digital Menu Items (Supabase Driven) */}
             <div className="space-y-16">
               {visibleCategories.map((cat) => {
-                const itemsInCat = filterDishesForCategory(cat.slug);
-                const pdfPages = CATEGORY_PDF_PAGES[cat.slug] || [];
+                const itemsInCat = filterDishesForCategory(cat.id);
+                const pdfPages =
+                  cat.pdf_pages && cat.pdf_pages.length > 0
+                    ? cat.pdf_pages
+                    : CATEGORY_PDF_PAGES[cat.id] || [];
 
                 if (searchQuery.trim() && itemsInCat.length === 0) {
                   return null;
                 }
 
                 return (
-                  <section key={cat.slug} id={cat.slug} className="scroll-mt-36">
+                  <section key={cat.id} id={cat.id} className="scroll-mt-36">
                     {/* Category Title Bar */}
                     <div className="flex items-center justify-between gap-3 mb-6 pb-3 border-b border-white/[0.08]">
                       <div className="flex items-center gap-3">
@@ -347,7 +349,7 @@ export const WebMenuPage: React.FC = () => {
                     {/* Text-Only Digital Menu List (NO Dish Images) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {itemsInCat.map((item) => {
-                        const isAdded = selectedOrderItems.includes(item.nombre);
+                        const isAdded = selectedOrderItems.includes(item.name);
                         return (
                           <div
                             key={item.id}
@@ -361,7 +363,7 @@ export const WebMenuPage: React.FC = () => {
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <h3 className="font-serif text-base sm:text-lg font-bold text-white leading-snug">
-                                    {item.nombre}
+                                    {item.name}
                                   </h3>
                                   {item.destacado && (
                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider">
@@ -372,20 +374,22 @@ export const WebMenuPage: React.FC = () => {
                                 </div>
 
                                 <span className="font-serif text-base sm:text-lg font-bold text-[#EBFA00] shrink-0">
-                                  Q{item.precioQ.toFixed(2)}
+                                  Q{Number(item.price).toFixed(2)}
                                 </span>
                               </div>
 
-                              <p className="mt-1.5 text-xs text-zinc-400 font-light leading-relaxed">
-                                {item.descripcion}
-                              </p>
+                              {item.description && (
+                                <p className="mt-1.5 text-xs text-zinc-400 font-light leading-relaxed">
+                                  {item.description}
+                                </p>
+                              )}
                             </div>
 
                             {/* Actions: Agregar al pedido + Pedir por Llamada */}
                             <div className="pt-3 border-t border-white/[0.05] flex items-center gap-2">
                               <button
                                 type="button"
-                                onClick={() => toggleOrderItem(item.nombre)}
+                                onClick={() => toggleOrderItem(item.name)}
                                 className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
                                   isAdded
                                     ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
@@ -407,7 +411,7 @@ export const WebMenuPage: React.FC = () => {
 
                               <button
                                 type="button"
-                                onClick={() => openCallModal(item.nombre)}
+                                onClick={() => openCallModal(item.name)}
                                 className="py-2 px-3.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-[#D90302]/20 shrink-0"
                               >
                                 <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />

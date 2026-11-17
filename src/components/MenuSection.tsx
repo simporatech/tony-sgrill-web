@@ -9,20 +9,18 @@ interface MenuSectionProps {
 }
 
 const CATEGORY_FALLBACK_IMAGES: Record<string, string[]> = {
-  carnes: [
+  'asados-y-carnes': [
     'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=1200&q=80',
   ],
-  pizzas: ['https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80'],
-  pastas: ['https://images.unsplash.com/photo-1621996346565-e3d5d6281728?auto=format&fit=crop&w=1200&q=80'],
-  hamburguesas: ['https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1200&q=80'],
+  'pizzas-y-lasanas': ['https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80'],
   desayunos: ['https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=1200&q=80'],
-  mariscos: ['https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1200&q=80'],
-  antojitos: ['https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1200&q=80'],
+  sopas: ['https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1200&q=80'],
+  crepas: ['https://images.unsplash.com/photo-1519676867240-f03562e64548?auto=format&fit=crop&w=1200&q=80'],
 };
 
-const SIGNATURE_IDS = ['car-01', 'car-05', 'car-06'];
+const SIGNATURE_IDS = ['car-01', 'car-02', 'car-03'];
 
 export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
   const { data, dataError, isRetrying, refetchData } = useCmsData();
@@ -38,7 +36,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
       return byId;
     }
 
-    const carnes = items.filter((item) => item.category_id === 'carnes');
+    const carnes = items.filter((item) => item.category_id === 'asados-y-carnes');
     if (carnes.length >= 3) {
       return carnes.slice(0, 3);
     }
@@ -47,7 +45,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
   }, [data.menuItems]);
 
   const getDishImage = (categoryId: string, index: number) => {
-    const pool = CATEGORY_FALLBACK_IMAGES[categoryId] || CATEGORY_FALLBACK_IMAGES.carnes;
+    const pool = CATEGORY_FALLBACK_IMAGES[categoryId] || CATEGORY_FALLBACK_IMAGES['asados-y-carnes'];
     return pool[index % pool.length];
   };
 
