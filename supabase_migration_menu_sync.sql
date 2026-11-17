@@ -110,16 +110,19 @@ VALUES
     'Menú de Eventos',
     8,
     '[
-      {"title": "Eventos: Entradas y Platillos Fuertes", "image": "/menu-pages/eventos-1.jpg"},
-      {"title": "Eventos: Menú Infantil y Refacciones Saladas", "image": "/menu-pages/eventos-2.jpg"},
-      {"title": "Eventos: Servicio V.I.P., Descorche y Pagos", "image": "/menu-pages/eventos-3.jpg"},
-      {"title": "Eventos: Condiciones y Salón 2 Nivel", "image": "/menu-pages/eventos-4.jpg"}
+      {"title": "Eventos 2026: Entradas y Platillos Fuertes", "image": "/menu-pages/eventos-1.jpg"},
+      {"title": "Eventos 2026: Menú Infantil y Refacciones Saladas", "image": "/menu-pages/eventos-2.jpg"},
+      {"title": "Eventos 2026: Descorche, Horarios y Pagos", "image": "/menu-pages/eventos-3.jpg"},
+      {"title": "Eventos 2026: Salón 1 Nivel y Condiciones", "image": "/menu-pages/eventos-4.jpg"}
     ]'::jsonb
   )
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   display_order = EXCLUDED.display_order,
   pdf_pages = EXCLUDED.pdf_pages;
+
+-- Limpiar por completo los platillos anteriores de Eventos 2024 antes de cargar Eventos 2026
+DELETE FROM public.menu_items WHERE category_id = 'eventos';
 
 -- 4. Insertar / Actualizar todos los platillos del menú vinculados a las categorías reales
 INSERT INTO public.menu_items (id, category_id, name, description, price, destacado)
@@ -169,33 +172,32 @@ VALUES
   ('pro-02', 'promociones', 'Martes de Pizza 2x1', 'Todos los martes llévate dos pizzas artesanales medianas (Peperoni o Margarita).', 75.00, true),
   ('pro-03', 'promociones', 'Combo Parrillada Familiar + Bebidas', 'Parrillada para compartir acompañada de guarniciones y jarra de limonada natural.', 249.00, false),
 
-  -- Menú de Eventos (Septiembre 2024)
-  ('evt-01', 'eventos', 'Nachos Chili Beans o Supremos (Eventos)', 'Porción de nachos con salsa de frijol, carne, pico de gallo o guacamol.', 60.00, false),
-  ('evt-02', 'eventos', 'Ensalada de Chorizo Argentino (Eventos)', 'Chorizo argentino asado a la parrilla con chimichurri cortado en rodajas con ensalada de lechuga pequeña.', 70.00, false),
-  ('evt-03', 'eventos', 'Nachos con Frijol o Guacamol (Eventos)', 'Porción de nachos con frijol volteado de la casa o con queso derretido.', 60.00, false),
-  ('evt-04', 'eventos', 'Pechuga Rellena (Eventos)', 'Filete de pollo relleno con jamón y queso, bañado en salsa bechamel, acompañado de verduras y arroz, pan o tortilla. (Opción V.I.P.: Q110.00)', 100.00, false),
-  ('evt-05', 'eventos', 'Parrillada para 1 Persona (Eventos)', '4 oz de puyazo importado, 4 oz de filete de pollo, chorizo argentino, ensalada rusa, elote, frijol, guacamol, chirmol, cebollín, papa asada, tortillas o pan. (Opción V.I.P.: Q125.00)', 115.00, true),
-  ('evt-06', 'eventos', 'Filete de Pollo (Eventos)', 'Filete de pollo a la parrilla bañado en salsa blanca con champiñones y toque de espinaca, con arroz, verduras salteadas y tortillas o pan. (Opción V.I.P.: Q105.00)', 95.00, false),
-  ('evt-07', 'eventos', 'Churrasco Chapín (Eventos)', 'Filete de puyazo o lomito nacional, chorizo argentino, papa asada, frijol volteado, chirmol, guacamol, queso fresco, tortillas o pan. (Opción V.I.P.: Q135.00)', 125.00, true),
-  ('evt-08', 'eventos', 'Pollo con Champiñones (Eventos)', 'Pieza de pollo con hueso a la parrilla cocinada en salsa a base de vino blanco con champiñones salteados, pan o tortillas. (Opción V.I.P.: Q95.00)', 85.00, false),
-  ('evt-09', 'eventos', 'Puyazo al Vino Tinto (Eventos)', '6 oz de puyazo importado sellado a la parrilla, cocinado en vino tinto con papas baby sazonadas y ensalada de lechuga, tortillas o pan. (Opción V.I.P.: Q140.00)', 130.00, true),
-  ('evt-10', 'eventos', 'Chuleta de Cerdo al Vino (Eventos)', 'Dos porciones de chuleta de cerdo en salsa de vino tinto, acompañado con arroz y zucchinis salteados con tortillas o pan. (Opción V.I.P.: Q115.00)', 100.00, false),
-  ('evt-11', 'eventos', 'Costilla de Cerdo a la Brasa (Eventos)', 'Costilla de exportación con toque especial del chef, acompañada de vegetales salteados y arroz, con tortillas o pan. (Opción V.I.P.: Q120.00)', 115.00, false),
-  ('evt-12', 'eventos', 'Pierna de Cerdo Horneada (Eventos)', '8 oz de pierna de cerdo acompañada con arroz y ensalada rusa, tortillas o pan. (Opción V.I.P.: Q110.00)', 100.00, false),
-  ('evt-13', 'eventos', 'Filete de Pollo a la Florentina (Eventos)', 'Filete de pollo a la plancha en salsa de hongos con toque de crema, acompañado de puré de papa y vegetales salteados, tortillas o pan. (Opción V.I.P.: Q110.00)', 100.00, false),
-  ('evt-14', 'eventos', 'Dedos de Pollo Infantil (Eventos)', 'Deditos de pollo empanizados acompañados de papas fritas.', 55.00, false),
-  ('evt-15', 'eventos', 'Hamburguesa con Papas Infantil (Eventos)', 'Hamburguesa de res con queso Kraft, vegetales y papas fritas.', 55.00, false),
-  ('evt-16', 'eventos', 'Tony''s Hot Dog Infantil (Eventos)', 'Hot dog con repollo, salchicha, guacamol, salsa dulce y mostaza con papas fritas.', 55.00, false),
-  ('evt-17', 'eventos', 'Mini Pizza Infantil (Eventos)', 'Mini pizza de la casa de carne, jamón o salchicha.', 55.00, false),
-  ('evt-18', 'eventos', 'Pieza de Pollo Infantil (Eventos)', 'Pieza de pollo frita o asada acompañada de papas fritas.', 55.00, false),
-  ('evt-19', 'eventos', 'Quesadillas de Res, Pollo o Mixtas (Eventos)', 'Refacción salada acompañada de aderezo de la casa, papas fritas, ensalada de lechuga, frijol volteado y crema.', 65.00, false),
-  ('evt-20', 'eventos', 'Baguette con Pierna Horneada (Eventos)', 'Pierna de cerdo horneada desmenuzada en baguette de la casa con tomate, lechuga, cebolla y papas fritas.', 60.00, false),
-  ('evt-21', 'eventos', 'Baguette con Pasta de Pollo (Eventos)', 'Baguette de la casa acompañado con tomate, lechuga, pasta de pollo y papas fritas.', 55.00, false),
-  ('evt-22', 'eventos', 'Burrito Chapín (Eventos)', 'Burrito de pollo, res o mixto en tortilla de harina con arroz, aguacate, lechuga, frijol, nachos, pico de gallo y papas fritas.', 65.00, false),
-  ('evt-23', 'eventos', 'Club Sandwich (Eventos)', 'Combinación perfecta de jamón, tocino y pollo acompañado de papas fritas y ensalada de repollo.', 65.00, false),
-  ('evt-24', 'eventos', 'Baguette Cheese Steak (Eventos)', 'Baguette horneado de la casa con lechuga, tomate, cebolla, filete de res sobre queso mozzarella fundido y papas fritas.', 80.00, false),
-  ('evt-25', 'eventos', 'Crepas Dulces (Eventos)', 'Crepa de caramelo, chocolate o Nutella acompañada con fresa o banano y helado.', 75.00, false),
-  ('evt-26', 'eventos', 'Hamburguesas Deluxe (Eventos)', 'Hamburguesa con torta de res a la parrilla, lechuga, tomate, cebolla y queso Kraft, con papas fritas y ensalada de repollo.', 60.00, false)
+  -- Menú de Eventos 2026
+  ('evt-01', 'eventos', 'Nachos Chili Beans o Supremos (Eventos)', 'Porción de nachos con salsa de frijol, carne, pico de gallo o guacamole.', 65.00, false),
+  ('evt-02', 'eventos', 'Ensalada de Chorizo Argentino (Eventos)', 'Chorizo argentino asado a la parrilla con chimichurri cortado en rodajas con ensalada de lechuga pequeña.', 75.00, false),
+  ('evt-03', 'eventos', 'Nachos con Frijol o Guacamole (Eventos)', 'Porción de nachos con frijol volteado de la casa o con queso derretido.', 60.00, false),
+  ('evt-04', 'eventos', 'Pechuga Rellena (Eventos)', 'Filete de pollo relleno con jamón y queso, bañado en salsa bechamel, acompañado de verduras y arroz, pan o tortilla. (Opción V.I.P.: Q125.00)', 110.00, false),
+  ('evt-05', 'eventos', 'Parrillada para 1 Persona (Eventos)', '4 oz de puyazo importado, 4 oz de filete de pollo, chorizo argentino, ensalada rusa, elote, frijol, guacamole, chirmol, cebollín, papa asada, tortillas o pan. (Opción V.I.P.: Q150.00)', 135.00, true),
+  ('evt-06', 'eventos', 'Filete de Pollo (Eventos)', 'Exquisito filete de pollo a la parrilla bañado en salsa blanca con champiñones y toque de espinaca, con arroz, verduras salteadas y tortillas o pan. (Opción V.I.P.: Q125.00)', 105.00, false),
+  ('evt-07', 'eventos', 'Churrasco Chapín (Eventos)', 'Filete de puyazo o lomito nacional, chorizo argentino, papa asada, frijol volteado, chirmol, guacamole, queso fresco, tortillas o pan. (Opción V.I.P.: Q155.00)', 135.00, true),
+  ('evt-08', 'eventos', 'Pollo con Champiñones (Eventos)', 'Pieza de pollo con hueso a la parrilla cocinada en salsa a base de vino blanco con champiñones salteados, pan o tortillas. (Opción V.I.P.: Q125.00)', 100.00, false),
+  ('evt-09', 'eventos', 'Puyazo al Vino Tinto (Eventos)', '6 oz de puyazo importado sellado sobre la parrilla y cocinado en vino tinto, acompañado con papas baby sazonadas y ensalada de lechuga, tortillas o pan. (Opción V.I.P.: Q180.00)', 165.00, true),
+  ('evt-10', 'eventos', 'Costilla de Cerdo a la Brasa (Eventos)', 'Exquisita costilla de exportación con toque especial del chef, acompañada de vegetales salteados y arroz, con tortillas o pan. (Opción V.I.P.: Q140.00)', 120.00, false),
+  ('evt-11', 'eventos', 'Pierna de Cerdo Horneada (Eventos)', '8 oz de pierna de cerdo acompañada con arroz y ensalada rusa, tortillas o pan. (Opción V.I.P.: Q135.00)', 125.00, false),
+  ('evt-12', 'eventos', 'Filete de Pollo a la Florentina (Eventos)', 'Filete de pollo a la plancha en salsa de hongos con toque de crema, acompañado de puré de papa y vegetales salteados, tortillas o pan. (Opción V.I.P.: Q130.00)', 115.00, false),
+  ('evt-13', 'eventos', 'Dedos de Pollo Infantil (Eventos)', 'Deditos de pollo empanizados acompañados de papas fritas.', 65.00, false),
+  ('evt-14', 'eventos', 'Hamburguesa con Papas Infantil (Eventos)', 'Hamburguesa de res con queso Kraft, vegetales y papas fritas.', 65.00, false),
+  ('evt-15', 'eventos', 'Tony''s Hot Dog Infantil (Eventos)', 'Delicioso hot dog con repollo, salchicha, guacamole, salsa dulce y mostaza con papas fritas.', 65.00, false),
+  ('evt-16', 'eventos', 'Mini Pizza Infantil (Eventos)', 'Exquisita mini pizza de la casa de carne, jamón o salchicha.', 65.00, false),
+  ('evt-17', 'eventos', 'Pieza de Pollo Infantil (Eventos)', 'Pieza de pollo frita o asada acompañada de papas fritas.', 65.00, false),
+  ('evt-18', 'eventos', 'Quesadillas de Res, Pollo o Mixtas (Eventos)', 'Refacción salada acompañada de aderezo de la casa, papas fritas, ensalada de lechuga, frijol volteado y crema.', 75.00, false),
+  ('evt-19', 'eventos', 'Baguette con Pierna Horneada (Eventos)', 'Pierna de cerdo horneada desmenuzada en baguette de la casa con tomate, lechuga, cebolla y papas fritas.', 80.00, false),
+  ('evt-20', 'eventos', 'Baguettes con Pasta de Pollo (Eventos)', 'Baguette de la casa acompañado con tomate, lechuga, pasta de pollo y papas fritas.', 75.00, false),
+  ('evt-21', 'eventos', 'Burrito Chapín (Eventos)', 'Burrito de pollo, res o mixto en tortilla de harina con arroz, aguacate, lechuga, frijol, nachos, pico de gallo y papas fritas.', 75.00, false),
+  ('evt-22', 'eventos', 'Club Sandwich (Eventos)', 'Combinación perfecta de jamón, tocino y pollo acompañado de papas fritas y ensalada de repollo.', 75.00, false),
+  ('evt-23', 'eventos', 'Bagueth Cheese Steack (Eventos)', 'Delicioso baguette horneado de la casa con lechuga, tomate, cebolla, jugoso filete de res sobre queso mozzarella fundido y papas fritas.', 100.00, false),
+  ('evt-24', 'eventos', 'Crepas Dulce (Eventos)', 'Crepa de caramelo, chocolate o Nutella acompañada con fresa o banano y helado.', 75.00, false),
+  ('evt-25', 'eventos', 'Hamburguesas Deluxe (Eventos)', 'Hamburguesa con torta de res a la parrilla, lechuga, tomate, cebolla y queso Kraft, con papas fritas y ensalada de repollo.', 75.00, false)
 ON CONFLICT (id) DO UPDATE SET
   category_id = EXCLUDED.category_id,
   name = EXCLUDED.name,
