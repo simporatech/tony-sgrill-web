@@ -157,7 +157,7 @@ VALUES
   ('piz-03', 'pizzas-y-lasanas', 'Pizza Peperoni (Mediana)', 'Crujiente masa artesanal cubierta con abundante pepperoni dorado y queso mozzarella.', 55.00, false),
   ('piz-04', 'pizzas-y-lasanas', 'Pollo Parmesano', 'Pechuga empanizada gratinada con mozzarella y salsa marinara acompañada de pasta.', 99.00, false),
   ('piz-05', 'pizzas-y-lasanas', 'Pasta Alfredo con Pollo', 'Fettuccine bañado en cremosa salsa Alfredo de queso parmesano con tiras de pollo asado.', 99.00, false),
-  ('piz-06', 'pizzas-y-lasanas', 'Lasaña Bolognesa Gratinada', 'Capas de pasta fresca con carne molida en salsa bolognesa tradicional y queso gratinado.', 90.00, false),
+  ('piz-06', 'pizzas-y-lasanas', 'Lasaña Bolognesa Gratinada', 'Capas de pasta fresca con carne molida en salsa bolognesa tradicional y queso gratinado.', 63.00, false),
 
   -- Bebidas
   ('beb-01', 'bebidas', 'Limonada con Soda / Hierbabuena', 'Refrescante limonada natural recién exprimida con toque de hierbabuena o agua mineral.', 22.00, false),

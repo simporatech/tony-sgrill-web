@@ -365,7 +365,7 @@ export const menuData: MenuDataItem[] = [
     slugCategoria: 'pizzas-y-lasanas',
     nombre: 'Lasaña Bolognesa Gratinada',
     descripcion: 'Capas de pasta fresca con carne molida en salsa bolognesa tradicional y queso gratinado.',
-    precioQ: 90.00,
+    precioQ: 63.00,
     imagen: 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?auto=format&fit=crop&w=900&q=80',
     destacado: false,
   },
