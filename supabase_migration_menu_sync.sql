@@ -13,14 +13,25 @@ ALTER TABLE public.menu_items
   ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '',
   ADD COLUMN IF NOT EXISTS destacado BOOLEAN DEFAULT false;
 
--- 2. Actualizar la dirección oficial en landing_content
+-- 2. Actualizar la dirección oficial y las fotografías reales en landing_content
 UPDATE public.landing_content
-SET contact = jsonb_set(
-  contact,
-  '{address}',
-  '"9 Calle, 15 Avenida, Zona 6, Colonia Las Lomas de Chiquimula, frente a Zona Vial 8, Chiquimula 20001, Guatemala."'::jsonb
-),
-updated_at = timezone('utc'::text, now())
+SET
+  contact = jsonb_set(
+    contact,
+    '{address}',
+    '"9 Calle, 15 Avenida, Zona 6, Colonia Las Lomas de Chiquimula, frente a Zona Vial 8, Chiquimula 20001, Guatemala."'::jsonb
+  ),
+  hero = jsonb_set(
+    hero,
+    '{bgImageUrl}',
+    '"/images/puyazo-importado.jpg"'::jsonb
+  ),
+  events = jsonb_set(
+    events,
+    '{imageUrl}',
+    '"/images/fajitas-mixtas.jpg"'::jsonb
+  ),
+  updated_at = timezone('utc'::text, now())
 WHERE id = 'main';
 
 -- 3. Insertar / Actualizar las 7 categorías oficiales con sus páginas del PDF

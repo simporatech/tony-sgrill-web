@@ -10,17 +10,17 @@ interface MenuSectionProps {
 
 const CATEGORY_FALLBACK_IMAGES: Record<string, string[]> = {
   'asados-y-carnes': [
-    'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=1200&q=80',
+    '/images/puyazo-importado.jpg',
+    '/images/mar-y-tierra.jpg',
+    '/images/churrasquito-res.jpg',
   ],
-  'pizzas-y-lasanas': ['https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80'],
-  desayunos: ['https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=1200&q=80'],
-  sopas: ['https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1200&q=80'],
-  crepas: ['https://images.unsplash.com/photo-1519676867240-f03562e64548?auto=format&fit=crop&w=1200&q=80'],
+  'pizzas-y-lasanas': ['/images/promo-lasana.jpg'],
+  desayunos: ['/images/promo-desayuno.jpg'],
+  sopas: ['/images/costilla-ahumada.jpg'],
+  crepas: ['/images/promo-capuchino.jpg'],
 };
 
-const SIGNATURE_IDS = ['car-01', 'car-02', 'car-03'];
+const SIGNATURE_IDS = ['car-03', 'car-05', 'car-06'];
 
 export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
   const { data, dataError, isRetrying, refetchData } = useCmsData();
