@@ -128,7 +128,7 @@ export const DEFAULT_CMS_DATA: CmsData = {
     eyebrow: 'Ubicación',
     title: 'Visítenos en',
     titleAccent: 'Chiquimula',
-    address: '9 Calle, 15 Avenida, zona 6 colonia las lomas de Chiquimula, Frente a zona vial 8 Guatemala, Chiquimula 20001',
+    address: '9 Calle, 15 Avenida, Zona 6, Colonia Las Lomas de Chiquimula, frente a Zona Vial 8, Chiquimula 20001, Guatemala.',
     phone: '+502 7942 4777',
     phoneRaw: '+50279424777',
     whatsapp: '+502 5218 8115',

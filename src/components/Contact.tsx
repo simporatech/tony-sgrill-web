@@ -13,10 +13,18 @@ import {
   Send
 } from 'lucide-react';
 import { useCmsData } from '../context/CmsContext';
+import { useCallModal } from '../context/CallModalContext';
+import {
+  OFFICIAL_ADDRESS,
+  OFFICIAL_PHONE_LINES,
+  WHATSAPP_INQUIRY_TEXT,
+} from '../data/menuData';
 
 export const Contact: React.FC = () => {
   const { data } = useCmsData();
+  const { openCallModal } = useCallModal();
   const contact = data.contact;
+  const displayAddress = OFFICIAL_ADDRESS;
   const [copied, setCopied] = useState<boolean>(false);
 
   // Quick Contact Form states
@@ -27,7 +35,7 @@ export const Contact: React.FC = () => {
   const [sentSuccess, setSentSuccess] = useState(false);
 
   const handleCopyAddress = () => {
-    navigator.clipboard.writeText(contact.address);
+    navigator.clipboard.writeText(displayAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
@@ -54,8 +62,9 @@ export const Contact: React.FC = () => {
     }, 400);
   };
 
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Tony's Grill " + contact.address)}`;
-  const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent("Tony's Grill Chiquimula")}`;
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Tony's Grill " + displayAddress)}`;
+  const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent("Tony's Grill Chiquimula " + displayAddress)}`;
+  const whatsappInquiryUrl = `https://wa.me/${contact.whatsappRaw}?text=${encodeURIComponent(WHATSAPP_INQUIRY_TEXT)}`;
 
   return (
     <section 
@@ -80,14 +89,15 @@ export const Contact: React.FC = () => {
           {/* Info Details (6 cols) */}
           <div className="lg:col-span-6 space-y-3 flex flex-col justify-between">
             
-            {/* Address */}
+            {/* Dual-Navigation Location Block */}
             <div className="p-5 rounded-2xl bg-[#121212] border border-white/[0.06]">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2 text-zinc-400">
                   <MapPin className="w-4 h-4 text-[#D90302]" />
-                  <span className="text-xs font-semibold uppercase tracking-wider">Dirección</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider">Ubicación Chiquimula</span>
                 </div>
                 <button
+                  type="button"
                   onClick={handleCopyAddress}
                   className="text-[11px] text-zinc-400 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
                 >
@@ -106,61 +116,90 @@ export const Contact: React.FC = () => {
               </div>
 
               <p className="mt-2 text-xs sm:text-sm font-medium text-white leading-relaxed">
-                {contact.address}
+                {displayAddress}
               </p>
 
-              <div className="mt-3 flex items-center gap-2">
+              {/* Two Side-by-Side Navigation Buttons with SVG Icons */}
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <a
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                  className="px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-white border border-white/10 hover:border-[#D90302]/50 flex items-center justify-center gap-2 transition-all"
                 >
-                  <Navigation className="w-3 h-3 text-[#EBFA00]" />
-                  <span>Google Maps</span>
-                  <ExternalLink className="w-2.5 h-2.5 text-zinc-500" />
+                  {/* Google Maps Pin SVG */}
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#EA4335" />
+                    <circle cx="12" cy="9" r="2.6" fill="#FFFFFF" />
+                  </svg>
+                  <span>Abrir en Google Maps</span>
                 </a>
 
                 <a
                   href={wazeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-zinc-300 hover:text-white border border-white/10 flex items-center gap-1.5 transition-colors"
+                  className="px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-white border border-white/10 hover:border-[#33CCFF]/50 flex items-center justify-center gap-2 transition-all"
                 >
-                  <span>Waze</span>
-                  <ExternalLink className="w-2.5 h-2.5 text-zinc-500" />
+                  {/* Waze SVG */}
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M19.5 11.5C19.5 6.8 15.8 3.5 11.5 3.5C7 3.5 3.5 6.9 3.5 11.3C3.5 13.7 4.5 15.4 5.7 16.5C5.5 17.4 5 18.2 4.3 18.7C5.8 19.2 7.5 19 8.7 18.3C9.6 18.6 10.6 18.8 11.5 18.8C16.2 18.8 19.5 15.6 19.5 11.5Z" fill="#33CCFF" />
+                    <circle cx="9.2" cy="10.5" r="1.1" fill="#0A0A0A" />
+                    <circle cx="14.2" cy="10.5" r="1.1" fill="#0A0A0A" />
+                    <path d="M9.5 13.5C10.2 14.5 13.2 14.5 14 13.5" stroke="#0A0A0A" strokeWidth="1.3" strokeLinecap="round" />
+                    <circle cx="8" cy="19.5" r="1.5" fill="#FFFFFF" />
+                    <circle cx="15" cy="19.5" r="1.5" fill="#FFFFFF" />
+                  </svg>
+                  <span>Ir con Waze</span>
                 </a>
               </div>
             </div>
 
-            {/* Direct Phone & WhatsApp */}
-            <div className="p-5 rounded-2xl bg-[#121212] border border-white/[0.06] grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Direct Phone Lines (Primary) & WhatsApp Inquiry (Secondary) */}
+            <div className="p-5 rounded-2xl bg-[#121212] border border-white/[0.06] grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <div className="flex items-center gap-2 text-zinc-400 mb-1">
-                  <Phone className="w-3.5 h-3.5 text-[#03AF45]" />
-                  <span className="text-xs uppercase tracking-wider font-semibold">Teléfono</span>
+                <div className="flex items-center justify-between gap-2 text-zinc-400 mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-[#D90302]" />
+                    <span className="text-xs uppercase tracking-wider font-semibold">Líneas de Orden</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => openCallModal()}
+                    className="text-[10px] font-bold uppercase tracking-wider text-[#EBFA00] hover:underline cursor-pointer"
+                  >
+                    Ver todas
+                  </button>
                 </div>
-                <a 
-                  href={`tel:${contact.phoneRaw}`}
-                  className="text-xs sm:text-sm font-bold text-white hover:text-zinc-300"
-                >
-                  {contact.phone}
-                </a>
+                <div className="space-y-1">
+                  {OFFICIAL_PHONE_LINES.map((line) => (
+                    <a
+                      key={line.href}
+                      href={line.href}
+                      className="block text-xs sm:text-sm font-bold text-white hover:text-[#EBFA00] transition-colors"
+                    >
+                      {line.display}
+                    </a>
+                  ))}
+                </div>
               </div>
 
               <div>
-                <div className="flex items-center gap-2 text-zinc-400 mb-1">
+                <div className="flex items-center gap-2 text-zinc-400 mb-2">
                   <MessageCircle className="w-3.5 h-3.5 text-[#03AF45]" />
-                  <span className="text-xs uppercase tracking-wider font-semibold">WhatsApp</span>
+                  <span className="text-xs uppercase tracking-wider font-semibold">Consultas WhatsApp</span>
                 </div>
                 <a 
-                  href={`https://wa.me/${contact.whatsappRaw}`}
+                  href={whatsappInquiryUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs sm:text-sm font-bold text-white hover:text-[#03AF45]"
+                  className="text-xs sm:text-sm font-bold text-white hover:text-[#03AF45] transition-colors block"
                 >
                   {contact.whatsapp}
                 </a>
+                <p className="text-[11px] text-zinc-500 mt-1 font-light">
+                  Solo consultas sobre el menú
+                </p>
               </div>
             </div>
 

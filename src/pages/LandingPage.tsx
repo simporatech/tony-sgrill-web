@@ -36,16 +36,16 @@ export const LandingPage: React.FC = () => {
       {/* 1. Hero Section */}
       <Hero />
 
-      {/* 2. About Us */}
-      <AboutSection />
-
-      {/* 3. Events & Banquets */}
-      <EventsSection />
-
-      {/* 4. Menu Showcase */}
+      {/* 2. Unified Interactive & PDF Menu (High Priority Placement) */}
       <MenuSection
         onOpenPdfMenu={() => navigate('/menu-pdf')}
       />
+
+      {/* 3. About Us */}
+      <AboutSection />
+
+      {/* 4. Events & Banquets */}
+      <EventsSection />
 
       {/* 5. Reservation Form */}
       <ReservationForm />

@@ -35,7 +35,7 @@ export const RESTAURANT_INFO = {
   tagline: "El Arte del Fuego en Chiquimula",
   headline: "La Experiencia Definitiva de Fuego & Sabor en Chiquimula",
   subheadline: "Cortes de carne selectos madurados a la perfección, pizzas a la leña, pastas artesanales y recetas familiares que honran la tradición del buen comer.",
-  address: "9 Calle, 15 Avenida, zona 6 colonia las lomas de Chiquimula, Frente a zona vial 8 Guatemala, Chiquimula 20001",
+  address: "9 Calle, 15 Avenida, Zona 6, Colonia Las Lomas de Chiquimula, frente a Zona Vial 8, Chiquimula 20001, Guatemala.",
   shortAddress: "Zona 6, Col. Las Lomas, Chiquimula",
   phone: "+502 7942 4777",
   phoneRaw: "+50279424777",

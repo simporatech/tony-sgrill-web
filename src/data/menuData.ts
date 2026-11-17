@@ -1,0 +1,377 @@
+export interface MenuDataItem {
+  id: string;
+  categoria: string;
+  slugCategoria: string;
+  nombre: string;
+  descripcion: string;
+  precioQ: number;
+  imagen: string;
+  destacado: boolean;
+}
+
+export interface MenuCategoryFilter {
+  label: string;
+  slug: string;
+}
+
+export const MENU_FILTER_CATEGORIES: MenuCategoryFilter[] = [
+  { label: 'Todos', slug: 'todos' },
+  { label: 'Desayunos', slug: 'desayunos' },
+  { label: 'Asados y Carnes', slug: 'asados-y-carnes' },
+  { label: 'Sopas', slug: 'sopas' },
+  { label: 'Crepas', slug: 'crepas' },
+  { label: 'Pizzas y Lasañas', slug: 'pizzas-y-lasanas' },
+  { label: 'Bebidas', slug: 'bebidas' },
+  { label: 'Promociones', slug: 'promociones' },
+];
+
+export const OFFICIAL_PHONE_LINES = [
+  {
+    label: 'Línea 1',
+    display: '+502 7942-4777',
+    href: 'tel:+50279424777',
+  },
+  {
+    label: 'Línea 2',
+    display: '+502 7942-4776',
+    href: 'tel:+50279424776',
+  },
+  {
+    label: 'Línea 3',
+    display: '+502 5237-5638',
+    href: 'tel:+50252375638',
+  },
+] as const;
+
+export const OFFICIAL_ADDRESS =
+  '9 Calle, 15 Avenida, Zona 6, Colonia Las Lomas de Chiquimula, frente a Zona Vial 8, Chiquimula 20001, Guatemala.';
+
+export const OFFICIAL_EXTERNAL_MENU_URL = 'https://qrco.de/bg9N41';
+
+export const WHATSAPP_INQUIRY_TEXT = "Hola Tony's Grill, tengo una consulta sobre el menú";
+
+export const menuData: MenuDataItem[] = [
+  // ================= DESAYUNOS =================
+  {
+    id: 'des-01',
+    categoria: 'Desayunos',
+    slugCategoria: 'desayunos',
+    nombre: 'Desayuno Típico',
+    descripcion: 'Huevos al gusto acompañados de frijoles volteados, plátanos fritos, queso fresco, crema y tortillas calientes.',
+    precioQ: 48.00,
+    imagen: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=900&q=80',
+    destacado: true,
+  },
+  {
+    id: 'des-02',
+    categoria: 'Desayunos',
+    slugCategoria: 'desayunos',
+    nombre: 'American Cheese Omelette',
+    descripcion: 'Esponjoso omelette relleno de queso americano derretido, servido con guarnición de la casa.',
+    precioQ: 45.00,
+    imagen: 'https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'des-03',
+    categoria: 'Desayunos',
+    slugCategoria: 'desayunos',
+    nombre: 'Spanish Omelette',
+    descripcion: 'Omelette clásico preparado con vegetales frescos de temporada, hierbas y queso fundido.',
+    precioQ: 48.00,
+    imagen: 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'des-04',
+    categoria: 'Desayunos',
+    slugCategoria: 'desayunos',
+    nombre: 'Desayuno Super',
+    descripcion: 'Combinación completa de huevos, proteína a elección, frijoles, plátanos y pan tostado o tortillas.',
+    precioQ: 45.00,
+    imagen: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'des-05',
+    categoria: 'Desayunos',
+    slugCategoria: 'desayunos',
+    nombre: 'Desayuno Económico',
+    descripcion: 'Opción práctica y tradicional para comenzar la mañana con sabor casero.',
+    precioQ: 35.00,
+    imagen: 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'des-06',
+    categoria: 'Desayunos',
+    slugCategoria: 'desayunos',
+    nombre: 'Panqueques Simples (3 porciones)',
+    descripcion: 'Tres suaves panqueques dorados servidos con mantequilla y miel de maple.',
+    precioQ: 38.00,
+    imagen: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'des-07',
+    categoria: 'Desayunos',
+    slugCategoria: 'desayunos',
+    nombre: 'Tostadas Francesas Simples (2 porciones)',
+    descripcion: 'Dos rebanadas doradas a la plancha con toque de canela, azúcar glass y miel.',
+    precioQ: 33.00,
+    imagen: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+
+  // ================= ASADOS Y CARNES =================
+  {
+    id: 'car-01',
+    categoria: 'Asados y Carnes',
+    slugCategoria: 'asados-y-carnes',
+    nombre: 'Lomito 8 Onzas',
+    descripcion: 'Corte tierno de 8 oz sellado a la parrilla al término de tu elección con guarniciones de la casa.',
+    precioQ: 155.00,
+    imagen: 'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&w=900&q=80',
+    destacado: true,
+  },
+  {
+    id: 'car-02',
+    categoria: 'Asados y Carnes',
+    slugCategoria: 'asados-y-carnes',
+    nombre: 'Parrillada para 2 Personas',
+    descripcion: 'Generosa selección de cortes a la brasa ideal para compartir en familia o pareja.',
+    precioQ: 219.00,
+    imagen: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80',
+    destacado: true,
+  },
+  {
+    id: 'car-03',
+    categoria: 'Asados y Carnes',
+    slugCategoria: 'asados-y-carnes',
+    nombre: 'Puyazo Americano',
+    descripcion: 'Corte jugoso con marmoleo equilibrado y cobertura de grasa dorada al carbón.',
+    precioQ: 140.00,
+    imagen: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=900&q=80',
+    destacado: true,
+  },
+  {
+    id: 'car-04',
+    categoria: 'Asados y Carnes',
+    slugCategoria: 'asados-y-carnes',
+    nombre: 'Entraña',
+    descripcion: 'Corte clásico de sabor intenso asado directamente sobre brasas vivas.',
+    precioQ: 165.00,
+    imagen: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'car-05',
+    categoria: 'Asados y Carnes',
+    slugCategoria: 'asados-y-carnes',
+    nombre: 'Mar y Tierra (Combo)',
+    descripcion: 'Combinación especial de corte selecto a la parrilla acompañado de camarones.',
+    precioQ: 169.00,
+    imagen: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'car-06',
+    categoria: 'Asados y Carnes',
+    slugCategoria: 'asados-y-carnes',
+    nombre: 'Churrasquito Económico',
+    descripcion: 'Porción personal de carne asada acompañada de arroz, frijoles y ensalada fresca.',
+    precioQ: 70.00,
+    imagen: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+
+  // ================= SOPAS =================
+  {
+    id: 'sop-01',
+    categoria: 'Sopas',
+    slugCategoria: 'sopas',
+    nombre: 'Tapado',
+    descripcion: 'Tradicional caldo caribeño con mariscos frescos, leche de coco, plátano y yuca.',
+    precioQ: 165.00,
+    imagen: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=900&q=80',
+    destacado: true,
+  },
+  {
+    id: 'sop-02',
+    categoria: 'Sopas',
+    slugCategoria: 'sopas',
+    nombre: 'Sopa de Tortilla',
+    descripcion: 'Caldo especiado de tomate rostizado servido con tiras crujientes de maíz, aguacate y queso.',
+    precioQ: 45.00,
+    imagen: 'https://images.unsplash.com/photo-1588566565463-180a5b2090d2?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'sop-03',
+    categoria: 'Sopas',
+    slugCategoria: 'sopas',
+    nombre: 'Crema de Tomate y Albahaca',
+    descripcion: 'Suave crema artesanal de tomates maduros con un toque de albahaca fresca y crutones.',
+    precioQ: 42.00,
+    imagen: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+
+  // ================= CREPAS =================
+  {
+    id: 'cre-01',
+    categoria: 'Crepas',
+    slugCategoria: 'crepas',
+    nombre: 'Crepa de Nutella y Banano',
+    descripcion: 'Delicada crepa recién hecha rellena de crema de avellanas y rodajas de banano fresco.',
+    precioQ: 42.00,
+    imagen: 'https://images.unsplash.com/photo-1519676867240-f03562e64548?auto=format&fit=crop&w=900&q=80',
+    destacado: true,
+  },
+  {
+    id: 'cre-02',
+    categoria: 'Crepas',
+    slugCategoria: 'crepas',
+    nombre: 'Crepa de Fresa y Queso Crema',
+    descripcion: 'Rellena de queso crema suavizado con fresas frescas de temporada y coulis dulce.',
+    precioQ: 45.00,
+    imagen: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'cre-03',
+    categoria: 'Crepas',
+    slugCategoria: 'crepas',
+    nombre: 'Crepa Salada de Pollo Alfredo',
+    descripcion: 'Crepa gratinada rellena de pollo a la plancha en cremosa salsa Alfredo.',
+    precioQ: 55.00,
+    imagen: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+
+  // ================= PIZZAS Y LASAÑAS =================
+  {
+    id: 'piz-01',
+    categoria: 'Pizzas y Lasañas',
+    slugCategoria: 'pizzas-y-lasanas',
+    nombre: 'Pizza Americana (Mediana)',
+    descripcion: 'Masa artesanal horneada con salsa pomodoro, queso mozzarella y combinación especial de carnes.',
+    precioQ: 119.00,
+    imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80',
+    destacado: true,
+  },
+  {
+    id: 'piz-02',
+    categoria: 'Pizzas y Lasañas',
+    slugCategoria: 'pizzas-y-lasanas',
+    nombre: 'Pizza Margarita (Mediana)',
+    descripcion: 'Clásica receta italiana con salsa de tomate natural, mozzarella fundida y albahaca.',
+    precioQ: 75.00,
+    imagen: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'piz-03',
+    categoria: 'Pizzas y Lasañas',
+    slugCategoria: 'pizzas-y-lasanas',
+    nombre: 'Pizza Peperoni (Mediana)',
+    descripcion: 'Crujiente masa artesanal cubierta con abundante pepperoni dorado y queso mozzarella.',
+    precioQ: 55.00,
+    imagen: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'piz-04',
+    categoria: 'Pizzas y Lasañas',
+    slugCategoria: 'pizzas-y-lasanas',
+    nombre: 'Pollo Parmesano',
+    descripcion: 'Pechuga empanizada gratinada con mozzarella y salsa marinara acompañada de pasta.',
+    precioQ: 99.00,
+    imagen: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281728?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'piz-05',
+    categoria: 'Pizzas y Lasañas',
+    slugCategoria: 'pizzas-y-lasanas',
+    nombre: 'Pasta Alfredo con Pollo',
+    descripcion: 'Fettuccine bañado en cremosa salsa Alfredo de queso parmesano con tiras de pollo asado.',
+    precioQ: 99.00,
+    imagen: 'https://images.unsplash.com/photo-1645112411341-6c4fd023714a?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'piz-06',
+    categoria: 'Pizzas y Lasañas',
+    slugCategoria: 'pizzas-y-lasanas',
+    nombre: 'Lasaña Bolognesa Gratinada',
+    descripcion: 'Capas de pasta fresca con carne molida en salsa bolognesa tradicional y queso gratinado.',
+    precioQ: 90.00,
+    imagen: 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+
+  // ================= BEBIDAS =================
+  {
+    id: 'beb-01',
+    categoria: 'Bebidas',
+    slugCategoria: 'bebidas',
+    nombre: 'Limonada con Soda / Hierbabuena',
+    descripcion: 'Refrescante limonada natural recién exprimida con toque de hierbabuena o agua mineral.',
+    precioQ: 22.00,
+    imagen: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'beb-02',
+    categoria: 'Bebidas',
+    slugCategoria: 'bebidas',
+    nombre: 'Licuado de Fruta Natural',
+    descripcion: 'Preparado al instante con fruta fresca de temporada (fresa, papaya, piña o banano).',
+    precioQ: 25.00,
+    imagen: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+  {
+    id: 'beb-03',
+    categoria: 'Bebidas',
+    slugCategoria: 'bebidas',
+    nombre: 'Café Capuccino / Americano',
+    descripcion: 'Grano seleccionado de altura guatemalteca recién molido.',
+    precioQ: 20.00,
+    imagen: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+
+  // ================= PROMOCIONES =================
+  {
+    id: 'pro-01',
+    categoria: 'Promociones',
+    slugCategoria: 'promociones',
+    nombre: '2x1 en Desayuno Típico',
+    descripcion: 'Válido de lunes a jueves de 7:00 AM a 11:00 AM. Disfruta dos desayunos típicos al precio de uno.',
+    precioQ: 48.00,
+    imagen: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=900&q=80',
+    destacado: true,
+  },
+  {
+    id: 'pro-02',
+    categoria: 'Promociones',
+    slugCategoria: 'promociones',
+    nombre: 'Martes de Pizza 2x1',
+    descripcion: 'Todos los martes llévate dos pizzas artesanales medianas (Peperoni o Margarita).',
+    precioQ: 75.00,
+    imagen: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80',
+    destacado: true,
+  },
+  {
+    id: 'pro-03',
+    categoria: 'Promociones',
+    slugCategoria: 'promociones',
+    nombre: 'Combo Parrillada Familiar + Bebidas',
+    descripcion: 'Parrillada para compartir acompañada de guarniciones y jarra de limonada natural.',
+    precioQ: 249.00,
+    imagen: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=900&q=80',
+    destacado: false,
+  },
+];

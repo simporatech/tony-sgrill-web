@@ -1,9 +1,11 @@
 import React from 'react';
-import { Utensils, Calendar } from 'lucide-react';
+import { Utensils, Phone } from 'lucide-react';
 import { useCmsData } from '../context/CmsContext';
+import { useCallModal } from '../context/CallModalContext';
 
 export const Hero: React.FC = () => {
   const { data } = useCmsData();
+  const { openCallModal } = useCallModal();
   const hero = data.hero;
 
   return (
@@ -42,22 +44,23 @@ export const Hero: React.FC = () => {
           {hero.subheadline}
         </p>
 
-        {/* Primary CTAs */}
+        {/* Primary CTAs: Phone Call Conversion First */}
         <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={() => openCallModal()}
+            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-[#D90302]/30 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Phone className="w-4 h-4 text-[#EBFA00]" />
+            <span>Llamar para Ordenar</span>
+          </button>
+
           <a
-            href="/menu"
+            href="#menu"
             className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-sm uppercase tracking-wider border border-white/20 hover:border-white/40 transition-all flex items-center justify-center gap-2.5 backdrop-blur-sm"
           >
             <Utensils className="w-4 h-4 text-[#EBFA00]" />
             <span>{hero.ctaMenuText || 'Ver Menú'}</span>
-          </a>
-
-          <a
-            href="#reservar"
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2.5 shadow-lg shadow-[#D90302]/30"
-          >
-            <Calendar className="w-4 h-4" />
-            <span>{hero.ctaReserveText || 'Reservar'}</span>
           </a>
         </div>
 
