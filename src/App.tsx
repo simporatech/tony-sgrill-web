@@ -16,6 +16,7 @@ import { BrandLoadingScreen } from './components/BrandLoadingScreen';
 import { DataErrorBoundary } from './components/DataErrorBoundary';
 import { CallOrderModal } from './components/CallOrderModal';
 import { MobileFloatingActionBar } from './components/MobileFloatingActionBar';
+import { RouteSeoManager } from './components/RouteSeoManager';
 import { CmsProvider, useCmsData } from './context/CmsContext';
 import { CallModalProvider } from './context/CallModalContext';
 
@@ -34,6 +35,8 @@ function AppContent() {
 
   return (
     <>
+      <RouteSeoManager />
+
       {/* Smooth Brand Loading Screen: Only the logo, prevents layout flicker while Supabase loads */}
       <AnimatePresence>
         {isInitialLoading && !isAdminPage && <BrandLoadingScreen />}
