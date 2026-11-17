@@ -42,6 +42,7 @@ VALUES
     'Desayunos',
     1,
     '[
+      {"title": "Desayuno Súper 2xQ59", "image": "/images/promo-desayuno.jpg"},
       {"title": "Portada Desayunos", "image": "/menu-pages/page-01.jpg"},
       {"title": "Omelettes & Desayunos", "image": "/menu-pages/page-02.jpg"},
       {"title": "Panqueques, Muffins & Kids", "image": "/menu-pages/page-03.jpg"},
@@ -84,6 +85,7 @@ VALUES
     'Pizzas y Lasañas',
     5,
     '[
+      {"title": "2x1 Lasaña Q63", "image": "/images/promo-lasana.jpg"},
       {"title": "Pizzas Artesanales", "image": "/menu-pages/page-27.jpg"},
       {"title": "Combo Pizzas", "image": "/menu-pages/page-28.jpg"},
       {"title": "Lasaña Bolognesa & Calzones", "image": "/menu-pages/page-15.jpg"},
@@ -95,6 +97,8 @@ VALUES
     'Bebidas',
     6,
     '[
+      {"title": "Sangría 2xQ49", "image": "/images/promo-sangria.jpg"},
+      {"title": "Capuchino 2xQ29", "image": "/images/promo-capuchino.jpg"},
       {"title": "Tony''s Fresh • Refrescantes", "image": "/menu-pages/page-30.jpg"},
       {"title": "Cóctelería & 2x1", "image": "/menu-pages/page-31.jpg"},
       {"title": "Cócteles & Cubetazos", "image": "/menu-pages/page-32.jpg"}
@@ -105,15 +109,13 @@ VALUES
     'Promociones',
     7,
     '[
-      {"title": "Antojitos Dulces y Salados", "image": "/menu-pages/page-09.jpg"},
-      {"title": "Antojitos Especiales", "image": "/menu-pages/page-10.jpg"},
-      {"title": "Antojitos Tradicionales & Al Horno", "image": "/menu-pages/page-11.jpg"},
-      {"title": "Antojitos Típicos & Sandwiches", "image": "/menu-pages/page-12.jpg"},
-      {"title": "Hamburguesas", "image": "/menu-pages/page-23.jpg"},
-      {"title": "Menú Infantil", "image": "/menu-pages/page-25.jpg"},
-      {"title": "Antojitos Chapines", "image": "/menu-pages/page-33.jpg"},
-      {"title": "Promos Cubetazo & Garnachas", "image": "/menu-pages/page-34.jpg"},
-      {"title": "Sangría 2x1 & Carpaccio", "image": "/menu-pages/page-35.jpg"}
+      {"title": "Desayuno Súper 2x1 (Q59)", "image": "/images/promo-desayuno.jpg"},
+      {"title": "Lasañas 2x1 (Q63)", "image": "/images/promo-lasana.jpg"},
+      {"title": "Capuchino 2x1 (Q29)", "image": "/images/promo-capuchino.jpg"},
+      {"title": "Sangría 2x1 (Q49)", "image": "/images/promo-sangria.jpg"},
+      {"title": "Súper Combos Familiares (Q149 - Q175)", "image": "/menu-pages/page-28.jpg"},
+      {"title": "Pizzas 2x1 (Martes y Jueves)", "image": "/menu-pages/page-27.jpg"},
+      {"title": "Hamburguesas Gemelas + Soda (Q59)", "image": "/menu-pages/page-23.jpg"}
     ]'::jsonb
   ),
   (
@@ -132,8 +134,8 @@ ON CONFLICT (id) DO UPDATE SET
   display_order = EXCLUDED.display_order,
   pdf_pages = EXCLUDED.pdf_pages;
 
--- Limpiar por completo los platillos anteriores de Eventos 2024 antes de cargar Eventos 2026
-DELETE FROM public.menu_items WHERE category_id = 'eventos';
+-- Limpiar por completo los platillos anteriores de Eventos y Promociones antes de cargar los actualizados
+DELETE FROM public.menu_items WHERE category_id IN ('eventos', 'promociones');
 
 -- 4. Insertar / Actualizar todos los platillos del menú vinculados a las categorías reales
 INSERT INTO public.menu_items (id, category_id, name, description, price, destacado)
@@ -178,10 +180,17 @@ VALUES
   ('beb-02', 'bebidas', 'Licuado de Fruta Natural', 'Preparado al instante con fruta fresca de temporada (fresa, papaya, piña o banano).', 25.00, false),
   ('beb-03', 'bebidas', 'Café Capuccino / Americano', 'Grano seleccionado de altura guatemalteca recién molido.', 20.00, false),
 
-  -- Promociones
-  ('pro-01', 'promociones', '2x1 en Desayuno Típico', 'Válido de lunes a jueves de 7:00 AM a 11:00 AM. Disfruta dos desayunos típicos al precio de uno.', 48.00, true),
-  ('pro-02', 'promociones', 'Martes de Pizza 2x1', 'Todos los martes llévate dos pizzas artesanales medianas (Peperoni o Margarita).', 75.00, true),
-  ('pro-03', 'promociones', 'Combo Parrillada Familiar + Bebidas', 'Parrillada para compartir acompañada de guarniciones y jarra de limonada natural.', 249.00, false),
+  -- Promociones Oficiales
+  ('pro-01', 'promociones', 'Desayuno Súper 2x1', 'Lunes a Viernes. Dos desayunos súper completos con huevos al gusto, frijoles, plátanos y café.', 59.00, true),
+  ('pro-02', 'promociones', 'Desayuno de Loroco', 'Lunes a Viernes. Huevos revueltos con loroco de temporada, frijoles volteados, plátanos, queso y café.', 59.00, false),
+  ('pro-03', 'promociones', 'Lasañas 2x1 (Lunes a Viernes)', 'Especial de la semana: dos porciones de lasaña bolognesa gratinada. Aplica solo en restaurante o autoservicio.', 63.00, true),
+  ('pro-04', 'promociones', 'Pizzas 2x1 (Martes y Jueves)', 'Especial de la semana: todos los martes y jueves disfruta 2x1 en pizzas medianas.', 75.00, true),
+  ('pro-05', 'promociones', 'Capuchino 2x1', 'Todos los días. Dos capuchinos recién preparados. Promoción válida solo para consumo en restaurante.', 29.00, false),
+  ('pro-06', 'promociones', 'Sangría 2x1', 'Todos los días. Dos copas de sangría preparada con fruta fresca de temporada.', 49.00, false),
+  ('pro-07', 'promociones', 'Hamburguesas Gemelas + Soda', 'Para el antojo: dos hamburguesas clásicas acompañadas de ensalada de repollo, papas fritas y soda.', 59.00, false),
+  ('pro-08', 'promociones', 'Súper Combo Familiar 1 (1 Pizza Mediana)', 'Incluye 1 pizza mediana + alitas a la barbacoa + papas fritas + ensalada + bebida de 1.5 litros.', 149.00, true),
+  ('pro-09', 'promociones', 'Súper Combo Familiar 2 (2 Pizzas Medianas)', 'Incluye 2 pizzas medianas + alitas a la barbacoa + papas fritas + ensalada + bebida de 1.5 litros.', 165.00, false),
+  ('pro-10', 'promociones', 'Súper Combo Familiar 3 (3 Pizzas Medianas)', 'Incluye 3 pizzas medianas + alitas a la barbacoa + papas fritas + ensalada + bebida de 1.5 litros.', 175.00, false),
 
   -- Menú de Eventos 2026
   ('evt-01', 'eventos', 'Nachos Chili Beans o Supremos (Eventos)', 'Porción de nachos con salsa de frijol, carne, pico de gallo o guacamole.', 65.00, false),
