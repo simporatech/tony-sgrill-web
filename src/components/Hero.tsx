@@ -56,7 +56,7 @@ export const Hero: React.FC = () => {
           </button>
 
           <a
-            href="#menu"
+            href="/menu"
             className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-sm uppercase tracking-wider border border-white/20 hover:border-white/40 transition-all flex items-center justify-center gap-2.5 backdrop-blur-sm"
           >
             <Utensils className="w-4 h-4 text-[#EBFA00]" />

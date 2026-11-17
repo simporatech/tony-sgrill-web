@@ -134,3 +134,4 @@ export const CallOrderModal: React.FC = () => {
     </AnimatePresence>
   );
 };
+
