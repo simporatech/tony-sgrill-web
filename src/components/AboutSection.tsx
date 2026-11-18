@@ -1,10 +1,9 @@
 import React from 'react';
 import { Beef, Pizza, UtensilsCrossed, Sandwich, Coffee, Utensils } from 'lucide-react';
-import { useCmsData } from '../context/CmsContext';
+import { SITE_CONTENT } from '../data/restaurantData';
 
 export const AboutSection: React.FC = () => {
-  const { data } = useCmsData();
-  const about = data.about;
+  const about = SITE_CONTENT.about;
 
   const getPillarIcon = (name?: string) => {
     switch (name) {

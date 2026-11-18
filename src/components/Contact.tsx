@@ -12,7 +12,7 @@ import {
   Facebook,
   Send
 } from 'lucide-react';
-import { useCmsData } from '../context/CmsContext';
+import { SITE_CONTENT } from '../data/restaurantData';
 import { useCallModal } from '../context/CallModalContext';
 import {
   OFFICIAL_ADDRESS,
@@ -21,9 +21,8 @@ import {
 } from '../data/menuData';
 
 export const Contact: React.FC = () => {
-  const { data } = useCmsData();
   const { openCallModal } = useCallModal();
-  const contact = data.contact;
+  const contact = SITE_CONTENT.contact;
   const displayAddress = OFFICIAL_ADDRESS;
   const [copied, setCopied] = useState<boolean>(false);
 

@@ -1,12 +1,11 @@
 import React from 'react';
 import { Utensils, Phone } from 'lucide-react';
-import { useCmsData } from '../context/CmsContext';
+import { SITE_CONTENT } from '../data/restaurantData';
 import { useCallModal } from '../context/CallModalContext';
 
 export const Hero: React.FC = () => {
-  const { data } = useCmsData();
   const { openCallModal } = useCallModal();
-  const hero = data.hero;
+  const hero = SITE_CONTENT.hero;
 
   return (
     <section 

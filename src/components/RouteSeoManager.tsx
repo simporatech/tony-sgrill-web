@@ -46,15 +46,6 @@ const CATEGORY_SEO: Record<string, { title: string; description: string }> = {
 };
 
 function getSeoForLocation(pathname: string, search: string): SeoConfig {
-  if (pathname.startsWith('/admin')) {
-    return {
-      title: "Panel Administrativo CMS | Tony's Grill",
-      description: "Acceso administrativo restringido para gestión de Tony's Grill.",
-      canonical: `${BASE_URL}/admin`,
-      robots: 'noindex, nofollow',
-    };
-  }
-
   if (pathname === '/menu') {
     const params = new URLSearchParams(search);
     const cat = params.get('categoria')?.toLowerCase() || '';

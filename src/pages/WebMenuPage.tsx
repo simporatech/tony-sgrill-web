@@ -16,14 +16,18 @@ import {
 } from 'lucide-react';
 import {
   CATEGORY_PDF_PAGES,
+  MENU_FILTER_CATEGORIES,
+  menuData,
+  MenuDataItem,
   OFFICIAL_EXTERNAL_MENU_URL,
 } from '../data/menuData';
-import { useCmsData, CmsMenuItem } from '../context/CmsContext';
 import { useCallModal } from '../context/CallModalContext';
-import { SupabaseDataErrorFallback } from '../components/SupabaseDataErrorFallback';
+
+const STATIC_CATEGORIES = MENU_FILTER_CATEGORIES.filter((c) => c.slug !== 'todos').map(
+  (c) => ({ id: c.slug, label: c.label })
+);
 
 export const WebMenuPage: React.FC = () => {
-  const { data, dataError, isRetrying, refetchData } = useCmsData();
   const { openCallModal } = useCallModal();
 
   const [activeTab, setActiveTab] = useState<'interactive' | 'pdf'>('interactive');
@@ -34,10 +38,10 @@ export const WebMenuPage: React.FC = () => {
   const [zoomedPage, setZoomedPage] = useState<{ title: string; image: string } | null>(null);
 
   const filterCategories = useMemo(() => {
-    return [{ id: 'todos', label: 'Todos' }, ...data.categories];
-  }, [data.categories]);
+    return [{ id: 'todos', label: 'Todos' }, ...STATIC_CATEGORIES];
+  }, []);
 
-  // AI Agent Deep Linking (?categoria=<slug>) synced with Supabase categories
+  // AI Agent Deep Linking (?categoria=<slug>) synced with static categories
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -99,19 +103,19 @@ export const WebMenuPage: React.FC = () => {
   }, [filterCategories, activeCategorySlug]);
 
   const visibleCategories = useMemo(() => {
-    if (activeCategorySlug === 'todos') return data.categories;
-    return data.categories.filter((c) => c.id === activeCategorySlug);
-  }, [data.categories, activeCategorySlug]);
+    if (activeCategorySlug === 'todos') return STATIC_CATEGORIES;
+    return STATIC_CATEGORIES.filter((c) => c.id === activeCategorySlug);
+  }, [activeCategorySlug]);
 
-  const filterDishesForCategory = (categoryId: string): CmsMenuItem[] => {
+  const filterDishesForCategory = (categoryId: string): MenuDataItem[] => {
     const q = searchQuery.trim().toLowerCase();
-    return data.menuItems.filter((item) => {
-      if (item.category_id !== categoryId) return false;
+    return menuData.filter((item) => {
+      if (item.slugCategoria !== categoryId) return false;
       if (!q) return true;
       return (
-        item.name.toLowerCase().includes(q) ||
-        (item.description && item.description.toLowerCase().includes(q)) ||
-        (item.category_name && item.category_name.toLowerCase().includes(q))
+        item.nombre.toLowerCase().includes(q) ||
+        (item.descripcion && item.descripcion.toLowerCase().includes(q)) ||
+        (item.categoria && item.categoria.toLowerCase().includes(q))
       );
     });
   };
@@ -206,15 +210,7 @@ export const WebMenuPage: React.FC = () => {
         </div>
 
         {/* Content Area */}
-        {dataError ? (
-          <div className="py-12">
-            <SupabaseDataErrorFallback
-              onRetry={refetchData}
-              isRetrying={isRetrying}
-              errorMessage={dataError}
-            />
-          </div>
-        ) : activeTab === 'interactive' ? (
+        {activeTab === 'interactive' ? (
           <>
             {/* Sticky Horizontal Scrolling Category Filter */}
             <div className="sticky top-20 z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 bg-[#080808]/95 backdrop-blur-xl border-b border-white/[0.06] mb-8">
@@ -275,14 +271,11 @@ export const WebMenuPage: React.FC = () => {
               )}
             </AnimatePresence>
 
-            {/* Category Sections: Official PDF Page Photos + Text-Only Digital Menu Items (Supabase Driven) */}
+            {/* Category Sections: Official PDF Page Photos + Text-Only Digital Menu Items */}
             <div className="space-y-16">
               {visibleCategories.map((cat) => {
                 const itemsInCat = filterDishesForCategory(cat.id);
-                const pdfPages =
-                  cat.pdf_pages && cat.pdf_pages.length > 0
-                    ? cat.pdf_pages
-                    : CATEGORY_PDF_PAGES[cat.id] || [];
+                const pdfPages = CATEGORY_PDF_PAGES[cat.id] || [];
 
                 if (searchQuery.trim() && itemsInCat.length === 0) {
                   return null;
@@ -349,7 +342,7 @@ export const WebMenuPage: React.FC = () => {
                     {/* Text-Only Digital Menu List (NO Dish Images) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {itemsInCat.map((item) => {
-                        const isAdded = selectedOrderItems.includes(item.name);
+                        const isAdded = selectedOrderItems.includes(item.nombre);
                         return (
                           <div
                             key={item.id}
@@ -363,7 +356,7 @@ export const WebMenuPage: React.FC = () => {
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <h3 className="font-serif text-base sm:text-lg font-bold text-white leading-snug">
-                                    {item.name}
+                                    {item.nombre}
                                   </h3>
                                   {item.destacado && (
                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider">
@@ -374,13 +367,13 @@ export const WebMenuPage: React.FC = () => {
                                 </div>
 
                                 <span className="font-serif text-base sm:text-lg font-bold text-[#EBFA00] shrink-0">
-                                  Q{Number(item.price).toFixed(2)}
+                                  Q{Number(item.precioQ).toFixed(2)}
                                 </span>
                               </div>
 
-                              {item.description && (
+                              {item.descripcion && (
                                 <p className="mt-1.5 text-xs text-zinc-400 font-light leading-relaxed">
-                                  {item.description}
+                                  {item.descripcion}
                                 </p>
                               )}
                             </div>
@@ -389,7 +382,7 @@ export const WebMenuPage: React.FC = () => {
                             <div className="pt-3 border-t border-white/[0.05] flex items-center gap-2">
                               <button
                                 type="button"
-                                onClick={() => toggleOrderItem(item.name)}
+                                onClick={() => toggleOrderItem(item.nombre)}
                                 className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
                                   isAdded
                                     ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
@@ -411,7 +404,7 @@ export const WebMenuPage: React.FC = () => {
 
                               <button
                                 type="button"
-                                onClick={() => openCallModal(item.name)}
+                                onClick={() => openCallModal(item.nombre)}
                                 className="py-2 px-3.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-[#D90302]/20 shrink-0"
                               >
                                 <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
@@ -548,6 +541,7 @@ export const WebMenuPage: React.FC = () => {
                 <img
                   src={zoomedPage.image}
                   alt={zoomedPage.title}
+                  loading="lazy"
                   className="w-full h-auto rounded-lg"
                 />
               </div>

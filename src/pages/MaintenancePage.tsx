@@ -1,13 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Phone, MessageCircle, MapPin, Clock, ShieldAlert } from 'lucide-react';
+import { Flame, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 
-interface MaintenancePageProps {
-  onAdminBypass?: () => void;
-}
-
-export const MaintenancePage: React.FC<MaintenancePageProps> = () => {
+export const MaintenancePage: React.FC = () => {
   return (
     <div className="min-h-screen w-full bg-[#070708] text-zinc-100 flex flex-col justify-between selection:bg-[#D90302] selection:text-white relative overflow-hidden">
       
@@ -140,18 +136,10 @@ export const MaintenancePage: React.FC<MaintenancePageProps> = () => {
       </main>
 
       {/* Minimal Footer */}
-      <footer className="w-full max-w-7xl mx-auto px-6 py-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500 relative z-10">
+      <footer className="w-full max-w-7xl mx-auto px-6 py-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-center gap-4 text-xs text-zinc-500 relative z-10">
         <p className="font-serif">
           Tony's Grill &copy; {new Date().getFullYear()} — La Mejor Carne de Chiquimula
         </p>
-
-        <a
-          href="/admin"
-          className="text-[11px] text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1 font-mono"
-        >
-          <ShieldAlert className="w-3 h-3" />
-          <span>Acceso Administrativo</span>
-        </a>
       </footer>
 
     </div>

@@ -9,21 +9,19 @@ import {
   Send,
   Share2
 } from 'lucide-react';
-import { RESTAURANT_INFO } from '../data/restaurantData';
-import { useCmsData, CmsPromoItem } from '../context/CmsContext';
+import { RESTAURANT_INFO, SITE_CONTENT, PromoItem } from '../data/restaurantData';
 
 export const PromosPage: React.FC = () => {
-  const { data } = useCmsData();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const promos = data.promos;
+  const promos = SITE_CONTENT.promos;
 
   const getColSpan = (index: number) => {
     const pattern = ['lg:col-span-8', 'lg:col-span-4', 'lg:col-span-5', 'lg:col-span-7', 'lg:col-span-6', 'lg:col-span-6'];
     return pattern[index % pattern.length];
   };
 
-  const handleSharePromo = (promo: CmsPromoItem) => {
+  const handleSharePromo = (promo: PromoItem) => {
     const text = `¡Mira esta promo en Tony's Grill Chiquimula! ${promo.emoji || '🔥'} ${promo.title} (${promo.highlightPrice}) - ${promo.schedule}.`;
     navigator.clipboard.writeText(text);
     setCopiedId(promo.id);

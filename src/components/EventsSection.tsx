@@ -1,11 +1,10 @@
 import React from 'react';
 import { ArrowRight, Send } from 'lucide-react';
-import { useCmsData } from '../context/CmsContext';
+import { SITE_CONTENT } from '../data/restaurantData';
 
 export const EventsSection: React.FC = () => {
-  const { data } = useCmsData();
-  const events = data.events;
-  const contact = data.contact;
+  const events = SITE_CONTENT.events;
+  const contact = SITE_CONTENT.contact;
 
   return (
     <section 
@@ -55,6 +54,7 @@ export const EventsSection: React.FC = () => {
             <img
               src={events.imageUrl}
               alt="Servicio de banquetes Tony's Grill"
+              loading="lazy"
               className="w-full h-full object-cover object-center filter brightness-[0.7] contrast-[1.05]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
