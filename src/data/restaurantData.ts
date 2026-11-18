@@ -21,6 +21,7 @@ export interface PromoItem {
   description: string;
   terms: string;
   accentColor: string;
+  image?: string;
 }
 
 export interface PillarItem {
@@ -112,24 +113,26 @@ export const SITE_CONTENT = {
       badgeColor: '#D90302',
       title: 'Desayuno Súper 2x1',
       highlightPrice: 'Q59.00',
-      schedule: 'Lunes - Viernes en rest.',
+      schedule: 'Lunes a Viernes • 7:00 – 11:00 AM',
       description:
-        'Dos desayunos completos con huevos al gusto, frijoles volteados de la casa, plátanos dulces, queso fresco, crema y café de altura.',
+        'Dos desayunos completos con huevos al gusto, frijoles volteados de la casa, plátanos fritos, queso fresco, crema y café de altura.',
       terms: 'Válido exclusivamente para consumo en restaurante.',
       accentColor: '#D90302',
+      image: '/images/promo-desayuno.jpg',
     },
     {
       id: 'promo-2',
-      emoji: '🍳',
+      emoji: '🌼',
       badge: 'Lunes a Viernes',
       badgeColor: '#03AF45',
       title: 'Desayuno de Loroco',
       highlightPrice: 'Q59.00',
-      schedule: 'Lunes a Viernes',
+      schedule: 'Lunes a Viernes • 7:00 – 11:00 AM',
       description:
         'Huevos revueltos con loroco fresco de temporada, acompañados de frijoles, plátanos y café recién chorreado.',
       terms: 'Disponible de lunes a viernes en horario de desayunos.',
       accentColor: '#03AF45',
+      image: '/images/desayuno-loroco.jpg',
     },
     {
       id: 'promo-3',
@@ -140,22 +143,24 @@ export const SITE_CONTENT = {
       highlightPrice: 'Q63.00',
       schedule: 'Lunes a Viernes',
       description:
-        '¡Doble porción de placer italiano! Pasta fresca artesanal, salsa boloñesa con carne estofada y gratín de quesos.',
+        '¡Doble porción de placer italiano! Pasta artesanal, salsa boloñesa con carne molida, queso mozzarella y parmesano gratinado con ensalada verde.',
       terms: 'Aplica solo en restaurante o autoservicio.',
       accentColor: '#D90302',
+      image: '/images/promo-lasana.jpg',
     },
     {
       id: 'promo-4',
       emoji: '🍕',
       badge: 'Martes y Jueves',
-      badgeColor: '#D90302',
-      title: 'Pizzas 2x1',
+      badgeColor: '#EBFA00',
+      title: 'Pizzas Medianas 2x1',
       highlightPrice: '2x1',
       schedule: 'Martes y Jueves',
       description:
-        'Dos pizzas artesanales medianas seleccionadas horneadas con ingredientes frescos.',
-      terms: 'Aplica martes y jueves todo el día.',
+        'Disfruta dos pizzas artesanales medianas horneadas al momento con nuestros ingredientes frescos seleccionados.',
+      terms: 'Aplica martes y jueves todo el día. 2x1 no incluye soda.',
       accentColor: '#D90302',
+      image: '/images/pizza-loroco-temporada.jpg',
     },
     {
       id: 'promo-5',
@@ -169,19 +174,49 @@ export const SITE_CONTENT = {
         'Dos capuchinos recién preparados con grano seleccionado de altura.',
       terms: 'Promoción válida solo para restaurante.',
       accentColor: '#D90302',
+      image: '/images/promo-capuchino.jpg',
     },
     {
       id: 'promo-6',
-      emoji: '🍷',
-      badge: 'Todos los días',
-      badgeColor: '#D90302',
-      title: 'Sangría 2x1',
+      emoji: '🍹',
+      badge: 'Tony\'s Fresh • Todos los días',
+      badgeColor: '#03AF45',
+      title: 'Sangría & Cócteles 2x1',
       highlightPrice: 'Q49.00',
       schedule: 'Todos los días',
       description:
-        'Dos copas de sangría preparada con fruta fresca de temporada.',
+        'Sangría 2xQ49, Mojito de Fresa 2xQ49, Sangría Blanca 2xQ49, Daiquiri/Mojito/Piña Colada 2xQ49 y Vino de la Casa 2xQ46.',
       terms: 'Válido todos los días en restaurante.',
+      accentColor: '#03AF45',
+      image: '/images/promo-sangria.jpg',
+    },
+    {
+      id: 'promo-7',
+      emoji: '🍺',
+      badge: 'Combo Tony\'s Fresh',
+      badgeColor: '#EBFA00',
+      title: 'Cubetazo + 6 Garnachas',
+      highlightPrice: 'Q150.00',
+      schedule: 'Todos los días',
+      description:
+        'Cubetazo de cervezas bien frías acompañado de 6 crujientes garnachas tradicionales con carne y curtido.',
+      terms: 'Disponible en Tony\'s Fresh.',
       accentColor: '#D90302',
+      image: '/images/fresh-combo-antojitos.jpg',
+    },
+    {
+      id: 'promo-8',
+      emoji: '👨‍👩‍👧‍👦',
+      badge: 'Súper Combos Familiares',
+      badgeColor: '#D90302',
+      title: 'Combo Pizzas #1, #2 y #3',
+      highlightPrice: 'Q149 – Q175',
+      schedule: 'Todos los días',
+      description:
+        '1, 2 o 3 Pizzas Medianas de 1 ingrediente + alitas a la barbacoa + papas fritas + ensalada + pichel de gaseosa.',
+      terms: 'Combo #1: Q149 | Combo #2: Q165 | Combo #3: Q175.',
+      accentColor: '#03AF45',
+      image: '/menu-pages/almuerzo-28.jpg',
     },
   ] as PromoItem[],
 };

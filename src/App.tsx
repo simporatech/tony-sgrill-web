@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { LandingPage } from './pages/LandingPage';
-import { PromosPage } from './pages/PromosPage';
 import { PdfMenuPage } from './pages/PdfMenuPage';
 import { WebMenuPage } from './pages/WebMenuPage';
 import { TermsPage } from './pages/TermsPage';
@@ -38,7 +37,6 @@ function AppContent() {
           <DataErrorBoundary>
             <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/promos" element={<PromosPage />} />
               <Route path="/menu-pdf" element={<PdfMenuPage />} />
               <Route path="/menu" element={<WebMenuPage />} />
               <Route path="/terminos-y-condiciones" element={<TermsPage />} />

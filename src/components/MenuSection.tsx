@@ -13,10 +13,10 @@ const CATEGORY_FALLBACK_IMAGES: Record<string, string[]> = {
     '/images/mar-y-tierra.jpg',
     '/images/churrasquito-res.jpg',
   ],
-  'pizzas-y-lasanas': ['/images/promo-lasana.jpg'],
+  'pizzas-y-lasanas': ['/images/lasana-bolonesa.jpg'],
   desayunos: ['/images/promo-desayuno.jpg'],
-  sopas: ['/images/costilla-ahumada.jpg'],
-  crepas: ['/images/promo-capuchino.jpg'],
+  'mariscos-y-sopas': ['/images/ceviche-camaron.jpg'],
+  'crepas-y-postres': ['/images/promo-capuchino.jpg'],
 };
 
 const SIGNATURE_IDS = ['car-03', 'car-05', 'car-06'];

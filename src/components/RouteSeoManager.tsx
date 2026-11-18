@@ -16,28 +16,36 @@ const CATEGORY_SEO: Record<string, { title: string; description: string }> = {
     description: "Disfruta desayunos típicos, omelettes, panqueques y promociones 2x1 desde las 7:00 AM en Tony's Grill Chiquimula. Ordena al +502 7942-4777.",
   },
   'asados-y-carnes': {
-    title: "Cortes de Carne y Asados a la Parrilla en Chiquimula | Tony's Grill",
-    description: "Puyazo importado, lomito 8 oz, entraña y parrilladas familiares al carbón en Tony's Grill Chiquimula. Llama para ordenar al +502 7942-4777.",
+    title: "Cortes de Carne, Combos y Parrilladas en Chiquimula | Tony's Grill",
+    description: "Puyazo importado, lomito 8 oz, entraña, combos y parrilladas familiares al carbón en Tony's Grill Chiquimula. Llama al +502 7942-4777.",
   },
-  sopas: {
-    title: "Sopas, Tapado y Mariscos en Chiquimula | Tony's Grill",
-    description: "Tapado tradicional, sopa de mariscos, salmón, róbalo y ceviches frescos en Tony's Grill Chiquimula.",
+  'mariscos-y-sopas': {
+    title: "Mariscos, Ceviches, Tapado y Sopas en Chiquimula | Tony's Grill",
+    description: "Tapado tradicional, sopa de mariscos, salmón, róbalo, camarones y ceviches frescos en Tony's Grill Chiquimula.",
   },
-  crepas: {
-    title: "Crepas Dulces, Saladas y Postres en Chiquimula | Tony's Grill",
-    description: "Deliciosas crepas de Nutella, fresa, pollo Alfredo y postres preparados al momento en Tony's Grill Chiquimula.",
+  'antojitos-y-cenas': {
+    title: "Antojitos Típicos, Hamburguesas, Carpaccio y Cenas | Tony's Grill Chiquimula",
+    description: "Carpaccio, garnachas, burritos, tacos mexicanos, hamburguesas, cenas y menú infantil en Tony's Grill Chiquimula.",
+  },
+  ensaladas: {
+    title: "Ensaladas Frescas en Chiquimula | Tony's Grill",
+    description: "Ensalada Californiana, César, Mediterránea, Del Mar y Garden Salad con pollo a la parrilla o camarones en Tony's Grill Chiquimula.",
+  },
+  'crepas-y-postres': {
+    title: "Crepas Dulces, Saladas, Postres y Doughnuts | Tony's Grill Chiquimula",
+    description: "Crepas dulces y saladas, canelitas, hojuelas, canoas, pasteles y combos American Doughnuts en Tony's Grill Chiquimula.",
   },
   'pizzas-y-lasanas': {
-    title: "Pizzas Artesanales, Lasañas y Pastas en Chiquimula | Tony's Grill",
-    description: "Pizzas medianas, combos familiares, lasañas bolognesas 2x1 y pastas artesanales en Tony's Grill Chiquimula.",
+    title: "Pizzas Artesanales, Pastas y Lasañas en Chiquimula | Tony's Grill",
+    description: "Pizzas en 4 tamaños, combos familiares, pastas artesanales y lasaña boloñesa 2x1 en Tony's Grill Chiquimula.",
   },
-  bebidas: {
-    title: "Bebidas Refrescantes y Cóctelería | Tony's Grill Chiquimula",
-    description: "Sangría 2x1, capuchinos 2x1, limonadas naturales, licuados y cóctelería en Tony's Grill Chiquimula.",
+  'bebidas-y-fresh': {
+    title: "Bebidas y Coctelería Tony's Fresh 2x1 | Tony's Grill Chiquimula",
+    description: "Cafés, smoothies, sangría 2x1, mojitos 2x1, cubetazos, cervezas y vinos en Tony's Grill Chiquimula.",
   },
   promociones: {
-    title: "Promociones y Combos Familiares | Tony's Grill Chiquimula",
-    description: "Aprovecha 2x1 en desayunos, lasañas 2x1 a Q63, pizzas 2x1 martes y jueves, bebidas 2x1 y súper combos familiares en Tony's Grill Chiquimula.",
+    title: "Promociones Oficiales 2x1 y Combos | Tony's Grill Chiquimula",
+    description: "Aprovecha 2x1 en desayunos, lasañas 2x1 a Q63, pizzas 2x1 martes y jueves, cócteles 2x1 y súper combos familiares en Tony's Grill.",
   },
   eventos: {
     title: "Menú de Eventos 2026 y Banquetes en Chiquimula | Tony's Grill",
@@ -57,24 +65,16 @@ function getSeoForLocation(pathname: string, search: string): SeoConfig {
       };
     }
     return {
-      title: "Menú Completo Interactivo y PDF | Tony's Grill Chiquimula",
-      description: "Explora el menú completo de Tony's Grill Chiquimula: asados, carnes, desayunos, pizzas, lasañas, eventos y promociones. Ordena llamando al +502 7942-4777.",
+      title: "Menú Completo Interactivo y PDFs 2026 | Tony's Grill Chiquimula",
+      description: "Explora el menú completo 2026 de Tony's Grill Chiquimula: asados, mariscos, pizzas, lasañas, desayunos, Tony's Fresh y eventos.",
       canonical: `${BASE_URL}/menu`,
-    };
-  }
-
-  if (pathname === '/promos') {
-    return {
-      title: "Promociones Oficiales 2x1 y Combos | Tony's Grill Chiquimula",
-      description: "Descubre nuestras promociones vigentes en Chiquimula: desayunos 2x1, lasañas 2x1 Q63, capuchinos y sangrías 2x1 y combos familiares.",
-      canonical: `${BASE_URL}/promos`,
     };
   }
 
   if (pathname === '/menu-pdf') {
     return {
-      title: "Menú Original en PDF | Tony's Grill Chiquimula",
-      description: "Visualiza y descarga el menú oficial impreso en PDF de Tony's Grill Chiquimula.",
+      title: "Menús Oficiales en PDF (Almuerzos, Desayunos, Fresh Eats, Eventos) | Tony's Grill",
+      description: "Visualiza y descarga nuestros 4 menús oficiales en PDF 2026 de Tony's Grill Chiquimula.",
       canonical: `${BASE_URL}/menu-pdf`,
     };
   }

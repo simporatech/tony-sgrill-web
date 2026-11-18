@@ -98,13 +98,13 @@ export const Footer: React.FC = () => {
                 <Link to="/" className="hover:text-white transition-colors">Inicio</Link>
               </li>
               <li>
-                <Link to="/promos" className="hover:text-[#EBFA00] transition-colors">
+                <Link to="/menu?categoria=promociones" className="hover:text-[#EBFA00] transition-colors">
                   Promociones Activas
                 </Link>
               </li>
               <li>
                 <Link to="/menu" className="hover:text-white transition-colors">
-                  Menú Web (Sin fotos)
+                  Menú Interactivo
                 </Link>
               </li>
               <li>
