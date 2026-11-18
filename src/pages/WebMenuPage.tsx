@@ -24,7 +24,6 @@ import {
   PDF_MENUS,
   menuData,
   MenuDataItem,
-  OFFICIAL_EXTERNAL_MENU_URL,
 } from '../data/menuData';
 import { RESTAURANT_INFO, SITE_CONTENT, PromoItem } from '../data/restaurantData';
 import { useCallModal } from '../context/CallModalContext';
@@ -198,16 +197,6 @@ export const WebMenuPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <a
-              href={OFFICIAL_EXTERNAL_MENU_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-3 rounded-full bg-white/[0.04] hover:bg-white/[0.09] text-xs font-semibold text-zinc-200 hover:text-white border border-white/15 transition-colors flex items-center gap-2"
-            >
-              <ExternalLink className="w-3.5 h-3.5 text-[#EBFA00]" />
-              <span>Ver Menú Original en Línea</span>
-            </a>
-
             <button
               type="button"
               onClick={() => openCallModal()}
@@ -700,20 +689,10 @@ export const WebMenuPage: React.FC = () => {
                     href={selectedPdf.file}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-white border border-white/15 transition-colors flex items-center gap-1.5"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5 text-[#EBFA00]" />
-                    <span>Abrir PDF</span>
-                  </a>
-
-                  <a
-                    href={OFFICIAL_EXTERNAL_MENU_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="px-4 py-2 rounded-full bg-[#D90302] hover:bg-[#b00201] text-xs font-bold text-white uppercase tracking-wider transition-colors flex items-center gap-1.5"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Menú QR Oficial</span>
+                    <span>Abrir PDF</span>
                   </a>
                 </div>
               </div>

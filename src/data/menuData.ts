@@ -218,8 +218,6 @@ export const OFFICIAL_PHONE_LINES = [
 export const OFFICIAL_ADDRESS =
   '9 Calle, 15 Avenida, Zona 6, Colonia Las Lomas de Chiquimula, frente a Zona Vial 8, Chiquimula 20001, Guatemala.';
 
-export const OFFICIAL_EXTERNAL_MENU_URL = 'https://qrco.de/bg9N41';
-
 export const WHATSAPP_INQUIRY_TEXT = "Hola Tony's Grill, tengo una consulta sobre el menú";
 
 export const menuData: MenuDataItem[] = [
