@@ -218,6 +218,34 @@ export const SITE_CONTENT = {
       accentColor: '#03AF45',
       image: '/menu-pages/almuerzo-28.jpg',
     },
+    {
+      id: 'promo-9',
+      emoji: '🍔',
+      badge: 'Para el Antojo',
+      badgeColor: '#D90302',
+      title: 'Hamburguesas Gemelas + Papas',
+      highlightPrice: 'Q59.00',
+      schedule: 'Todos los días',
+      description:
+        'Dos hamburguesas clásicas a la parrilla acompañadas de ensalada de repollo y papas fritas.',
+      terms: 'Incluye papas fritas. No incluye refill.',
+      accentColor: '#D90302',
+      image: '/menu-pages/almuerzo-20.jpg',
+    },
+    {
+      id: 'promo-10',
+      emoji: '🍕',
+      badge: 'Precio Especial',
+      badgeColor: '#EBFA00',
+      title: 'Pizza Mediana Peperoni',
+      highlightPrice: 'Q55.00',
+      schedule: 'Todos los días',
+      description:
+        'Pizza artesanal mediana de peperoni con abundante queso mozzarella fundido.',
+      terms: 'Promoción especial por tiempo limitado.',
+      accentColor: '#D90302',
+      image: '/menu-pages/almuerzo-29.jpg',
+    },
   ] as PromoItem[],
 };
 

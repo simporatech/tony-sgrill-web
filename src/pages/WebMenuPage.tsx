@@ -531,8 +531,8 @@ export const WebMenuPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Clean Text-Only Interactive Menu List for Ordering */}
-                    {itemsInCat.length > 0 && (
+                    {/* Clean Text-Only Interactive Menu List for Ordering (skipped for Promociones since they use Bento Glow cards) */}
+                    {!isPromos && itemsInCat.length > 0 && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {itemsInCat.map((item) => {
                           const isAdded = selectedOrderItems.includes(item.nombre);
