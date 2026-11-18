@@ -26,3 +26,6 @@ dist-ssr
 
 # Raw unoptimized assets
 54067909_2.pdf
+
+# Local AI context & credentials (never commit)
+context.md
