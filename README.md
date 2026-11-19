@@ -1,44 +1,66 @@
-# Tony's Grill — Landing Page & Frontend Web
+# Tony's Grill Web (`https://tonysgrillgt.com`)
 
-Landing page de presencia digital de alto impacto ($100k-feel) para el restaurante **Tony's Grill** en Chiquimula, Guatemala.
-
-## 🎨 Identidad de Marca y Colores
-- **Acento Primario**: `#D90302` (Rojo Fuego / Carbón)
-- **Acento Secundario**: `#EBFA00` (Amarillo Eléctrico / Oro Brasa)
-- **Acento Terciario**: `#03AF45` (Verde Fresco / WhatsApp / Éxito)
-- **Fondo / Textos**: Blanco y Negro obsidian con principios de alto contraste (`#080808`, `#121212`, blanco puro, efectos de glassmorphism y destellos de fuego).
+Sitio web oficial y carta digital 2026 para el restaurante **Tony's Grill** en Chiquimula, Guatemala. Construido como una aplicación **100% estática y ultra rápida** en **React + TypeScript + Vite**, sin dependencias de bases de datos externas, sin APIs backend y sin variables de entorno.
 
 ---
 
-## 🍽️ Estructura de Secciones (En Orden)
-1. **Navbar Fijo con Glassmorphism**: Enlaces interactivos a *Inicio*, *Promociones*, *Menú (Web)*, *Menú (PDF)*, *Nosotros & Eventos*, *Reseñas*, *Contacto* y botón de *Reservar*.
-2. **Hero Section (100vh)**: Tipografía de alto impacto, titular sobre los mejores cortes de carne en Chiquimula, micro-interacciones, métricas de confianza y botones CTA ("Ver Menú" y "Reservar").
-3. **Nosotros & Especialidades + Bloque de Banquetes**:
-   - Historia basada en: *"Restaurante familiar de referencia en Chiquimula, especializado en cortes de carne a la parrilla, pizzas artesanales, pastas, hamburguesas y desayunos tradicionales."*
-   - Pestañas interactivas para explorar cada una de las 5 especialidades.
-   - Bloque visual exclusivo dedicado a: *"Servicio de banquetes y eventos especiales con menú personalizado"* con cotizador directo vía WhatsApp y llamada.
-4. **Menú Interactivo (Web)**: Buscador en tiempo real, filtro por categorías (Cortes, Pizzas, Pastas, Hamburguesas, Desayunos) y botón para pre-ordenar al reservar.
-5. **Customer Reviews (Google Reviews Simulation)**: Marquee horizontal continuo de alta estética simulando reseñas reales de 5 estrellas en Google Maps con pausa al interactuar.
-6. **Sistema de Reserva de Mesas**: Formulario de lujo con selección interactiva de comensales, fecha, hora, área del restaurante (Salón Climatizado, Terraza Parrilla, Área Familiar, Mesa VIP) y generación automática de confirmación directa a WhatsApp.
-7. **Contacto & Ubicación**:
-   - Dirección: *9 Calle, 15 Avenida, zona 6 colonia las lomas de Chiquimula, Frente a zona vial 8 Guatemala, Chiquimula 20001* (con botón para copiar al portapapeles y enlaces a Waze y Google Maps).
-   - Teléfono fijo: *+502 7942 4777*
-   - WhatsApp: *+502 5218 8115*
-   - Horario: *7:00 AM - 9:45 PM* (con indicador de apertura en vivo).
-8. **Footer**: Enlaces de navegación, especialidades, créditos, copyright de `tonysgrillgt.com` y redes sociales oficiales (@jariaga68 en Instagram y /tonysgrillgt en Facebook).
+## Arquitectura y Stack Tecnológico
+
+- **Frontend**: React 18 + TypeScript + Vite
+- **Enrutamiento**: React Router DOM v7 (`BrowserRouter` con rewrite SPA en `vercel.json`)
+- **Estilos y Animación**: Tailwind CSS, Framer Motion y Lucide React
+- **Capa de Datos Estática**:
+  - `src/data/restaurantData.ts`: Información oficial del restaurante, textos de secciones (`hero`, `about`, `events`, `contact`), 3 cortes destacados y las **10 promociones Bento** activas.
+  - `src/data/menuData.ts`: Catálogo completo auditado 2026 (`menuData`), 10 categorías filtrables, galerías visuales por sección (`CATEGORY_PDF_PAGES`) y la definición de los **4 menús en PDF**.
+- **Activos Optimizados (`public/`)**:
+  - `public/images/`: **40 fotografías reales** optimizadas (JPEG progresivo, `loading="lazy"` en toda la web excepto el Hero para proteger LCP).
+  - `public/menu-pages/`: **40 láminas visuales** de las cartas impresas (Almuerzos 2026, Desayunos, Tony's Fresh Eats y Eventos 2026).
+  - `public/pdfs/`: **4 PDFs independientes** comprimidos con Ghostscript (`menu-almuerzos-2026.pdf`, `menu-desayunos.pdf`, `menu-fresh-eats.pdf`, `menu-eventos-2026.pdf`).
 
 ---
 
-## 🚀 Comandos de Ejecución
+## Identidad Visual
+
+- **Primario**: `#D90302` (Rojo Parrilla)
+- **Secundario**: `#EBFA00` (Amarillo Eléctrico)
+- **Terciario**: `#03AF45` (Verde WhatsApp / Confirmación)
+- **Superficies**: `#080808` y `#121212` con paneles de cristal (*glassmorphism*) y difuminados radiales.
+
+---
+
+## Rutas y Estructura de Páginas
+
+| Ruta | Descripción |
+| :--- | :--- |
+| `/` | **Landing Page**: Hero con llamada directa, Nosotros (5 pilares), Eventos y Banquetes, Vista previa de Especialidades, Formulario de Reservas por WhatsApp, Contacto (Google Maps / Waze / WhatsApp) y Footer. |
+| `/menu` | **Menú Interactivo y PDFs**: Buscador global en vivo, **10 tarjetas Bento** por sección que abren una ventana emergente con sus hojas del menú impreso (primero), fotografías individuales (después) y precios; soporta deep links `?categoria=<slug>` y `?tab=pdf&pdf=<id>`. |
+| `/menu-pdf` | **Visor Unificado de PDFs**: Selector interactivo para visualizar y descargar por separado los 4 menús oficiales en PDF (Almuerzos 2026, Desayunos, Fresh Eats y Eventos 2026). |
+| `/terminos-y-condiciones` | Términos y condiciones de servicio. |
+| `/politicas-de-privacidad` | Políticas de privacidad. |
+| `/mantenimiento` | Vista de mantenimiento (`noindex` vía `robots.txt`). |
+
+---
+
+## Conversión y SEO Técnico
+
+- **Llamadas Directas (`CallOrderModal`)**: Selector global con las 3 líneas oficiales (`+502 7942-4777`, `+502 7942-4776`, `+502 5237-5638`) y lista preseleccionable de platillos desde `/menu`.
+- **Reservas y Consultas**: Envío directo formateado hacia WhatsApp (`+502 5218-8115`).
+- **SEO Dinámico**: `RouteSeoManager.tsx` actualiza `<title>`, meta `description`, OpenGraph y `<link rel="canonical">` por ruta y categoría, complementado con `public/robots.txt` y `public/sitemap.xml`.
+
+---
+
+## Comandos de Desarrollo y Build
 
 ```bash
-# Iniciar servidor de desarrollo en http://localhost:3000
+# Instalar dependencias
+npm install
+
+# Iniciar servidor de desarrollo
 npm run dev
 
-# Compilar para producción
+# Verificar tipos TypeScript y compilar para producción (dist/)
 npm run build
 
-# Previsualizar el build de producción
+# Previsualizar el build de producción localmente
 npm run preview
 ```
-
