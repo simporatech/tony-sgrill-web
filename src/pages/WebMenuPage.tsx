@@ -9,16 +9,13 @@ import {
   Phone,
   X,
   Download,
-  Plus,
-  Check,
   ZoomIn,
   BookOpen,
-  Clock,
-  Share2,
-  Send,
-  Tag,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Tag,
 } from 'lucide-react';
 import {
   CATEGORY_PDF_PAGES,
@@ -27,7 +24,7 @@ import {
   menuData,
   MenuDataItem,
 } from '../data/menuData';
-import { RESTAURANT_INFO, SITE_CONTENT, PromoItem } from '../data/restaurantData';
+import { SITE_CONTENT } from '../data/restaurantData';
 import { useCallModal } from '../context/CallModalContext';
 
 const OPEN_CATEGORIES = MENU_FILTER_CATEGORIES.filter((c) => c.slug !== 'todos');
@@ -49,6 +46,15 @@ const CATEGORY_ALIASES: Record<string, string> = {
   promos: 'promociones',
 };
 
+interface CompactMenuRow {
+  id: string;
+  name: string;
+  description: string;
+  priceDisplay: string;
+  featured?: boolean;
+  badge?: string;
+}
+
 export const WebMenuPage: React.FC = () => {
   const { openCallModal } = useCallModal();
 
@@ -56,9 +62,8 @@ export const WebMenuPage: React.FC = () => {
   const [selectedPdfId, setSelectedPdfId] = useState<string>(PDF_MENUS[0].id);
   const [activeCategorySlug, setActiveCategorySlug] = useState<string>('todos');
   const [highlightedSlug, setHighlightedSlug] = useState<string | null>(null);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedOrderItems, setSelectedOrderItems] = useState<string[]>([]);
-  const [copiedPromoId, setCopiedPromoId] = useState<string | null>(null);
   const [zoomedPage, setZoomedPage] = useState<{ title: string; image: string } | null>(null);
 
   const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -121,7 +126,6 @@ export const WebMenuPage: React.FC = () => {
         setActiveTab('interactive');
         setActiveCategorySlug(matched.slug);
         setHighlightedSlug(matched.slug);
-        // Wait for layout paint before smooth-scrolling to target section
         const timer = window.setTimeout(() => {
           const el = document.getElementById(matched.slug);
           if (el) {
@@ -147,109 +151,97 @@ export const WebMenuPage: React.FC = () => {
   const scrollCarousel = (slug: string, direction: 'left' | 'right') => {
     const container = carouselRefs.current[slug];
     if (!container) return;
-    const offset = direction === 'left' ? -340 : 340;
+    const offset = direction === 'left' ? -300 : 300;
     container.scrollBy({ left: offset, behavior: 'smooth' });
   };
 
-  const toggleOrderItem = (dishName: string) => {
-    setSelectedOrderItems((prev) =>
-      prev.includes(dishName)
-        ? prev.filter((item) => item !== dishName)
-        : [...prev, dishName]
-    );
+  const toggleExpandCategory = (slug: string) => {
+    setExpandedCategories((prev) => ({ ...prev, [slug]: !prev[slug] }));
   };
 
-  const handleSharePromo = (promo: PromoItem) => {
-    const text = `¡Mira esta promo en Tony's Grill Chiquimula! ${promo.emoji || '🔥'} ${promo.title} (${promo.highlightPrice}) - ${promo.schedule}.`;
-    navigator.clipboard.writeText(text);
-    setCopiedPromoId(promo.id);
-    setTimeout(() => setCopiedPromoId(null), 2500);
-  };
-
-  const filterDishesForCategory = (categoryId: string): MenuDataItem[] => {
+  const getRowsForCategory = (slug: string): CompactMenuRow[] => {
     const q = searchQuery.trim().toLowerCase();
-    return menuData.filter((item) => {
-      if (item.slugCategoria !== categoryId) return false;
-      if (!q) return true;
-      return (
-        item.nombre.toLowerCase().includes(q) ||
-        (item.descripcion && item.descripcion.toLowerCase().includes(q)) ||
-        (item.categoria && item.categoria.toLowerCase().includes(q))
-      );
-    });
-  };
 
-  const filteredPromos = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return SITE_CONTENT.promos;
-    return SITE_CONTENT.promos.filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.badge.toLowerCase().includes(q) ||
-        p.schedule.toLowerCase().includes(q)
-    );
-  }, [searchQuery]);
+    if (slug === 'promociones') {
+      return SITE_CONTENT.promos
+        .filter(
+          (p) =>
+            !q ||
+            p.title.toLowerCase().includes(q) ||
+            p.description.toLowerCase().includes(q) ||
+            p.badge.toLowerCase().includes(q) ||
+            p.schedule.toLowerCase().includes(q)
+        )
+        .map((p) => ({
+          id: p.id,
+          name: p.title,
+          description: `${p.schedule ? `${p.schedule} · ` : ''}${p.description}`,
+          priceDisplay: p.highlightPrice,
+          featured: true,
+          badge: p.badge,
+        }));
+    }
 
-  const getPromoColSpan = (index: number) => {
-    const pattern = [
-      'lg:col-span-6',
-      'lg:col-span-6',
-      'lg:col-span-4',
-      'lg:col-span-4',
-      'lg:col-span-4',
-      'lg:col-span-6',
-      'lg:col-span-6',
-      'lg:col-span-4',
-      'lg:col-span-4',
-      'lg:col-span-4',
-    ];
-    return pattern[index % pattern.length];
+    return menuData
+      .filter((item: MenuDataItem) => {
+        if (item.slugCategoria !== slug) return false;
+        if (!q) return true;
+        return (
+          item.nombre.toLowerCase().includes(q) ||
+          (item.descripcion && item.descripcion.toLowerCase().includes(q)) ||
+          (item.categoria && item.categoria.toLowerCase().includes(q))
+        );
+      })
+      .map((item) => ({
+        id: item.id,
+        name: item.nombre,
+        description: item.descripcion,
+        priceDisplay: item.precioLabel || `Q${Number(item.precioQ).toFixed(2)}`,
+        featured: item.destacado,
+      }));
   };
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white pt-28 pb-32 relative overflow-x-clip font-sans">
+    <div className="min-h-screen bg-[#080808] text-white pt-28 pb-28 relative overflow-x-clip font-sans">
       {/* Subtle Ambient Glow */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#D90302]/10 blur-[180px] rounded-full pointer-events-none" />
       <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-[#EBFA00]/5 blur-[180px] rounded-full pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Page Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-8 gap-6 border-b border-white/[0.08] pb-8">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-semibold uppercase tracking-widest text-[#EBFA00] mb-4">
-              <Utensils className="w-3.5 h-3.5 text-[#D90302]" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Compact Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-4 border-b border-white/[0.08] pb-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[11px] font-semibold uppercase tracking-widest text-[#EBFA00] mb-3">
+              <Utensils className="w-3 h-3 text-[#D90302]" />
               <span>Carta Digital 2026 • Chiquimula</span>
             </div>
 
-            <h1 className="font-serif text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+            <h1 className="font-serif text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
               Nuestro <span className="text-[#D90302]">Menú</span>
             </h1>
 
-            <p className="mt-3 text-sm sm:text-base text-zinc-400 font-light leading-relaxed">
-              Desliza por nuestras galerías de platillos y cartas impresas por sección, consulta precios y llama directo para ordenar sin esperas.
+            <p className="mt-2 text-xs sm:text-sm text-zinc-400 font-light max-w-xl">
+              Desliza las fotos de cada sección, consulta precios en segundos y ordena por teléfono al instante.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <button
-              type="button"
-              onClick={() => openCallModal()}
-              className="px-5 py-3 rounded-full bg-[#D90302] hover:bg-[#b00201] text-xs font-bold text-white uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-[#D90302]/30 cursor-pointer"
-            >
-              <Phone className="w-4 h-4 text-[#EBFA00]" />
-              <span>Ordenar por Llamada</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => openCallModal()}
+            className="self-start sm:self-auto px-5 py-2.5 rounded-full bg-[#D90302] hover:bg-[#b00201] text-xs font-bold text-white uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-[#D90302]/30 cursor-pointer shrink-0"
+          >
+            <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
+            <span>Ordenar por Llamada</span>
+          </button>
         </div>
 
-        {/* Toggle / Tab System: Menú Interactivo vs Ver Menús PDF (4) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div className="inline-flex p-1 rounded-full bg-[#141416] border border-white/10 self-start">
+        {/* Toggle / Tab System + Search */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div className="inline-flex p-1 rounded-full bg-[#121212] border border-white/10 self-start">
             <button
               type="button"
               onClick={() => setActiveTab('interactive')}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'interactive'
                   ? 'bg-[#D90302] text-white shadow-md shadow-[#D90302]/30'
                   : 'text-zinc-400 hover:text-white'
@@ -262,7 +254,7 @@ export const WebMenuPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('pdf')}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
                 activeTab === 'pdf'
                   ? 'bg-[#D90302] text-white shadow-md shadow-[#D90302]/30'
                   : 'text-zinc-400 hover:text-white'
@@ -274,14 +266,14 @@ export const WebMenuPage: React.FC = () => {
           </div>
 
           {activeTab === 'interactive' && (
-            <div className="relative w-full sm:w-80">
+            <div className="relative w-full sm:w-72">
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar platillo, bebida o promo..."
-                className="w-full pl-10 pr-9 py-2.5 bg-[#121215] border border-white/10 rounded-full text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
+                className="w-full pl-10 pr-8 py-2 bg-[#121212] border border-white/10 rounded-full text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#D90302] transition-colors"
               />
               {searchQuery && (
                 <button
@@ -300,9 +292,9 @@ export const WebMenuPage: React.FC = () => {
         {/* Content Area */}
         {activeTab === 'interactive' ? (
           <>
-            {/* Sticky Category Jump-Bar (Top) */}
-            <div className="sticky top-[68px] sm:top-[76px] z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 bg-[#080808]/95 backdrop-blur-xl border-b border-white/[0.08] mb-10">
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            {/* Sticky Category Jump-Bar */}
+            <div className="sticky top-[68px] sm:top-[76px] z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-2.5 bg-[#080808]/95 backdrop-blur-xl border-b border-white/[0.08] mb-7">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
                 {MENU_FILTER_CATEGORIES.map((cat) => {
                   const isActive = activeCategorySlug === cat.slug;
                   return (
@@ -310,10 +302,10 @@ export const WebMenuPage: React.FC = () => {
                       key={cat.slug}
                       type="button"
                       onClick={() => scrollToCategorySection(cat.slug)}
-                      className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
+                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
                         isActive
                           ? 'bg-[#D90302] text-white border-[#D90302] shadow-md shadow-[#D90302]/30'
-                          : 'bg-[#121215] text-zinc-400 hover:text-white border-white/10 hover:border-white/25'
+                          : 'bg-[#121212] text-zinc-400 hover:text-white border-white/10 hover:border-white/25'
                       }`}
                     >
                       {cat.label}
@@ -323,19 +315,19 @@ export const WebMenuPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Open Category Sections Stacked Vertically (No Modals) */}
-            <div className="space-y-16">
+            {/* Compact Visual Showcase Cards Stacked Vertically */}
+            <div className="space-y-8">
               {OPEN_CATEGORIES.map((cat) => {
                 const isPromos = cat.slug === 'promociones';
-                const itemsInCat = isPromos ? [] : filterDishesForCategory(cat.slug);
+                const allRows = getRowsForCategory(cat.slug);
                 const gallery = CATEGORY_PDF_PAGES[cat.slug] || [];
                 const isHighlighted = highlightedSlug === cat.slug;
+                const isSearching = searchQuery.trim() !== '';
+                const isExpanded = Boolean(expandedCategories[cat.slug]) || isSearching;
+                const visibleRows = isExpanded ? allRows : allRows.slice(0, 5);
+                const hasMore = allRows.length > 5 && !isSearching;
 
-                if (
-                  searchQuery.trim() &&
-                  itemsInCat.length === 0 &&
-                  (!isPromos || filteredPromos.length === 0)
-                ) {
+                if (isSearching && allRows.length === 0) {
                   return null;
                 }
 
@@ -343,106 +335,93 @@ export const WebMenuPage: React.FC = () => {
                   <section
                     key={cat.slug}
                     id={cat.slug}
-                    className={`scroll-mt-36 rounded-3xl transition-all duration-500 ${
+                    className={`scroll-mt-36 rounded-3xl bg-[#121212] border transition-all duration-300 overflow-hidden ${
                       isHighlighted
-                        ? 'p-5 sm:p-7 bg-[#121215]/70 border border-[#D90302]/50 shadow-2xl shadow-[#D90302]/15'
-                        : ''
+                        ? 'border-[#D90302]/70 shadow-2xl shadow-[#D90302]/15'
+                        : 'border-white/[0.07] hover:border-white/15'
                     }`}
                   >
                     {/* Section Header */}
-                    <div className="flex items-center justify-between gap-3 mb-6 pb-3 border-b border-white/[0.08]">
-                      <div className="flex items-center gap-3 flex-wrap">
+                    <div className="px-5 sm:px-6 pt-5 pb-4 border-b border-white/[0.06] flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 flex-wrap">
                         <span
-                          className={`w-2.5 h-2.5 rounded-full ${
+                          className={`w-2 h-2 rounded-full ${
                             isPromos ? 'bg-[#EBFA00]' : 'bg-[#D90302]'
                           }`}
                         />
-                        <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                        <h2 className="font-serif text-xl sm:text-2xl font-bold text-white tracking-tight">
                           {cat.label}
                         </h2>
                         {isPromos && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EBFA00]/10 border border-[#EBFA00]/30 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider">
-                            <Tag className="w-3 h-3" />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#EBFA00]/10 border border-[#EBFA00]/30 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider">
+                            <Tag className="w-2.5 h-2.5" />
                             <span>Vigentes</span>
-                          </span>
-                        )}
-                        {isHighlighted && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-mono uppercase tracking-wider">
-                            Sección seleccionada
                           </span>
                         )}
                       </div>
 
-                      <span className="text-[11px] text-zinc-500 font-mono shrink-0">
-                        {isPromos
-                          ? `${filteredPromos.length} promos`
-                          : `${itemsInCat.length} ${itemsInCat.length === 1 ? 'opción' : 'opciones'}`}
-                      </span>
-                    </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[11px] text-zinc-500 font-mono">
+                          {allRows.length} {allRows.length === 1 ? 'opción' : 'opciones'}
+                        </span>
 
-                    {/* Horizontal Swipeable Image Carousel (Menu spreads first, then individual dishes) */}
-                    {gallery.length > 0 && !searchQuery.trim() && (
-                      <div className="mb-8 relative group/carousel">
-                        <div className="flex items-center justify-between gap-2 text-xs text-zinc-400 mb-3">
-                          <div className="flex items-center gap-2">
-                            <BookOpen className="w-3.5 h-3.5 text-[#EBFA00]" />
-                            <span className="uppercase tracking-wider font-semibold text-[11px]">
-                              Desliza para ver Carta & Platillos ({gallery.length} fotos • Toca para ampliar)
-                            </span>
-                          </div>
-
-                          {/* Subtle Desktop Navigation Arrows */}
-                          <div className="hidden md:flex items-center gap-1.5">
+                        {gallery.length > 0 && !isSearching && (
+                          <div className="hidden md:flex items-center gap-1 ml-1">
                             <button
                               type="button"
                               onClick={() => scrollCarousel(cat.slug, 'left')}
                               aria-label={`Deslizar ${cat.label} a la izquierda`}
-                              className="p-1.5 rounded-full bg-[#121215] hover:bg-[#D90302] border border-white/10 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                              className="p-1.5 rounded-full bg-white/[0.04] hover:bg-[#D90302] border border-white/10 text-zinc-300 hover:text-white transition-colors cursor-pointer"
                             >
-                              <ChevronLeft className="w-4 h-4" />
+                              <ChevronLeft className="w-3.5 h-3.5" />
                             </button>
                             <button
                               type="button"
                               onClick={() => scrollCarousel(cat.slug, 'right')}
                               aria-label={`Deslizar ${cat.label} a la derecha`}
-                              className="p-1.5 rounded-full bg-[#121215] hover:bg-[#D90302] border border-white/10 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                              className="p-1.5 rounded-full bg-white/[0.04] hover:bg-[#D90302] border border-white/10 text-zinc-300 hover:text-white transition-colors cursor-pointer"
                             >
-                              <ChevronRight className="w-4 h-4" />
+                              <ChevronRight className="w-3.5 h-3.5" />
                             </button>
                           </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Horizontal Swipeable Image Strip (Hero of each section, uniform h-56 sm:h-64) */}
+                    {gallery.length > 0 && !isSearching && (
+                      <div className="px-5 sm:px-6 pt-4 pb-3 border-b border-white/[0.05] bg-[#0d0d0f]">
+                        <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 uppercase tracking-wider font-semibold mb-2.5">
+                          <BookOpen className="w-3 h-3 text-[#EBFA00]" />
+                          <span>Desliza Carta & Platillos ({gallery.length} fotos • Toca para ampliar)</span>
                         </div>
 
                         <div
                           ref={(el) => {
                             carouselRefs.current[cat.slug] = el;
                           }}
-                          className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 no-scrollbar scroll-smooth"
+                          className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 no-scrollbar scroll-smooth"
                         >
                           {gallery.map((page) => (
                             <button
                               key={`${cat.slug}-${page.image}-${page.title}`}
                               type="button"
                               onClick={() => setZoomedPage(page)}
-                              className="snap-start group relative shrink-0 w-48 sm:w-56 rounded-2xl overflow-hidden bg-[#121215] border border-white/10 hover:border-[#D90302]/60 transition-all shadow-xl cursor-pointer text-left"
+                              className="snap-start group relative shrink-0 h-56 sm:h-64 aspect-[3/4] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 hover:border-[#D90302]/70 transition-all cursor-pointer text-left"
                             >
-                              <div className="aspect-[3/4] w-full overflow-hidden bg-zinc-900">
-                                <img
-                                  src={page.image}
-                                  alt={page.title}
-                                  loading="lazy"
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                              </div>
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors flex items-center justify-center">
-                                <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-full bg-black/80 text-white text-[11px] font-semibold flex items-center gap-1.5 border border-white/15">
-                                  <ZoomIn className="w-3.5 h-3.5 text-[#EBFA00]" />
-                                  <span>Ampliar</span>
-                                </span>
-                              </div>
-                              <div className="p-2.5 bg-[#121215] border-t border-white/[0.06]">
-                                <p className="text-[11px] font-medium text-zinc-300 truncate">
+                              <img
+                                src={page.image}
+                                alt={page.title}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2.5">
+                                <p className="text-[11px] font-medium text-white truncate">
                                   {page.title}
                                 </p>
+                              </div>
+                              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full bg-black/75 border border-white/15">
+                                <ZoomIn className="w-3 h-3 text-[#EBFA00]" />
                               </div>
                             </button>
                           ))}
@@ -450,218 +429,73 @@ export const WebMenuPage: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Clean Price List / Bento Glow Promos Directly Beneath Carousel */}
-                    {isPromos ? (
-                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7">
-                        {filteredPromos.map((promo, index) => {
-                          const colSpan = getPromoColSpan(index);
-                          const accentColor = promo.accentColor || '#D90302';
-                          const badgeColor = promo.badgeColor || '#D90302';
-                          const isAdded = selectedOrderItems.includes(promo.title);
-
-                          return (
-                            <motion.div
-                              key={promo.id}
-                              initial={{ opacity: 0, y: 18 }}
-                              whileInView={{ opacity: 1, y: 0 }}
-                              viewport={{ once: true, amount: 0.1 }}
-                              transition={{ duration: 0.35, delay: index * 0.04 }}
-                              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                              className={`${colSpan} group relative rounded-3xl p-6 sm:p-7 glass-panel border border-white/10 hover:border-white/25 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-2xl`}
-                              style={{
-                                boxShadow: `0 10px 40px -15px ${accentColor}40`,
-                              }}
-                            >
-                              {/* Glow accent corner */}
-                              <div
-                                className="absolute -top-24 -right-24 w-56 h-56 rounded-full blur-[80px] pointer-events-none opacity-40 group-hover:opacity-80 transition-opacity"
-                                style={{ backgroundColor: accentColor }}
-                              />
-
-                              <div>
-                                <div className="flex items-center justify-between gap-3 mb-5">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-2xl p-2 rounded-2xl bg-white/[0.05] border border-white/10 backdrop-blur-md">
-                                      {promo.emoji || '🔥'}
-                                    </span>
-                                    {promo.badge && (
-                                      <span
-                                        className="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider shadow-md"
-                                        style={{
-                                          backgroundColor: badgeColor,
-                                          color: badgeColor === '#EBFA00' ? '#080808' : '#ffffff',
-                                        }}
-                                      >
-                                        {promo.badge}
-                                      </span>
-                                    )}
-                                  </div>
-
-                                  <button
-                                    type="button"
-                                    onClick={() => handleSharePromo(promo)}
-                                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer"
-                                    title="Copiar detalles de la promo"
-                                  >
-                                    {copiedPromoId === promo.id ? (
-                                      <Check className="w-4 h-4 text-[#03AF45]" />
-                                    ) : (
-                                      <Share2 className="w-4 h-4" />
-                                    )}
-                                  </button>
-                                </div>
-
-                                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-3">
-                                  <h3 className="font-serif text-xl sm:text-2xl font-extrabold text-white group-hover:text-[#EBFA00] transition-colors">
-                                    {promo.title}
-                                  </h3>
-                                  {promo.highlightPrice && (
-                                    <span
-                                      className="text-lg sm:text-2xl font-black shrink-0 tracking-tight"
-                                      style={{ color: badgeColor === '#EBFA00' ? '#EBFA00' : '#ffffff' }}
-                                    >
-                                      {promo.highlightPrice}
-                                    </span>
-                                  )}
-                                </div>
-
-                                {promo.schedule && (
-                                  <p className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5 mb-3">
-                                    <Clock className="w-3.5 h-3.5 text-[#EBFA00]" />
-                                    <span>{promo.schedule}</span>
-                                  </p>
-                                )}
-
-                                <p className="text-zinc-300 text-sm leading-relaxed font-light mb-5">
-                                  {promo.description}
-                                </p>
-                              </div>
-
-                              <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <span className="text-[11px] text-zinc-500 font-medium italic">
-                                  {promo.terms ? `* ${promo.terms}` : '* Válido por tiempo limitado.'}
+                    {/* Minimalist, Collapsible Price List (Top 5 by default) */}
+                    <div className="px-5 sm:px-6 py-2 divide-y divide-white/[0.06]">
+                      {visibleRows.map((row) => (
+                        <div
+                          key={row.id}
+                          className="py-3.5 flex items-center justify-between gap-3 group"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="text-sm sm:text-base font-semibold text-white group-hover:text-[#EBFA00] transition-colors truncate">
+                                {row.name}
+                              </h3>
+                              {row.featured && !row.badge && (
+                                <Sparkles className="w-3 h-3 text-[#EBFA00] shrink-0" />
+                              )}
+                              {row.badge && (
+                                <span className="px-2 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider shrink-0">
+                                  {row.badge}
                                 </span>
-
-                                <div className="flex items-center gap-2 shrink-0">
-                                  <button
-                                    type="button"
-                                    onClick={() => toggleOrderItem(promo.title)}
-                                    className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
-                                      isAdded
-                                        ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
-                                        : 'bg-white/[0.04] hover:bg-white/[0.09] border-white/10 text-zinc-300 hover:text-white'
-                                    }`}
-                                  >
-                                    {isAdded ? (
-                                      <Check className="w-3.5 h-3.5" />
-                                    ) : (
-                                      <Plus className="w-3.5 h-3.5" />
-                                    )}
-                                    <span>{isAdded ? 'Agregada' : 'Agregar'}</span>
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    onClick={() => openCallModal(promo.title)}
-                                    className="px-3.5 py-2 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer"
-                                  >
-                                    <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
-                                    <span>Ordenar por Llamada</span>
-                                  </button>
-
-                                  <a
-                                    href={`https://wa.me/${RESTAURANT_INFO.whatsappRaw}?text=${encodeURIComponent(
-                                      `Hola Tony's Grill, deseo consultar o aprovechar la promoción: ${promo.title}`
-                                    )}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    title="Consultar por WhatsApp"
-                                    className="p-2 rounded-xl bg-[#03AF45] hover:bg-[#029139] text-white transition-all shadow-md shrink-0"
-                                  >
-                                    <Send className="w-3.5 h-3.5" />
-                                  </a>
-                                </div>
-                              </div>
-                            </motion.div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {itemsInCat.map((item) => {
-                          const isAdded = selectedOrderItems.includes(item.nombre);
-                          const displayPrice =
-                            item.precioLabel || `Q${Number(item.precioQ).toFixed(2)}`;
-                          return (
-                            <div
-                              key={item.id}
-                              className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
-                                isAdded
-                                  ? 'bg-[#17171b] border-[#D90302]/60 shadow-lg'
-                                  : 'bg-[#121212] hover:bg-[#16161a] border-white/[0.06] hover:border-white/15'
-                              }`}
-                            >
-                              <div>
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <h3 className="font-serif text-base sm:text-lg font-bold text-white leading-snug">
-                                      {item.nombre}
-                                    </h3>
-                                    {item.destacado && (
-                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider">
-                                        <Sparkles className="w-2.5 h-2.5" />
-                                        <span>Destacado</span>
-                                      </span>
-                                    )}
-                                  </div>
-
-                                  <span className="font-serif text-sm sm:text-base font-bold text-[#EBFA00] shrink-0">
-                                    {displayPrice}
-                                  </span>
-                                </div>
-
-                                {item.descripcion && (
-                                  <p className="mt-1.5 text-xs text-zinc-400 font-light leading-relaxed">
-                                    {item.descripcion}
-                                  </p>
-                                )}
-                              </div>
-
-                              <div className="pt-3 border-t border-white/[0.05] flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => toggleOrderItem(item.nombre)}
-                                  className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
-                                    isAdded
-                                      ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
-                                      : 'bg-white/[0.04] hover:bg-white/[0.09] border-white/10 text-zinc-300 hover:text-white'
-                                  }`}
-                                >
-                                  {isAdded ? (
-                                    <>
-                                      <Check className="w-3.5 h-3.5" />
-                                      <span>En tu pedido</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Plus className="w-3.5 h-3.5" />
-                                      <span>Agregar al pedido</span>
-                                    </>
-                                  )}
-                                </button>
-
-                                <button
-                                  type="button"
-                                  onClick={() => openCallModal(item.nombre)}
-                                  className="py-2 px-3.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-[#D90302]/20 shrink-0"
-                                >
-                                  <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
-                                  <span>Ordenar por Llamada</span>
-                                </button>
-                              </div>
+                              )}
                             </div>
-                          );
-                        })}
+                            {row.description && (
+                              <p className="text-xs text-zinc-400 font-light line-clamp-1 mt-0.5">
+                                {row.description}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2.5 shrink-0">
+                            <span className="font-serif text-sm sm:text-base font-bold text-[#EBFA00] whitespace-nowrap">
+                              {row.priceDisplay}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => openCallModal(row.name)}
+                              title={`Ordenar ${row.name} por llamada`}
+                              aria-label={`Ordenar ${row.name} por llamada`}
+                              className="p-2 rounded-full bg-white/[0.05] hover:bg-[#D90302] border border-white/10 hover:border-[#D90302] text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                            >
+                              <Phone className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Anti-Overwhelm Expand Toggle */}
+                    {hasMore && (
+                      <div className="px-5 sm:px-6 py-3 border-t border-white/[0.06] bg-white/[0.015]">
+                        <button
+                          type="button"
+                          onClick={() => toggleExpandCategory(cat.slug)}
+                          className="w-full py-2 rounded-xl text-xs font-semibold text-zinc-300 hover:text-[#EBFA00] hover:bg-white/[0.04] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          {isExpanded ? (
+                            <>
+                              <span>Mostrar menos</span>
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </>
+                          ) : (
+                            <>
+                              <span>Ver todos los platillos ({allRows.length})</span>
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </>
+                          )}
+                        </button>
                       </div>
                     )}
                   </section>
@@ -683,7 +517,7 @@ export const WebMenuPage: React.FC = () => {
                     className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                       isSelected
                         ? 'bg-[#1a1012] border-[#D90302] shadow-lg shadow-[#D90302]/20'
-                        : 'bg-[#121215] hover:bg-[#17171b] border-white/10 hover:border-white/25'
+                        : 'bg-[#121212] hover:bg-[#17171b] border-white/10 hover:border-white/25'
                     }`}
                   >
                     <div>
@@ -725,7 +559,7 @@ export const WebMenuPage: React.FC = () => {
               })}
             </div>
 
-            <div className="rounded-3xl bg-[#121215] border border-white/10 overflow-hidden shadow-2xl">
+            <div className="rounded-3xl bg-[#121212] border border-white/10 overflow-hidden shadow-2xl">
               <div className="p-5 sm:p-6 border-b border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#EBFA00]">
@@ -772,51 +606,6 @@ export const WebMenuPage: React.FC = () => {
         )}
       </div>
 
-      {/* Pre-Selected Order Floating Summary */}
-      <AnimatePresence>
-        {selectedOrderItems.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            className="fixed bottom-20 md:bottom-24 inset-x-4 sm:inset-x-auto sm:left-6 sm:max-w-md z-40 p-4 rounded-2xl bg-[#141418]/95 border border-[#D90302]/40 shadow-2xl flex items-center justify-between gap-4 backdrop-blur-xl"
-          >
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-[#03AF45] shrink-0" />
-                <span>
-                  {selectedOrderItems.length}{' '}
-                  {selectedOrderItems.length === 1 ? 'ítem en tu pedido' : 'ítems en tu pedido'}
-                </span>
-              </p>
-              <p className="text-[11px] text-zinc-400 truncate mt-0.5">
-                {selectedOrderItems.join(', ')}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => openCallModal(selectedOrderItems.join(', '))}
-                className="px-3.5 py-2 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer"
-              >
-                <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
-                <span>Llamar</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setSelectedOrderItems([])}
-                aria-label="Limpiar pedido"
-                className="p-1.5 text-zinc-400 hover:text-white text-xs cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Lightbox Modal for Zoomed Image */}
       <AnimatePresence>
         {zoomedPage && (
@@ -829,7 +618,7 @@ export const WebMenuPage: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative max-w-3xl w-full max-h-[90vh] bg-[#121215] rounded-2xl overflow-hidden border border-white/15 shadow-2xl flex flex-col"
+              className="relative max-w-3xl w-full max-h-[90vh] bg-[#121212] rounded-2xl overflow-hidden border border-white/15 shadow-2xl flex flex-col"
             >
               <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
                 <span className="text-xs font-semibold text-white">
