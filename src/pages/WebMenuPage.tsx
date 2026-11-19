@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -17,8 +17,8 @@ import {
   Share2,
   Send,
   Tag,
-  ArrowRight,
-  Images,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import {
   CATEGORY_PDF_PAGES,
@@ -30,124 +30,23 @@ import {
 import { RESTAURANT_INFO, SITE_CONTENT, PromoItem } from '../data/restaurantData';
 import { useCallModal } from '../context/CallModalContext';
 
-interface CategoryCardMeta {
-  id: string;
-  label: string;
-  emoji: string;
-  badge: string;
-  badgeColor: string;
-  accentColor: string;
-  description: string;
-  coverImage: string;
-}
-
-const CATEGORY_CARDS: CategoryCardMeta[] = [
-  {
-    id: 'asados-y-carnes',
-    label: 'Asados, Combos y Pollo',
-    emoji: '🥩',
-    badge: 'Especialidad de la Casa',
-    badgeColor: '#D90302',
-    accentColor: '#D90302',
-    description: 'Puyazo americano, lomito 8 oz, entraña, parrilladas familiares, combos Mar y Tierra, fajitas y pollo a la parrilla.',
-    coverImage: '/images/puyazo-importado.jpg',
-  },
-  {
-    id: 'desayunos',
-    label: 'Desayunos',
-    emoji: '🍳',
-    badge: '7:00 – 11:00 AM',
-    badgeColor: '#EBFA00',
-    accentColor: '#D90302',
-    description: 'Desayuno típico, omelettes, panqueques, tostadas francesas, muffins, opciones livianas y menú kids.',
-    coverImage: '/images/promo-desayuno.jpg',
-  },
-  {
-    id: 'mariscos-y-sopas',
-    label: 'Mariscos y Sopas',
-    emoji: '🦐',
-    badge: 'Fresco del Día',
-    badgeColor: '#03AF45',
-    accentColor: '#03AF45',
-    description: 'Salmón, róbalo, camarones jumbo y empanizados, mojarra frita, ceviches, tapado y sopa de mariscos.',
-    coverImage: '/images/ceviche-camaron.jpg',
-  },
-  {
-    id: 'pizzas-y-lasanas',
-    label: 'Pizzas, Pastas y Lasañas',
-    emoji: '🍕',
-    badge: '4 Tamaños & Combos',
-    badgeColor: '#D90302',
-    accentColor: '#D90302',
-    description: '17 especialidades de pizza, súper combos familiares, lasaña boloñesa, calzone supremo y pastas artesanales.',
-    coverImage: '/images/lasana-bolonesa.jpg',
-  },
-  {
-    id: 'antojitos-y-cenas',
-    label: 'Antojitos, Burgers y Cenas',
-    emoji: '🍔',
-    badge: 'Para Compartir',
-    badgeColor: '#EBFA00',
-    accentColor: '#D90302',
-    description: 'Carpaccio, hamburguesas, tacos mexicanos, burritos, garnachas, sándwiches, cenas y menú infantil.',
-    coverImage: '/images/carpaccio.jpg',
-  },
-  {
-    id: 'ensaladas',
-    label: 'Ensaladas',
-    emoji: '🥗',
-    badge: 'Natural & Fresco',
-    badgeColor: '#03AF45',
-    accentColor: '#03AF45',
-    description: 'Ensalada Californiana, César, Mediterránea, Del Mar, Garden Salad y Tony\'s Grill con pan incluido.',
-    coverImage: '/images/ensalada-californiana.jpg',
-  },
-  {
-    id: 'crepas-y-postres',
-    label: 'Crepas y Postres',
-    emoji: '🥞',
-    badge: 'Incluyen Café',
-    badgeColor: '#EBFA00',
-    accentColor: '#D90302',
-    description: 'Crepas dulces y saladas, canelitas, hojuelas, canoa, pasteles y combos American Doughnuts.',
-    coverImage: '/menu-pages/almuerzo-17.jpg',
-  },
-  {
-    id: 'bebidas-y-fresh',
-    label: "Bebidas y Tony's Fresh",
-    emoji: '🍹',
-    badge: 'Coctelería 2x1',
-    badgeColor: '#03AF45',
-    accentColor: '#03AF45',
-    description: 'Cafés, frapuchinos, smoothies, mojitos y sangrías 2x1, cubetazos, cervezas, vinos y licores.',
-    coverImage: '/images/cocteleria-fresh.jpg',
-  },
-  {
-    id: 'promociones',
-    label: 'Promociones',
-    emoji: '🔥',
-    badge: 'Ofertas Vigentes',
-    badgeColor: '#EBFA00',
-    accentColor: '#D90302',
-    description: 'Desayunos 2x1, Lasañas 2x1 a Q63, Pizzas 2x1 martes y jueves, cócteles 2x1 y súper combos.',
-    coverImage: '/images/promo-lasana.jpg',
-  },
-  {
-    id: 'eventos',
-    label: 'Menú de Eventos',
-    emoji: '🥂',
-    badge: 'Banquetes 2026',
-    badgeColor: '#D90302',
-    accentColor: '#D90302',
-    description: 'Platillos fuertes, opciones V.I.P., menú infantil, refacciones saladas y condiciones de salón.',
-    coverImage: '/menu-pages/eventos-1.jpg',
-  },
-];
+const OPEN_CATEGORIES = MENU_FILTER_CATEGORIES.filter((c) => c.slug !== 'todos');
 
 const CATEGORY_ALIASES: Record<string, string> = {
+  asados: 'asados-y-carnes',
+  carnes: 'asados-y-carnes',
   sopas: 'mariscos-y-sopas',
+  mariscos: 'mariscos-y-sopas',
   crepas: 'crepas-y-postres',
+  postres: 'crepas-y-postres',
   bebidas: 'bebidas-y-fresh',
+  fresh: 'bebidas-y-fresh',
+  pizzas: 'pizzas-y-lasanas',
+  lasanas: 'pizzas-y-lasanas',
+  antojitos: 'antojitos-y-cenas',
+  hamburguesas: 'antojitos-y-cenas',
+  cenas: 'antojitos-y-cenas',
+  promos: 'promociones',
 };
 
 export const WebMenuPage: React.FC = () => {
@@ -155,20 +54,46 @@ export const WebMenuPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'interactive' | 'pdf'>('interactive');
   const [selectedPdfId, setSelectedPdfId] = useState<string>(PDF_MENUS[0].id);
-  const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
+  const [activeCategorySlug, setActiveCategorySlug] = useState<string>('todos');
+  const [highlightedSlug, setHighlightedSlug] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedOrderItems, setSelectedOrderItems] = useState<string[]>([]);
   const [copiedPromoId, setCopiedPromoId] = useState<string | null>(null);
   const [zoomedPage, setZoomedPage] = useState<{ title: string; image: string } | null>(null);
 
+  const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
   const selectedPdf = useMemo(() => {
     return PDF_MENUS.find((p) => p.id === selectedPdfId) || PDF_MENUS[0];
   }, [selectedPdfId]);
 
-  const activeCategoryCard = useMemo(() => {
-    if (!openCategoryId) return null;
-    return CATEGORY_CARDS.find((c) => c.id === openCategoryId) || null;
-  }, [openCategoryId]);
+  const scrollToCategorySection = (slug: string, highlight = true) => {
+    setActiveCategorySlug(slug);
+
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (slug === 'todos') {
+        url.searchParams.delete('categoria');
+      } else {
+        url.searchParams.set('categoria', slug);
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+
+    if (slug === 'todos') {
+      setHighlightedSlug(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const el = document.getElementById(slug);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (highlight) {
+        setHighlightedSlug(slug);
+      }
+    }
+  };
 
   // Deep Linking (?categoria=<slug>, ?tab=pdf, ?pdf=<id>)
   useEffect(() => {
@@ -189,47 +114,41 @@ export const WebMenuPage: React.FC = () => {
     }
 
     if (categoriaParam && categoriaParam !== 'todos') {
-      const matched = MENU_FILTER_CATEGORIES.find(
+      const matched = OPEN_CATEGORIES.find(
         (c) => c.slug.toLowerCase() === categoriaParam
       );
       if (matched) {
         setActiveTab('interactive');
-        setOpenCategoryId(matched.slug);
+        setActiveCategorySlug(matched.slug);
+        setHighlightedSlug(matched.slug);
+        // Wait for layout paint before smooth-scrolling to target section
+        const timer = window.setTimeout(() => {
+          const el = document.getElementById(matched.slug);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 120);
+        return () => window.clearTimeout(timer);
       }
     }
   }, []);
 
-  // Close modal with Escape key
+  // Close lightbox with Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (zoomedPage) {
-          setZoomedPage(null);
-        } else if (openCategoryId) {
-          handleCloseCategory();
-        }
+      if (e.key === 'Escape' && zoomedPage) {
+        setZoomedPage(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [zoomedPage, openCategoryId]);
+  }, [zoomedPage]);
 
-  const handleOpenCategory = (slug: string) => {
-    setOpenCategoryId(slug);
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.set('categoria', slug);
-      window.history.replaceState({}, '', url.toString());
-    }
-  };
-
-  const handleCloseCategory = () => {
-    setOpenCategoryId(null);
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('categoria');
-      window.history.replaceState({}, '', url.toString());
-    }
+  const scrollCarousel = (slug: string, direction: 'left' | 'right') => {
+    const container = carouselRefs.current[slug];
+    if (!container) return;
+    const offset = direction === 'left' ? -340 : 340;
+    container.scrollBy({ left: offset, behavior: 'smooth' });
   };
 
   const toggleOrderItem = (dishName: string) => {
@@ -247,50 +166,40 @@ export const WebMenuPage: React.FC = () => {
     setTimeout(() => setCopiedPromoId(null), 2500);
   };
 
-  const getCategoryItemCount = (categoryId: string): number => {
-    if (categoryId === 'promociones') return SITE_CONTENT.promos.length;
-    return menuData.filter((item) => item.slugCategoria === categoryId).length;
+  const filterDishesForCategory = (categoryId: string): MenuDataItem[] => {
+    const q = searchQuery.trim().toLowerCase();
+    return menuData.filter((item) => {
+      if (item.slugCategoria !== categoryId) return false;
+      if (!q) return true;
+      return (
+        item.nombre.toLowerCase().includes(q) ||
+        (item.descripcion && item.descripcion.toLowerCase().includes(q)) ||
+        (item.categoria && item.categoria.toLowerCase().includes(q))
+      );
+    });
   };
 
-  const modalDishes: MenuDataItem[] = useMemo(() => {
-    if (!openCategoryId || openCategoryId === 'promociones') return [];
-    return menuData.filter((item) => item.slugCategoria === openCategoryId);
-  }, [openCategoryId]);
-
-  const modalGallery = useMemo(() => {
-    if (!openCategoryId) return [];
-    return CATEGORY_PDF_PAGES[openCategoryId] || [];
-  }, [openCategoryId]);
-
-  const searchResults = useMemo(() => {
+  const filteredPromos = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return { dishes: [] as MenuDataItem[], promos: [] as PromoItem[] };
-    return {
-      dishes: menuData.filter(
-        (item) =>
-          item.slugCategoria !== 'promociones' &&
-          (item.nombre.toLowerCase().includes(q) ||
-            item.descripcion.toLowerCase().includes(q) ||
-            item.categoria.toLowerCase().includes(q))
-      ),
-      promos: SITE_CONTENT.promos.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.badge.toLowerCase().includes(q)
-      ),
-    };
+    if (!q) return SITE_CONTENT.promos;
+    return SITE_CONTENT.promos.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.badge.toLowerCase().includes(q) ||
+        p.schedule.toLowerCase().includes(q)
+    );
   }, [searchQuery]);
 
-  const getBentoColSpan = (index: number) => {
+  const getPromoColSpan = (index: number) => {
     const pattern = [
       'lg:col-span-6',
       'lg:col-span-6',
       'lg:col-span-4',
       'lg:col-span-4',
       'lg:col-span-4',
-      'lg:col-span-5',
-      'lg:col-span-7',
+      'lg:col-span-6',
+      'lg:col-span-6',
       'lg:col-span-4',
       'lg:col-span-4',
       'lg:col-span-4',
@@ -299,7 +208,7 @@ export const WebMenuPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white pt-28 pb-32 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#080808] text-white pt-28 pb-32 relative overflow-x-clip font-sans">
       {/* Subtle Ambient Glow */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#D90302]/10 blur-[180px] rounded-full pointer-events-none" />
       <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-[#EBFA00]/5 blur-[180px] rounded-full pointer-events-none" />
@@ -318,7 +227,7 @@ export const WebMenuPage: React.FC = () => {
             </h1>
 
             <p className="mt-3 text-sm sm:text-base text-zinc-400 font-light leading-relaxed">
-              Toca cualquier sección para abrir sus platillos, precios y fotografías reales, o busca directamente lo que se te antoja.
+              Desliza por nuestras galerías de platillos y cartas impresas por sección, consulta precios y llama directo para ordenar sin esperas.
             </p>
           </div>
 
@@ -329,13 +238,13 @@ export const WebMenuPage: React.FC = () => {
               className="px-5 py-3 rounded-full bg-[#D90302] hover:bg-[#b00201] text-xs font-bold text-white uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-[#D90302]/30 cursor-pointer"
             >
               <Phone className="w-4 h-4 text-[#EBFA00]" />
-              <span>Llamar para Ordenar</span>
+              <span>Ordenar por Llamada</span>
             </button>
           </div>
         </div>
 
         {/* Toggle / Tab System: Menú Interactivo vs Ver Menús PDF (4) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="inline-flex p-1 rounded-full bg-[#141416] border border-white/10 self-start">
             <button
               type="button"
@@ -347,7 +256,7 @@ export const WebMenuPage: React.FC = () => {
               }`}
             >
               <Utensils className="w-3.5 h-3.5" />
-              <span>Menú por Secciones</span>
+              <span>Menú Interactivo</span>
             </button>
 
             <button
@@ -360,7 +269,7 @@ export const WebMenuPage: React.FC = () => {
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>Ver Menús PDF (4)</span>
+              <span>Ver Menú Original (PDF)</span>
             </button>
           </div>
 
@@ -390,229 +299,378 @@ export const WebMenuPage: React.FC = () => {
 
         {/* Content Area */}
         {activeTab === 'interactive' ? (
-          searchQuery.trim() !== '' ? (
-            /* Direct Search Results View */
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-                <p className="text-xs sm:text-sm text-zinc-300">
-                  Resultados para <strong className="text-white">&quot;{searchQuery}&quot;</strong>:{' '}
-                  <span className="text-[#EBFA00] font-mono">
-                    {searchResults.promos.length + searchResults.dishes.length} coincidencias
-                  </span>
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="text-xs text-zinc-400 hover:text-white cursor-pointer"
-                >
-                  Volver a secciones
-                </button>
+          <>
+            {/* Sticky Category Jump-Bar (Top) */}
+            <div className="sticky top-[68px] sm:top-[76px] z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-3 bg-[#080808]/95 backdrop-blur-xl border-b border-white/[0.08] mb-10">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                {MENU_FILTER_CATEGORIES.map((cat) => {
+                  const isActive = activeCategorySlug === cat.slug;
+                  return (
+                    <button
+                      key={cat.slug}
+                      type="button"
+                      onClick={() => scrollToCategorySection(cat.slug)}
+                      className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
+                        isActive
+                          ? 'bg-[#D90302] text-white border-[#D90302] shadow-md shadow-[#D90302]/30'
+                          : 'bg-[#121215] text-zinc-400 hover:text-white border-white/10 hover:border-white/25'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
               </div>
-
-              {searchResults.promos.length === 0 && searchResults.dishes.length === 0 ? (
-                <div className="p-10 rounded-3xl bg-[#121215] border border-white/10 text-center">
-                  <p className="text-sm text-zinc-400">
-                    No encontramos platillos con ese nombre. Prueba buscando &quot;puyazo&quot;, &quot;pizza&quot;, &quot;camarones&quot; o &quot;2x1&quot;.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {searchResults.promos.map((promo) => {
-                    const isAdded = selectedOrderItems.includes(promo.title);
-                    return (
-                      <div
-                        key={promo.id}
-                        className="p-5 rounded-2xl glass-panel border border-[#EBFA00]/25 flex flex-col justify-between gap-3 relative overflow-hidden"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#EBFA00]">
-                              {promo.emoji} Promoción • {promo.schedule}
-                            </span>
-                            <h3 className="font-serif text-lg font-bold text-white mt-0.5">
-                              {promo.title}
-                            </h3>
-                          </div>
-                          <span className="font-serif text-base font-black text-[#EBFA00] shrink-0">
-                            {promo.highlightPrice}
-                          </span>
-                        </div>
-                        <p className="text-xs text-zinc-300 font-light">{promo.description}</p>
-                        <div className="pt-3 border-t border-white/[0.06] flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => toggleOrderItem(promo.title)}
-                            className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold border cursor-pointer flex items-center justify-center gap-1.5 ${
-                              isAdded
-                                ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
-                                : 'bg-white/[0.04] hover:bg-white/[0.09] border-white/10 text-zinc-300'
-                            }`}
-                          >
-                            {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                            <span>{isAdded ? 'En tu pedido' : 'Agregar'}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => openCallModal(promo.title)}
-                            className="py-2 px-3.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs cursor-pointer flex items-center gap-1.5"
-                          >
-                            <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
-                            <span>Llamar</span>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  {searchResults.dishes.map((item) => {
-                    const isAdded = selectedOrderItems.includes(item.nombre);
-                    const displayPrice = item.precioLabel || `Q${Number(item.precioQ).toFixed(2)}`;
-                    return (
-                      <div
-                        key={item.id}
-                        className="p-5 rounded-2xl bg-[#101013] border border-white/[0.08] flex flex-col justify-between gap-3"
-                      >
-                        <div>
-                          <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
-                            {item.categoria}
-                          </span>
-                          <div className="flex items-start justify-between gap-3 mt-0.5">
-                            <h3 className="font-serif text-base font-bold text-white leading-snug">
-                              {item.nombre}
-                            </h3>
-                            <span className="font-serif text-base font-bold text-[#EBFA00] shrink-0">
-                              {displayPrice}
-                            </span>
-                          </div>
-                          {item.descripcion && (
-                            <p className="mt-1.5 text-xs text-zinc-400 font-light leading-relaxed">
-                              {item.descripcion}
-                            </p>
-                          )}
-                        </div>
-                        <div className="pt-3 border-t border-white/[0.05] flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => toggleOrderItem(item.nombre)}
-                            className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold border cursor-pointer flex items-center justify-center gap-1.5 ${
-                              isAdded
-                                ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
-                                : 'bg-white/[0.04] hover:bg-white/[0.09] border-white/10 text-zinc-300'
-                            }`}
-                          >
-                            {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                            <span>{isAdded ? 'En tu pedido' : 'Agregar'}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => openCallModal(item.nombre)}
-                            className="py-2 px-3.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs cursor-pointer flex items-center gap-1.5"
-                          >
-                            <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
-                            <span>Pedir por Llamada</span>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
-          ) : (
-            /* Clean Bento Grid of Category Cards (Promos-style Glow Aesthetic) */
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7">
-              {CATEGORY_CARDS.map((card, index) => {
-                const colSpan = getBentoColSpan(index);
-                const itemCount = getCategoryItemCount(card.id);
-                const photoCount = (CATEGORY_PDF_PAGES[card.id] || []).length;
+
+            {/* Open Category Sections Stacked Vertically (No Modals) */}
+            <div className="space-y-16">
+              {OPEN_CATEGORIES.map((cat) => {
+                const isPromos = cat.slug === 'promociones';
+                const itemsInCat = isPromos ? [] : filterDishesForCategory(cat.slug);
+                const gallery = CATEGORY_PDF_PAGES[cat.slug] || [];
+                const isHighlighted = highlightedSlug === cat.slug;
+
+                if (
+                  searchQuery.trim() &&
+                  itemsInCat.length === 0 &&
+                  (!isPromos || filteredPromos.length === 0)
+                ) {
+                  return null;
+                }
 
                 return (
-                  <motion.button
-                    key={card.id}
-                    type="button"
-                    onClick={() => handleOpenCategory(card.id)}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.04 }}
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    className={`${colSpan} group relative rounded-3xl p-6 sm:p-7 glass-panel border border-white/10 hover:border-white/25 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-2xl text-left cursor-pointer`}
-                    style={{
-                      boxShadow: `0 10px 40px -15px ${card.accentColor}40`,
-                    }}
+                  <section
+                    key={cat.slug}
+                    id={cat.slug}
+                    className={`scroll-mt-36 rounded-3xl transition-all duration-500 ${
+                      isHighlighted
+                        ? 'p-5 sm:p-7 bg-[#121215]/70 border border-[#D90302]/50 shadow-2xl shadow-[#D90302]/15'
+                        : ''
+                    }`}
                   >
-                    {/* Glow accent corner */}
-                    <div
-                      className="absolute -top-24 -right-24 w-56 h-56 rounded-full blur-[80px] pointer-events-none opacity-40 group-hover:opacity-80 transition-opacity"
-                      style={{ backgroundColor: card.accentColor }}
-                    />
-
-                    <div>
-                      {/* Top Bar: Emoji + Badge + Preview Thumbnail */}
-                      <div className="flex items-start justify-between gap-3 mb-5">
-                        <div className="flex items-center gap-2.5 flex-wrap">
-                          <span className="text-2xl p-2 rounded-2xl bg-white/[0.05] border border-white/10 backdrop-blur-md">
-                            {card.emoji}
+                    {/* Section Header */}
+                    <div className="flex items-center justify-between gap-3 mb-6 pb-3 border-b border-white/[0.08]">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span
+                          className={`w-2.5 h-2.5 rounded-full ${
+                            isPromos ? 'bg-[#EBFA00]' : 'bg-[#D90302]'
+                          }`}
+                        />
+                        <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                          {cat.label}
+                        </h2>
+                        {isPromos && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EBFA00]/10 border border-[#EBFA00]/30 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider">
+                            <Tag className="w-3 h-3" />
+                            <span>Vigentes</span>
                           </span>
-                          <span
-                            className="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider shadow-md"
-                            style={{
-                              backgroundColor: card.badgeColor,
-                              color: card.badgeColor === '#EBFA00' ? '#080808' : '#ffffff',
-                            }}
-                          >
-                            {card.badge}
+                        )}
+                        {isHighlighted && (
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-mono uppercase tracking-wider">
+                            Sección seleccionada
                           </span>
-                        </div>
-
-                        <div className="w-14 h-14 rounded-2xl overflow-hidden border border-white/15 shrink-0 bg-zinc-900 shadow-lg">
-                          <img
-                            src={card.coverImage}
-                            alt={card.label}
-                            loading="lazy"
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        </div>
+                        )}
                       </div>
 
-                      {/* Category Title & Description */}
-                      <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-white group-hover:text-[#EBFA00] transition-colors leading-tight mb-2.5">
-                        {card.label}
-                      </h2>
-
-                      <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed font-light mb-5">
-                        {card.description}
-                      </p>
-                    </div>
-
-                    {/* Footer: Counts + CTA */}
-                    <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 text-[11px] text-zinc-400 font-mono">
-                        <span>{itemCount} opciones</span>
-                        <span>•</span>
-                        <span className="inline-flex items-center gap-1">
-                          <Images className="w-3.5 h-3.5 text-[#EBFA00]" />
-                          {photoCount} fotos
-                        </span>
-                      </div>
-
-                      <span
-                        className="px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider text-white transition-all flex items-center gap-1.5 group-hover:scale-105 shadow-lg shrink-0"
-                        style={{
-                          backgroundColor:
-                            card.accentColor === '#03AF45' ? '#03AF45' : '#D90302',
-                        }}
-                      >
-                        <span>Ver sección</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-[#EBFA00]" />
+                      <span className="text-[11px] text-zinc-500 font-mono shrink-0">
+                        {isPromos
+                          ? `${filteredPromos.length} promos`
+                          : `${itemsInCat.length} ${itemsInCat.length === 1 ? 'opción' : 'opciones'}`}
                       </span>
                     </div>
-                  </motion.button>
+
+                    {/* Horizontal Swipeable Image Carousel (Menu spreads first, then individual dishes) */}
+                    {gallery.length > 0 && !searchQuery.trim() && (
+                      <div className="mb-8 relative group/carousel">
+                        <div className="flex items-center justify-between gap-2 text-xs text-zinc-400 mb-3">
+                          <div className="flex items-center gap-2">
+                            <BookOpen className="w-3.5 h-3.5 text-[#EBFA00]" />
+                            <span className="uppercase tracking-wider font-semibold text-[11px]">
+                              Desliza para ver Carta & Platillos ({gallery.length} fotos • Toca para ampliar)
+                            </span>
+                          </div>
+
+                          {/* Subtle Desktop Navigation Arrows */}
+                          <div className="hidden md:flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => scrollCarousel(cat.slug, 'left')}
+                              aria-label={`Deslizar ${cat.label} a la izquierda`}
+                              className="p-1.5 rounded-full bg-[#121215] hover:bg-[#D90302] border border-white/10 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => scrollCarousel(cat.slug, 'right')}
+                              aria-label={`Deslizar ${cat.label} a la derecha`}
+                              className="p-1.5 rounded-full bg-[#121215] hover:bg-[#D90302] border border-white/10 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div
+                          ref={(el) => {
+                            carouselRefs.current[cat.slug] = el;
+                          }}
+                          className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 no-scrollbar scroll-smooth"
+                        >
+                          {gallery.map((page) => (
+                            <button
+                              key={`${cat.slug}-${page.image}-${page.title}`}
+                              type="button"
+                              onClick={() => setZoomedPage(page)}
+                              className="snap-start group relative shrink-0 w-48 sm:w-56 rounded-2xl overflow-hidden bg-[#121215] border border-white/10 hover:border-[#D90302]/60 transition-all shadow-xl cursor-pointer text-left"
+                            >
+                              <div className="aspect-[3/4] w-full overflow-hidden bg-zinc-900">
+                                <img
+                                  src={page.image}
+                                  alt={page.title}
+                                  loading="lazy"
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                              </div>
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors flex items-center justify-center">
+                                <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-full bg-black/80 text-white text-[11px] font-semibold flex items-center gap-1.5 border border-white/15">
+                                  <ZoomIn className="w-3.5 h-3.5 text-[#EBFA00]" />
+                                  <span>Ampliar</span>
+                                </span>
+                              </div>
+                              <div className="p-2.5 bg-[#121215] border-t border-white/[0.06]">
+                                <p className="text-[11px] font-medium text-zinc-300 truncate">
+                                  {page.title}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Clean Price List / Bento Glow Promos Directly Beneath Carousel */}
+                    {isPromos ? (
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7">
+                        {filteredPromos.map((promo, index) => {
+                          const colSpan = getPromoColSpan(index);
+                          const accentColor = promo.accentColor || '#D90302';
+                          const badgeColor = promo.badgeColor || '#D90302';
+                          const isAdded = selectedOrderItems.includes(promo.title);
+
+                          return (
+                            <motion.div
+                              key={promo.id}
+                              initial={{ opacity: 0, y: 18 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true, amount: 0.1 }}
+                              transition={{ duration: 0.35, delay: index * 0.04 }}
+                              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                              className={`${colSpan} group relative rounded-3xl p-6 sm:p-7 glass-panel border border-white/10 hover:border-white/25 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-2xl`}
+                              style={{
+                                boxShadow: `0 10px 40px -15px ${accentColor}40`,
+                              }}
+                            >
+                              {/* Glow accent corner */}
+                              <div
+                                className="absolute -top-24 -right-24 w-56 h-56 rounded-full blur-[80px] pointer-events-none opacity-40 group-hover:opacity-80 transition-opacity"
+                                style={{ backgroundColor: accentColor }}
+                              />
+
+                              <div>
+                                <div className="flex items-center justify-between gap-3 mb-5">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-2xl p-2 rounded-2xl bg-white/[0.05] border border-white/10 backdrop-blur-md">
+                                      {promo.emoji || '🔥'}
+                                    </span>
+                                    {promo.badge && (
+                                      <span
+                                        className="px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider shadow-md"
+                                        style={{
+                                          backgroundColor: badgeColor,
+                                          color: badgeColor === '#EBFA00' ? '#080808' : '#ffffff',
+                                        }}
+                                      >
+                                        {promo.badge}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSharePromo(promo)}
+                                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                                    title="Copiar detalles de la promo"
+                                  >
+                                    {copiedPromoId === promo.id ? (
+                                      <Check className="w-4 h-4 text-[#03AF45]" />
+                                    ) : (
+                                      <Share2 className="w-4 h-4" />
+                                    )}
+                                  </button>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-3">
+                                  <h3 className="font-serif text-xl sm:text-2xl font-extrabold text-white group-hover:text-[#EBFA00] transition-colors">
+                                    {promo.title}
+                                  </h3>
+                                  {promo.highlightPrice && (
+                                    <span
+                                      className="text-lg sm:text-2xl font-black shrink-0 tracking-tight"
+                                      style={{ color: badgeColor === '#EBFA00' ? '#EBFA00' : '#ffffff' }}
+                                    >
+                                      {promo.highlightPrice}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {promo.schedule && (
+                                  <p className="text-xs font-semibold text-zinc-400 flex items-center gap-1.5 mb-3">
+                                    <Clock className="w-3.5 h-3.5 text-[#EBFA00]" />
+                                    <span>{promo.schedule}</span>
+                                  </p>
+                                )}
+
+                                <p className="text-zinc-300 text-sm leading-relaxed font-light mb-5">
+                                  {promo.description}
+                                </p>
+                              </div>
+
+                              <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <span className="text-[11px] text-zinc-500 font-medium italic">
+                                  {promo.terms ? `* ${promo.terms}` : '* Válido por tiempo limitado.'}
+                                </span>
+
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleOrderItem(promo.title)}
+                                    className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                                      isAdded
+                                        ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
+                                        : 'bg-white/[0.04] hover:bg-white/[0.09] border-white/10 text-zinc-300 hover:text-white'
+                                    }`}
+                                  >
+                                    {isAdded ? (
+                                      <Check className="w-3.5 h-3.5" />
+                                    ) : (
+                                      <Plus className="w-3.5 h-3.5" />
+                                    )}
+                                    <span>{isAdded ? 'Agregada' : 'Agregar'}</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => openCallModal(promo.title)}
+                                    className="px-3.5 py-2 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer"
+                                  >
+                                    <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
+                                    <span>Ordenar por Llamada</span>
+                                  </button>
+
+                                  <a
+                                    href={`https://wa.me/${RESTAURANT_INFO.whatsappRaw}?text=${encodeURIComponent(
+                                      `Hola Tony's Grill, deseo consultar o aprovechar la promoción: ${promo.title}`
+                                    )}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Consultar por WhatsApp"
+                                    className="p-2 rounded-xl bg-[#03AF45] hover:bg-[#029139] text-white transition-all shadow-md shrink-0"
+                                  >
+                                    <Send className="w-3.5 h-3.5" />
+                                  </a>
+                                </div>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {itemsInCat.map((item) => {
+                          const isAdded = selectedOrderItems.includes(item.nombre);
+                          const displayPrice =
+                            item.precioLabel || `Q${Number(item.precioQ).toFixed(2)}`;
+                          return (
+                            <div
+                              key={item.id}
+                              className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
+                                isAdded
+                                  ? 'bg-[#17171b] border-[#D90302]/60 shadow-lg'
+                                  : 'bg-[#121212] hover:bg-[#16161a] border-white/[0.06] hover:border-white/15'
+                              }`}
+                            >
+                              <div>
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h3 className="font-serif text-base sm:text-lg font-bold text-white leading-snug">
+                                      {item.nombre}
+                                    </h3>
+                                    {item.destacado && (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider">
+                                        <Sparkles className="w-2.5 h-2.5" />
+                                        <span>Destacado</span>
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <span className="font-serif text-sm sm:text-base font-bold text-[#EBFA00] shrink-0">
+                                    {displayPrice}
+                                  </span>
+                                </div>
+
+                                {item.descripcion && (
+                                  <p className="mt-1.5 text-xs text-zinc-400 font-light leading-relaxed">
+                                    {item.descripcion}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="pt-3 border-t border-white/[0.05] flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleOrderItem(item.nombre)}
+                                  className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
+                                    isAdded
+                                      ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
+                                      : 'bg-white/[0.04] hover:bg-white/[0.09] border-white/10 text-zinc-300 hover:text-white'
+                                  }`}
+                                >
+                                  {isAdded ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5" />
+                                      <span>En tu pedido</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="w-3.5 h-3.5" />
+                                      <span>Agregar al pedido</span>
+                                    </>
+                                  )}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => openCallModal(item.nombre)}
+                                  className="py-2 px-3.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-[#D90302]/20 shrink-0"
+                                >
+                                  <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
+                                  <span>Ordenar por Llamada</span>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </section>
                 );
               })}
             </div>
-          )
+          </>
         ) : (
-          /* Ver Menús en PDF Tab (4 PDFs separados dentro de la misma pestaña) */
+          /* Ver Menú Original (PDF) Tab — 4 PDFs separados */
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
               {PDF_MENUS.map((pdf) => {
@@ -656,7 +714,11 @@ export const WebMenuPage: React.FC = () => {
                       <span className={isSelected ? 'text-[#EBFA00]' : 'text-zinc-400'}>
                         {isSelected ? 'Visualizando ahora' : 'Seleccionar PDF'}
                       </span>
-                      <FileText className={`w-3.5 h-3.5 ${isSelected ? 'text-[#D90302]' : 'text-zinc-500'}`} />
+                      <FileText
+                        className={`w-3.5 h-3.5 ${
+                          isSelected ? 'text-[#D90302]' : 'text-zinc-500'
+                        }`}
+                      />
                     </div>
                   </button>
                 );
@@ -710,331 +772,6 @@ export const WebMenuPage: React.FC = () => {
         )}
       </div>
 
-      {/* Category Detail Popup Modal (Opened by card click OR ?categoria=<slug>) */}
-      <AnimatePresence>
-        {activeCategoryCard && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleCloseCategory}
-            className="fixed inset-0 z-[90] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 16 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 16 }}
-              transition={{ duration: 0.22 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-5xl max-h-[90vh] bg-[#0c0c0f] border border-white/15 rounded-3xl shadow-2xl flex flex-col overflow-hidden"
-            >
-              {/* Modal Ambient Top Glow */}
-              <div
-                className="absolute -top-24 right-10 w-64 h-64 rounded-full blur-[110px] pointer-events-none opacity-35"
-                style={{ backgroundColor: activeCategoryCard.accentColor }}
-              />
-
-              {/* Sticky Modal Header */}
-              <div className="px-5 sm:px-7 py-4 sm:py-5 border-b border-white/10 bg-[#101014]/95 backdrop-blur-xl flex items-center justify-between gap-4 relative z-10 shrink-0">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-2xl p-2 rounded-xl bg-white/[0.05] border border-white/10 shrink-0">
-                    {activeCategoryCard.emoji}
-                  </span>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="font-serif text-xl sm:text-2xl font-black text-white truncate">
-                        {activeCategoryCard.label}
-                      </h2>
-                      <span
-                        className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider"
-                        style={{
-                          backgroundColor: activeCategoryCard.badgeColor,
-                          color:
-                            activeCategoryCard.badgeColor === '#EBFA00' ? '#080808' : '#ffffff',
-                        }}
-                      >
-                        {activeCategoryCard.badge}
-                      </span>
-                    </div>
-                    <p className="text-xs text-zinc-400 truncate mt-0.5">
-                      {activeCategoryCard.description}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleCloseCategory}
-                  aria-label="Cerrar sección"
-                  className="p-2.5 rounded-full bg-white/10 hover:bg-[#D90302] text-white transition-colors cursor-pointer shrink-0"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Scrollable Modal Body */}
-              <div className="overflow-y-auto p-5 sm:p-7 space-y-8 relative z-10">
-                {/* Visual Gallery Strip for this Section */}
-                {modalGallery.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-2 text-xs text-zinc-400 mb-3">
-                      <BookOpen className="w-3.5 h-3.5 text-[#EBFA00]" />
-                      <span className="uppercase tracking-wider font-semibold text-[11px]">
-                        Fotografías & Páginas Oficiales ({modalGallery.length} • Toca para ampliar)
-                      </span>
-                    </div>
-
-                    <div className="flex gap-3.5 overflow-x-auto pb-2 no-scrollbar">
-                      {modalGallery.map((page) => (
-                        <button
-                          key={`${activeCategoryCard.id}-${page.image}-${page.title}`}
-                          type="button"
-                          onClick={() => setZoomedPage(page)}
-                          className="group relative shrink-0 w-36 sm:w-44 rounded-2xl overflow-hidden bg-[#141418] border border-white/10 hover:border-[#D90302]/60 transition-all shadow-lg cursor-pointer text-left"
-                        >
-                          <div className="aspect-[3/4] w-full overflow-hidden bg-zinc-900">
-                            <img
-                              src={page.image}
-                              alt={page.title}
-                              loading="lazy"
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          </div>
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors flex items-center justify-center">
-                            <span className="opacity-0 group-hover:opacity-100 transition-opacity px-2.5 py-1 rounded-full bg-black/80 text-white text-[10px] font-semibold flex items-center gap-1 border border-white/15">
-                              <ZoomIn className="w-3 h-3 text-[#EBFA00]" />
-                              <span>Ampliar</span>
-                            </span>
-                          </div>
-                          <div className="p-2 bg-[#141418] border-t border-white/[0.06]">
-                            <p className="text-[11px] font-medium text-zinc-300 truncate">
-                              {page.title}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Section Content: Promociones (Bento Glow Cards) OR Dishes Grid */}
-                {activeCategoryCard.id === 'promociones' ? (
-                  <div>
-                    <div className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
-                      <Tag className="w-3.5 h-3.5 text-[#EBFA00]" />
-                      <span className="uppercase tracking-wider font-semibold text-[11px]">
-                        Promociones Activas ({SITE_CONTENT.promos.length})
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      {SITE_CONTENT.promos.map((promo) => {
-                        const accentColor = promo.accentColor || '#D90302';
-                        const badgeColor = promo.badgeColor || '#D90302';
-                        const isAdded = selectedOrderItems.includes(promo.title);
-
-                        return (
-                          <div
-                            key={promo.id}
-                            className="group relative rounded-3xl p-6 glass-panel border border-white/10 hover:border-white/25 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-xl"
-                            style={{
-                              boxShadow: `0 10px 35px -15px ${accentColor}40`,
-                            }}
-                          >
-                            <div
-                              className="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[75px] pointer-events-none opacity-40 group-hover:opacity-80 transition-opacity"
-                              style={{ backgroundColor: accentColor }}
-                            />
-
-                            <div>
-                              <div className="flex items-center justify-between gap-2 mb-4">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xl p-1.5 rounded-xl bg-white/[0.05] border border-white/10">
-                                    {promo.emoji || '🔥'}
-                                  </span>
-                                  {promo.badge && (
-                                    <span
-                                      className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider"
-                                      style={{
-                                        backgroundColor: badgeColor,
-                                        color: badgeColor === '#EBFA00' ? '#080808' : '#ffffff',
-                                      }}
-                                    >
-                                      {promo.badge}
-                                    </span>
-                                  )}
-                                </div>
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleSharePromo(promo)}
-                                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer"
-                                  title="Copiar detalles"
-                                >
-                                  {copiedPromoId === promo.id ? (
-                                    <Check className="w-3.5 h-3.5 text-[#03AF45]" />
-                                  ) : (
-                                    <Share2 className="w-3.5 h-3.5" />
-                                  )}
-                                </button>
-                              </div>
-
-                              <div className="flex items-baseline justify-between gap-2 mb-2">
-                                <h3 className="font-serif text-lg sm:text-xl font-extrabold text-white group-hover:text-[#EBFA00] transition-colors">
-                                  {promo.title}
-                                </h3>
-                                <span
-                                  className="text-base sm:text-lg font-black shrink-0"
-                                  style={{ color: badgeColor === '#EBFA00' ? '#EBFA00' : '#ffffff' }}
-                                >
-                                  {promo.highlightPrice}
-                                </span>
-                              </div>
-
-                              {promo.schedule && (
-                                <p className="text-[11px] font-semibold text-zinc-400 flex items-center gap-1.5 mb-2.5">
-                                  <Clock className="w-3 h-3 text-[#EBFA00]" />
-                                  <span>{promo.schedule}</span>
-                                </p>
-                              )}
-
-                              <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed font-light mb-4">
-                                {promo.description}
-                              </p>
-                            </div>
-
-                            <div className="pt-3.5 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
-                              <span className="text-[11px] text-zinc-500 italic">
-                                {promo.terms ? `* ${promo.terms}` : '* Aplica en restaurante.'}
-                              </span>
-
-                              <div className="flex items-center gap-2 shrink-0">
-                                <button
-                                  type="button"
-                                  onClick={() => toggleOrderItem(promo.title)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border cursor-pointer flex items-center gap-1 ${
-                                    isAdded
-                                      ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
-                                      : 'bg-white/[0.04] hover:bg-white/[0.09] border-white/10 text-zinc-300'
-                                  }`}
-                                >
-                                  {isAdded ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                                  <span>{isAdded ? 'Agregada' : 'Agregar'}</span>
-                                </button>
-
-                                <a
-                                  href={`https://wa.me/${RESTAURANT_INFO.whatsappRaw}?text=${encodeURIComponent(`Hola Tony's Grill, deseo aprovechar la promoción: ${promo.title}`)}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white flex items-center gap-1.5 shadow-md"
-                                  style={{
-                                    backgroundColor:
-                                      accentColor === '#03AF45' ? '#03AF45' : '#D90302',
-                                  }}
-                                >
-                                  <Send className="w-3 h-3 text-[#EBFA00]" />
-                                  <span>Aprovechar</span>
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex items-center gap-2 text-xs text-zinc-400 mb-4">
-                      <Utensils className="w-3.5 h-3.5 text-[#D90302]" />
-                      <span className="uppercase tracking-wider font-semibold text-[11px]">
-                        Platillos & Precios ({modalDishes.length} opciones)
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {modalDishes.map((item) => {
-                        const isAdded = selectedOrderItems.includes(item.nombre);
-                        const displayPrice =
-                          item.precioLabel || `Q${Number(item.precioQ).toFixed(2)}`;
-                        return (
-                          <div
-                            key={item.id}
-                            className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
-                              isAdded
-                                ? 'bg-[#17171b] border-[#D90302]/60 shadow-lg'
-                                : 'bg-[#121216] hover:bg-[#16161b] border-white/[0.07] hover:border-white/20'
-                            }`}
-                          >
-                            <div>
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <h3 className="font-serif text-base font-bold text-white leading-snug">
-                                    {item.nombre}
-                                  </h3>
-                                  {item.destacado && (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00] text-[10px] font-bold uppercase tracking-wider">
-                                      <Sparkles className="w-2.5 h-2.5" />
-                                      <span>Destacado</span>
-                                    </span>
-                                  )}
-                                </div>
-
-                                <span className="font-serif text-sm sm:text-base font-bold text-[#EBFA00] shrink-0">
-                                  {displayPrice}
-                                </span>
-                              </div>
-
-                              {item.descripcion && (
-                                <p className="mt-1.5 text-xs text-zinc-400 font-light leading-relaxed">
-                                  {item.descripcion}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="pt-3 border-t border-white/[0.05] flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => toggleOrderItem(item.nombre)}
-                                className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
-                                  isAdded
-                                    ? 'bg-[#03AF45]/20 border-[#03AF45]/50 text-[#03AF45]'
-                                    : 'bg-white/[0.04] hover:bg-white/[0.09] border-white/10 text-zinc-300 hover:text-white'
-                                }`}
-                              >
-                                {isAdded ? (
-                                  <>
-                                    <Check className="w-3.5 h-3.5" />
-                                    <span>En tu pedido</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Plus className="w-3.5 h-3.5" />
-                                    <span>Agregar al pedido</span>
-                                  </>
-                                )}
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => openCallModal(item.nombre)}
-                                className="py-2 px-3.5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-[#D90302]/20 shrink-0"
-                              >
-                                <Phone className="w-3.5 h-3.5 text-[#EBFA00]" />
-                                <span>Pedir por Llamada</span>
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Pre-Selected Order Floating Summary */}
       <AnimatePresence>
         {selectedOrderItems.length > 0 && (
@@ -1042,7 +779,7 @@ export const WebMenuPage: React.FC = () => {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
-            className="fixed bottom-20 md:bottom-24 inset-x-4 sm:inset-x-auto sm:left-6 sm:max-w-md z-[95] p-4 rounded-2xl bg-[#141418]/95 border border-[#D90302]/40 shadow-2xl flex items-center justify-between gap-4 backdrop-blur-xl"
+            className="fixed bottom-20 md:bottom-24 inset-x-4 sm:inset-x-auto sm:left-6 sm:max-w-md z-40 p-4 rounded-2xl bg-[#141418]/95 border border-[#D90302]/40 shadow-2xl flex items-center justify-between gap-4 backdrop-blur-xl"
           >
             <div className="min-w-0">
               <p className="text-xs font-bold text-white flex items-center gap-1.5">
