@@ -160,7 +160,7 @@ export const SITE_CONTENT = {
         'Disfruta dos pizzas artesanales medianas horneadas al momento con nuestros ingredientes frescos seleccionados.',
       terms: 'Aplica martes y jueves todo el día. 2x1 no incluye soda.',
       accentColor: '#D90302',
-      image: '/images/pizza-loroco-temporada.jpg',
+      image: '/images/promo-pizza-2x1.jpg',
     },
     {
       id: 'promo-5',
