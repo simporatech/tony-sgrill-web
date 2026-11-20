@@ -21,6 +21,7 @@ import {
   CATEGORY_PDF_PAGES,
   MENU_FILTER_CATEGORIES,
   PDF_MENUS,
+  PdfMenuDocument,
   menuData,
   MenuDataItem,
 } from '../data/menuData';
@@ -59,7 +60,7 @@ export const WebMenuPage: React.FC = () => {
   const { openCallModal } = useCallModal();
 
   const [activeTab, setActiveTab] = useState<'interactive' | 'pdf'>('interactive');
-  const [selectedPdfId, setSelectedPdfId] = useState<string>(PDF_MENUS[0].id);
+  const [activeModalPdf, setActiveModalPdf] = useState<PdfMenuDocument | null>(null);
   const [activeCategorySlug, setActiveCategorySlug] = useState<string>('todos');
   const [highlightedSlug, setHighlightedSlug] = useState<string | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
@@ -67,10 +68,6 @@ export const WebMenuPage: React.FC = () => {
   const [zoomedPage, setZoomedPage] = useState<{ title: string; image: string } | null>(null);
 
   const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-  const selectedPdf = useMemo(() => {
-    return PDF_MENUS.find((p) => p.id === selectedPdfId) || PDF_MENUS[0];
-  }, [selectedPdfId]);
 
   const scrollToCategorySection = (slug: string, highlight = true) => {
     setActiveCategorySlug(slug);
@@ -112,8 +109,9 @@ export const WebMenuPage: React.FC = () => {
 
     if (tabParam === 'pdf') {
       setActiveTab('pdf');
-      if (pdfParam && PDF_MENUS.some((p) => p.id === pdfParam)) {
-        setSelectedPdfId(pdfParam);
+      if (pdfParam) {
+        const foundPdf = PDF_MENUS.find((p) => p.id === pdfParam);
+        if (foundPdf) setActiveModalPdf(foundPdf);
       }
       return;
     }
@@ -137,16 +135,17 @@ export const WebMenuPage: React.FC = () => {
     }
   }, []);
 
-  // Close lightbox with Escape
+  // Close lightbox or PDF modal with Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && zoomedPage) {
-        setZoomedPage(null);
+      if (e.key === 'Escape') {
+        if (zoomedPage) setZoomedPage(null);
+        if (activeModalPdf) setActiveModalPdf(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [zoomedPage]);
+  }, [zoomedPage, activeModalPdf]);
 
   const scrollCarousel = (slug: string, direction: 'left' | 'right') => {
     const container = carouselRefs.current[slug];
@@ -504,107 +503,106 @@ export const WebMenuPage: React.FC = () => {
             </div>
           </>
         ) : (
-          /* Ver Menú Original (PDF) Tab — 4 PDFs separados */
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-              {PDF_MENUS.map((pdf) => {
-                const isSelected = pdf.id === selectedPdf.id;
-                return (
-                  <button
-                    key={pdf.id}
-                    type="button"
-                    onClick={() => setSelectedPdfId(pdf.id)}
-                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
-                      isSelected
-                        ? 'bg-[#1a1012] border-[#D90302] shadow-lg shadow-[#D90302]/20'
-                        : 'bg-[#121212] hover:bg-[#17171b] border-white/10 hover:border-white/25'
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                            isSelected
-                              ? 'bg-[#D90302] text-white'
-                              : 'bg-white/10 text-[#EBFA00]'
-                          }`}
-                        >
-                          {pdf.badge}
-                        </span>
-                        <span className="text-[11px] font-mono text-zinc-400">
-                          {pdf.pagesLabel} • {pdf.sizeLabel}
-                        </span>
-                      </div>
-
-                      <h3 className="font-serif text-base font-bold text-white leading-snug">
-                        {pdf.title}
-                      </h3>
-                      <p className="text-[11px] text-zinc-400 font-light mt-1 leading-relaxed">
-                        {pdf.subtitle}
-                      </p>
-                    </div>
-
-                    <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-[11px] font-semibold">
-                      <span className={isSelected ? 'text-[#EBFA00]' : 'text-zinc-400'}>
-                        {isSelected ? 'Visualizando ahora' : 'Seleccionar PDF'}
-                      </span>
-                      <FileText
-                        className={`w-3.5 h-3.5 ${
-                          isSelected ? 'text-[#D90302]' : 'text-zinc-500'
-                        }`}
-                      />
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="rounded-3xl bg-[#121212] border border-white/10 overflow-hidden shadow-2xl">
-              <div className="p-5 sm:p-6 border-b border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          /* Ver Menú Original (PDF) Tab — 4 Compact Cards opening Full-Screen Modal */
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {PDF_MENUS.map((pdf) => (
+              <button
+                key={pdf.id}
+                type="button"
+                onClick={() => setActiveModalPdf(pdf)}
+                className="group p-5 rounded-2xl border border-white/10 hover:border-[#D90302]/70 bg-[#121212] hover:bg-[#17171c] text-left transition-all cursor-pointer flex flex-col justify-between gap-4 shadow-xl"
+              >
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#EBFA00]">
-                    {selectedPdf.pagesLabel} • {selectedPdf.sizeLabel}
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#D90302]/20 border border-[#D90302]/40 text-[#EBFA00]">
+                      {pdf.badge}
+                    </span>
+                    <span className="text-[11px] font-mono text-zinc-400">
+                      {pdf.pagesLabel} • {pdf.sizeLabel}
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-white group-hover:text-[#EBFA00] transition-colors leading-snug">
+                    {pdf.title}
+                  </h3>
+                  <p className="text-xs text-zinc-400 font-light mt-1.5 leading-relaxed">
+                    {pdf.subtitle}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs font-semibold">
+                  <span className="text-zinc-200 group-hover:text-white flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-[#D90302]" />
+                    <span>Abrir Menú en Pantalla Completa</span>
                   </span>
-                  <h2 className="font-serif text-xl font-bold text-white mt-0.5">
-                    {selectedPdf.title}
-                  </h2>
-                  <p className="text-xs text-zinc-400 mt-1">{selectedPdf.subtitle}</p>
+                  <ExternalLink className="w-3.5 h-3.5 text-[#EBFA00]" />
                 </div>
-
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <a
-                    href={selectedPdf.file}
-                    download={selectedPdf.downloadName}
-                    className="px-4 py-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-white border border-white/15 transition-colors flex items-center gap-1.5"
-                  >
-                    <Download className="w-3.5 h-3.5 text-[#EBFA00]" />
-                    <span>Descargar PDF ({selectedPdf.sizeLabel})</span>
-                  </a>
-
-                  <a
-                    href={selectedPdf.file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-full bg-[#D90302] hover:bg-[#b00201] text-xs font-bold text-white uppercase tracking-wider transition-colors flex items-center gap-1.5"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Abrir PDF</span>
-                  </a>
-                </div>
-              </div>
-
-              <div className="w-full h-[72vh] min-h-[520px] bg-[#0a0a0c]">
-                <iframe
-                  key={selectedPdf.file}
-                  src={`${selectedPdf.file}#view=FitH`}
-                  title={selectedPdf.title}
-                  className="w-full h-full border-0"
-                />
-              </div>
-            </div>
+              </button>
+            ))}
           </div>
         )}
       </div>
+
+      {/* Full-Screen Dark Modal for Active PDF */}
+      <AnimatePresence>
+        {activeModalPdf && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] bg-[#080808] flex flex-col"
+          >
+            {/* Sticky Modal Top Bar */}
+            <div className="px-4 sm:px-6 py-3.5 bg-[#121212] border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
+              <div className="min-w-0">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-[#EBFA00] truncate">
+                  {activeModalPdf.pagesLabel} • {activeModalPdf.sizeLabel}
+                </p>
+                <h2 className="font-serif text-sm sm:text-lg font-bold text-white truncate">
+                  {activeModalPdf.title}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={activeModalPdf.file}
+                  download={activeModalPdf.downloadName}
+                  className="px-3.5 sm:px-4 py-2 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-[#D90302]/30 transition-colors"
+                >
+                  <Download className="w-4 h-4 text-[#EBFA00]" />
+                  <span>Descargar PDF</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveModalPdf(null)}
+                  aria-label="Cerrar visor PDF"
+                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Cerrar</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Full-Screen PDF Viewer */}
+            <div className="flex-1 w-full bg-[#0a0a0c]">
+              <object
+                key={activeModalPdf.file}
+                data={`${activeModalPdf.file}#toolbar=1&navpanes=0&scrollbar=1`}
+                type="application/pdf"
+                className="w-full h-full border-0"
+              >
+                <iframe
+                  src={`${activeModalPdf.file}#toolbar=1&navpanes=0&scrollbar=1`}
+                  title={activeModalPdf.title}
+                  className="w-full h-full border-0"
+                />
+              </object>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Lightbox Modal for Zoomed Image */}
       <AnimatePresence>
