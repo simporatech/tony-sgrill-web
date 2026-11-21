@@ -291,9 +291,9 @@ export const WebMenuPage: React.FC = () => {
         {/* Content Area */}
         {activeTab === 'interactive' ? (
           <>
-            {/* Sticky Category Jump-Bar */}
-            <div className="sticky top-[68px] sm:top-[76px] z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-2.5 bg-[#080808]/95 backdrop-blur-xl border-b border-white/[0.08] mb-7">
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
+            {/* Sticky Category Jump-Bar (High-Contrast Mobile Touch Targets) */}
+            <div className="sticky top-[68px] sm:top-[76px] z-30 -mx-4 px-4 sm:mx-0 sm:px-0 py-1 bg-[#080808]/95 backdrop-blur-xl border-b border-white/15 mb-8">
+              <div className="flex items-center overflow-x-auto gap-3 py-3 no-scrollbar">
                 {MENU_FILTER_CATEGORIES.map((cat) => {
                   const isActive = activeCategorySlug === cat.slug;
                   return (
@@ -301,10 +301,10 @@ export const WebMenuPage: React.FC = () => {
                       key={cat.slug}
                       type="button"
                       onClick={() => scrollToCategorySection(cat.slug)}
-                      className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer border ${
+                      className={`shrink-0 px-5 py-3 rounded-full text-sm sm:text-base font-bold uppercase tracking-wide transition-all cursor-pointer border-[1.5px] ${
                         isActive
-                          ? 'bg-[#D90302] text-white border-[#D90302] shadow-md shadow-[#D90302]/30'
-                          : 'bg-[#121212] text-zinc-400 hover:text-white border-white/10 hover:border-white/25'
+                          ? 'bg-[#D90302] text-white border-[#EBFA00] ring-2 ring-[#EBFA00]/60 shadow-lg shadow-[#D90302]/40'
+                          : 'bg-[#242424] hover:bg-[#303030] text-white border-white/35 hover:border-[#EBFA00]/70 shadow-md'
                       }`}
                     >
                       {cat.label}
