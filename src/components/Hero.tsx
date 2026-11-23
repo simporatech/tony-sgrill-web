@@ -10,16 +10,16 @@ export const Hero: React.FC = () => {
   return (
     <section 
       id="inicio"
-      className="relative min-h-screen lg:min-h-screen flex items-center justify-center overflow-hidden bg-[#080808] px-4 sm:px-6 lg:px-8 py-20"
+      className="relative min-h-[65vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-[#080808] px-4 sm:px-6 lg:px-8 pt-24 pb-10 sm:py-20"
     >
       {/* Background Image with Balanced Dark Scrim */}
       <div className="absolute inset-0 z-0">
         <img
           src={hero.bgImageUrl}
           alt="Fachada Tony's Grill Chiquimula"
-          className="w-full h-full object-cover object-center filter brightness-[0.65] contrast-[1.05]"
+          className="w-full h-full object-cover object-center filter brightness-[0.7] contrast-[1.05]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/45 to-[#080808]/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/85 via-[#080808]/35 to-[#080808]/55" />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
