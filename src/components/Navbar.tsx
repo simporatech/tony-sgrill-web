@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Flame, 
-  Menu as MenuIcon, 
-  X, 
-  FileText, 
-  CalendarDays, 
-  Tag, 
-  UtensilsCrossed, 
-  PhoneCall, 
-  Clock, 
+import {
+  Menu as MenuIcon,
+  X,
+  UtensilsCrossed,
+  PhoneCall,
+  Clock,
   Sparkles,
-  Home
+  Home,
 } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
+import { useCallModal } from '../context/CallModalContext';
 
 export const Navbar: React.FC = () => {
+  const { openCallModal } = useCallModal();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -126,27 +124,28 @@ export const Navbar: React.FC = () => {
                 </div>
               </a>
 
-              <a
-                href="/#reservar"
-                className="relative group overflow-hidden rounded-full p-[1px] font-medium"
+              <button
+                type="button"
+                onClick={() => openCallModal()}
+                className="relative group overflow-hidden rounded-full p-[1px] font-medium cursor-pointer"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-[#D90302] via-[#EBFA00] to-[#D90302] opacity-70 group-hover:opacity-100 transition-opacity duration-300" />
                 <span className="relative flex items-center gap-2 px-5 py-2 rounded-full bg-[#0a0a0a] group-hover:bg-[#121212] text-xs font-bold text-white uppercase tracking-wider transition-colors duration-200">
-                  <CalendarDays className="w-3.5 h-3.5 text-[#EBFA00]" />
-                  <span>Reservar</span>
+                  <PhoneCall className="w-3.5 h-3.5 text-[#EBFA00]" />
+                  <span>Ordenar</span>
                 </span>
-              </a>
+              </button>
             </div>
 
             {/* Mobile menu button */}
             <div className="flex items-center gap-2 xl:hidden">
-              <a
-                href="/#reservar"
+              <Link
+                to="/menu"
                 className="px-3 py-1.5 text-xs font-bold bg-[#D90302] text-white rounded-full flex items-center gap-1.5"
               >
-                <CalendarDays className="w-3.5 h-3.5 text-[#EBFA00]" />
-                <span>Reservar</span>
-              </a>
+                <UtensilsCrossed className="w-3.5 h-3.5 text-[#EBFA00]" />
+                <span>Ver Menú</span>
+              </Link>
 
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -232,14 +231,17 @@ export const Navbar: React.FC = () => {
               </div>
 
               <div className="pt-2 flex flex-col gap-2">
-                <a
-                  href="/#reservar"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-3 bg-[#D90302] hover:bg-[#b00201] text-white font-bold rounded-xl text-center text-sm shadow-lg shadow-[#D90302]/30 flex items-center justify-center gap-2"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openCallModal();
+                  }}
+                  className="w-full py-3 bg-[#D90302] hover:bg-[#b00201] text-white font-bold rounded-xl text-center text-sm shadow-lg shadow-[#D90302]/30 flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <CalendarDays className="w-4 h-4 text-[#EBFA00]" />
-                  <span>Reservar Mesa Ahora</span>
-                </a>
+                  <PhoneCall className="w-4 h-4 text-[#EBFA00]" />
+                  <span>Llamar para Ordenar</span>
+                </button>
 
                 <a
                   href={`tel:${RESTAURANT_INFO.phoneRaw}`}

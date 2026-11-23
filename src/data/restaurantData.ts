@@ -62,7 +62,6 @@ export const SITE_CONTENT = {
       'Restaurante familiar de referencia en Chiquimula, especializado en cortes de carne a la parrilla, pizzas artesanales, pastas, hamburguesas y desayunos tradicionales.',
     bgImageUrl: '/images/hero-tonys-grill.jpg',
     ctaMenuText: 'Ver Menú',
-    ctaReserveText: 'Reservar',
   },
   about: {
     eyebrow: 'Nuestra Casa',

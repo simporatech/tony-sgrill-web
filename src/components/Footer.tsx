@@ -119,9 +119,6 @@ export const Footer: React.FC = () => {
                 <a href="/#eventos" className="hover:text-white transition-colors">Eventos & Banquetes</a>
               </li>
               <li>
-                <a href="/#reservar" className="hover:text-white transition-colors">Reservar Mesa</a>
-              </li>
-              <li>
                 <a href="/#contacto" className="hover:text-white transition-colors">Ubicación</a>
               </li>
             </ul>

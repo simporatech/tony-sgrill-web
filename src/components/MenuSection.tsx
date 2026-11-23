@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { ArrowRight, FileText } from 'lucide-react';
+import { ArrowRight, FileText, Phone } from 'lucide-react';
 import { menuData, MenuDataItem } from '../data/menuData';
+import { useCallModal } from '../context/CallModalContext';
 
 interface MenuSectionProps {
   onOpenPdfMenu: () => void;
@@ -22,6 +23,7 @@ const CATEGORY_FALLBACK_IMAGES: Record<string, string[]> = {
 const SIGNATURE_IDS = ['car-03', 'car-05', 'car-06'];
 
 export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
+  const { openCallModal } = useCallModal();
   // Select 3 real signature dishes directly from the static local menu
   const previewDishes = useMemo(() => {
     const byId = SIGNATURE_IDS.map((id) => menuData.find((item) => item.id === id)).filter(
@@ -114,12 +116,14 @@ export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
                 </div>
 
                 <div className="mt-6 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs">
-                  <a
-                    href="#reservar"
-                    className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
+                  <button
+                    type="button"
+                    onClick={() => openCallModal(dish.nombre)}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-400 hover:text-[#EBFA00] transition-colors cursor-pointer"
                   >
-                    Reservar mesa para probarlo →
-                  </a>
+                    <Phone className="w-3.5 h-3.5 text-[#D90302]" />
+                    <span>Ordenar por llamada →</span>
+                  </button>
                 </div>
               </div>
             </div>

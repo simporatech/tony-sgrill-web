@@ -4,7 +4,6 @@ import { Hero } from '../components/Hero';
 import { AboutSection } from '../components/AboutSection';
 import { EventsSection } from '../components/EventsSection';
 import { MenuSection } from '../components/MenuSection';
-import { ReservationForm } from '../components/ReservationForm';
 import { Contact } from '../components/Contact';
 
 export const LandingPage: React.FC = () => {
@@ -24,9 +23,6 @@ export const LandingPage: React.FC = () => {
   if (section === 'menu-preview') {
     return <MenuSection onOpenPdfMenu={() => navigate('/menu-pdf')} />;
   }
-  if (section === 'reservar') {
-    return <ReservationForm />;
-  }
   if (section === 'contacto') {
     return <Contact />;
   }
@@ -43,14 +39,9 @@ export const LandingPage: React.FC = () => {
       <EventsSection />
 
       {/* 4. Menu Showcase */}
-      <MenuSection
-        onOpenPdfMenu={() => navigate('/menu-pdf')}
-      />
+      <MenuSection onOpenPdfMenu={() => navigate('/menu-pdf')} />
 
-      {/* 5. Reservation Form */}
-      <ReservationForm />
-
-      {/* 6. Contact & Location */}
+      {/* 5. Contact & Location */}
       <Contact />
     </>
   );
