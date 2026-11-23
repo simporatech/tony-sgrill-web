@@ -50,12 +50,12 @@ export const MenuSection: React.FC<MenuSectionProps> = ({ onOpenPdfMenu }) => {
   return (
     <section 
       id="menu" 
-      className="relative min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-20"
+      className="relative bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
     >
       <div className="max-w-6xl mx-auto w-full flex flex-col justify-center">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-4">
           <div>
             <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium block mb-2">
               Nuestra Cocina

@@ -201,7 +201,7 @@ export const WebMenuPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white pt-28 pb-28 relative overflow-x-clip font-sans">
+    <div className="bg-[#080808] text-white pt-24 sm:pt-28 pb-12 relative overflow-x-clip font-sans">
       {/* Subtle Ambient Glow */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#D90302]/10 blur-[180px] rounded-full pointer-events-none" />
       <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-[#EBFA00]/5 blur-[180px] rounded-full pointer-events-none" />
@@ -315,7 +315,7 @@ export const WebMenuPage: React.FC = () => {
             </div>
 
             {/* Compact Visual Showcase Cards Stacked Vertically */}
-            <div className="space-y-8">
+            <div className="space-y-6">
               {OPEN_CATEGORIES.map((cat) => {
                 const isPromos = cat.slug === 'promociones';
                 const allRows = getRowsForCategory(cat.slug);

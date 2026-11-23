@@ -17,11 +17,11 @@ export const AboutSection: React.FC = () => {
   return (
     <section
       id="nosotros"
-      className="relative bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-20 sm:py-24 border-t border-white/[0.05]"
+      className="relative bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-8 sm:py-12 border-t border-white/[0.05]"
     >
       <div className="max-w-5xl mx-auto w-full">
         {/* Concise Brand Story */}
-        <div className="max-w-3xl mb-10">
+        <div className="max-w-3xl mb-6">
           <span className="text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium block mb-3">
             {about.eyebrow}
           </span>
@@ -34,7 +34,7 @@ export const AboutSection: React.FC = () => {
         </div>
 
         {/* Functional Category Jump Pills */}
-        <div className="flex flex-wrap gap-3 mb-10">
+        <div className="flex flex-wrap gap-3 mb-6">
           {QUICK_CATEGORY_LINKS.map((item) => {
             const Icon = item.icon;
             return (

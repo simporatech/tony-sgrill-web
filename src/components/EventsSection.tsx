@@ -9,9 +9,9 @@ export const EventsSection: React.FC = () => {
   return (
     <section 
       id="eventos" 
-      className="relative min-h-screen flex items-center justify-center bg-[#080808] text-white px-4 sm:px-6 lg:px-8 py-20"
+      className="relative bg-[#080808] text-white px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
     >
-      <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+      <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
         
         {/* Left Editorial Copy */}
         <div className="lg:col-span-6 flex flex-col justify-center">

@@ -68,9 +68,9 @@ export const Contact: React.FC = () => {
   return (
     <section 
       id="contacto" 
-      className="relative min-h-screen flex flex-col justify-between bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 pt-20 pb-12"
+      className="relative bg-[#0a0a0a] text-white px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
     >
-      <div className="max-w-6xl mx-auto w-full my-auto">
+      <div className="max-w-6xl mx-auto w-full">
         
         {/* Header */}
         <div className="mb-6">
