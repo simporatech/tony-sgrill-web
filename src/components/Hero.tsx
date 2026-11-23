@@ -12,14 +12,14 @@ export const Hero: React.FC = () => {
       id="inicio"
       className="relative min-h-screen lg:min-h-screen flex items-center justify-center overflow-hidden bg-[#080808] px-4 sm:px-6 lg:px-8 py-20"
     >
-      {/* Background Image with Dark Minimal Scrim */}
+      {/* Background Image with Balanced Dark Scrim */}
       <div className="absolute inset-0 z-0">
         <img
           src={hero.bgImageUrl}
-          alt="Tony's Grill Cortes a la Brasa"
-          className="w-full h-full object-cover object-center filter brightness-[0.25] contrast-[1.05]"
+          alt="Fachada Tony's Grill Chiquimula"
+          className="w-full h-full object-cover object-center filter brightness-[0.65] contrast-[1.05]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/70 to-[#080808]/90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/45 to-[#080808]/60" />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto text-center flex flex-col items-center">
