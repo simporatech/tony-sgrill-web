@@ -7,7 +7,9 @@ import {
   ArrowUp, 
   MapPin, 
   Phone, 
-  Clock
+  Clock,
+  Star,
+  ExternalLink
 } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/restaurantData';
 
@@ -192,6 +194,36 @@ export const Footer: React.FC = () => {
             </div>
           </div>
 
+        </div>
+
+        {/* Prominent Google Reviews CTA Banner */}
+        <div className="my-6 bg-[#121212] border border-[#EBFA00]/35 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+            <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#EBFA00]/10 border border-[#EBFA00]/30">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-4 h-4 text-[#EBFA00] fill-[#EBFA00]" />
+              ))}
+            </div>
+            <div>
+              <p className="text-sm sm:text-base font-bold text-white">
+                ¿Te gustó nuestra parrilla?
+              </p>
+              <p className="text-xs text-zinc-400">
+                Ayúdanos con una reseña de 5 estrellas en Google Maps.
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="https://share.google/yIVnni1qBWodzWo0E"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full sm:w-auto py-3.5 px-6 rounded-xl bg-[#EBFA00] hover:bg-[#d8e600] text-[#080808] font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-[#EBFA00]/20 transition-all shrink-0"
+          >
+            <Star className="w-5 h-5 fill-[#080808] text-[#080808] shrink-0" />
+            <span>Califícanos en Google</span>
+            <ExternalLink className="w-4 h-4 shrink-0" />
+          </a>
         </div>
 
         {/* Bottom Copyright & Rights */}

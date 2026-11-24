@@ -10,7 +10,8 @@ import {
   MessageCircle,
   Instagram,
   Facebook,
-  Send
+  Send,
+  Star
 } from 'lucide-react';
 import { SITE_CONTENT } from '../data/restaurantData';
 import { useCallModal } from '../context/CallModalContext';
@@ -119,15 +120,15 @@ export const Contact: React.FC = () => {
               </p>
 
               {/* Two Side-by-Side Navigation Buttons with SVG Icons */}
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <a
                   href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-white border border-white/10 hover:border-[#D90302]/50 flex items-center justify-center gap-2 transition-all"
+                  className="w-full py-4 px-6 rounded-xl bg-[#1A1A1E] hover:bg-[#D90302]/20 text-base font-bold text-white border-2 border-white/25 hover:border-[#D90302] flex items-center justify-center gap-2.5 shadow-lg transition-all"
                 >
                   {/* Google Maps Pin SVG */}
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#EA4335" />
                     <circle cx="12" cy="9" r="2.6" fill="#FFFFFF" />
                   </svg>
@@ -138,10 +139,10 @@ export const Contact: React.FC = () => {
                   href={wazeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-semibold text-white border border-white/10 hover:border-[#33CCFF]/50 flex items-center justify-center gap-2 transition-all"
+                  className="w-full py-4 px-6 rounded-xl bg-[#1A1A1E] hover:bg-[#33CCFF]/15 text-base font-bold text-white border-2 border-[#33CCFF]/40 hover:border-[#33CCFF] flex items-center justify-center gap-2.5 shadow-lg transition-all"
                 >
                   {/* Waze SVG */}
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M19.5 11.5C19.5 6.8 15.8 3.5 11.5 3.5C7 3.5 3.5 6.9 3.5 11.3C3.5 13.7 4.5 15.4 5.7 16.5C5.5 17.4 5 18.2 4.3 18.7C5.8 19.2 7.5 19 8.7 18.3C9.6 18.6 10.6 18.8 11.5 18.8C16.2 18.8 19.5 15.6 19.5 11.5Z" fill="#33CCFF" />
                     <circle cx="9.2" cy="10.5" r="1.1" fill="#0A0A0A" />
                     <circle cx="14.2" cy="10.5" r="1.1" fill="#0A0A0A" />
@@ -232,6 +233,7 @@ export const Contact: React.FC = () => {
                     Su Nombre *
                   </label>
                   <input
+                    id="contacto-nombre"
                     type="text"
                     required
                     value={senderName}
@@ -292,6 +294,49 @@ export const Contact: React.FC = () => {
             </div>
           </div>
 
+        </div>
+
+        {/* High-Visibility Google Reviews & Feedback CTA Banner */}
+        <div className="mt-6 bg-[#121212] border border-[#EBFA00]/30 rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 shadow-xl">
+          <div className="space-y-1">
+            <div className="flex items-center gap-1" aria-label="5 estrellas">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-4 h-4 text-[#EBFA00] fill-[#EBFA00]" />
+              ))}
+              <span className="ml-2 text-xs font-bold uppercase tracking-wider text-[#EBFA00]">
+                Tu opinión cuenta
+              </span>
+            </div>
+            <p className="text-sm sm:text-base font-bold text-white">
+              ¿Disfrutaste tu visita en Tony&apos;s Grill? Déjanos tu reseña o escríbenos directamente.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0">
+            <a
+              href="https://share.google/yIVnni1qBWodzWo0E"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="py-3.5 px-5 rounded-xl bg-[#EBFA00] hover:bg-[#d8e600] text-[#080808] font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-[#EBFA00]/20 transition-all"
+            >
+              <Star className="w-5 h-5 fill-[#080808] text-[#080808] shrink-0" />
+              <span>Califícanos en Google</span>
+              <ExternalLink className="w-4 h-4 shrink-0" />
+            </a>
+
+            <button
+              type="button"
+              onClick={() => {
+                const input = document.getElementById('contacto-nombre');
+                input?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                input?.focus();
+              }}
+              className="py-3.5 px-5 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white font-bold text-sm sm:text-base border border-white/20 flex items-center justify-center gap-2 shadow-lg shadow-[#D90302]/25 transition-all cursor-pointer"
+            >
+              <MessageCircle className="w-5 h-5 text-[#EBFA00] shrink-0" />
+              <span>Dejar un Comentario / Consulta</span>
+            </button>
+          </div>
         </div>
 
       </div>

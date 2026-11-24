@@ -91,12 +91,12 @@ export const PdfMenuPage: React.FC = () => {
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs font-semibold">
-                <span className="text-zinc-200 group-hover:text-white flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-[#D90302]" />
-                  <span>Abrir Menú en Pantalla Completa</span>
+              <div className="pt-3 border-t border-white/[0.06] mt-auto">
+                <span className="w-full py-3.5 px-5 rounded-xl bg-[#D90302] group-hover:bg-[#b00201] border border-[#EBFA00]/40 group-hover:border-[#EBFA00] text-white text-sm sm:text-base font-bold flex items-center justify-center gap-2.5 shadow-lg shadow-[#D90302]/25 transition-all">
+                  <FileText className="w-5 h-5 text-[#EBFA00] shrink-0" />
+                  <span>Ver Menú</span>
+                  <ExternalLink className="w-4 h-4 text-[#EBFA00] shrink-0" />
                 </span>
-                <ExternalLink className="w-3.5 h-3.5 text-[#EBFA00]" />
               </div>
             </button>
           ))}
@@ -170,13 +170,13 @@ export const PdfMenuPage: React.FC = () => {
                 </h2>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2.5 shrink-0">
                 <a
                   href={activeModalPdf.file}
                   download={activeModalPdf.downloadName}
-                  className="px-3.5 sm:px-4 py-2 rounded-xl bg-[#D90302] hover:bg-[#b00201] text-white text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-[#D90302]/30 transition-colors"
+                  className="py-3.5 px-5 rounded-xl bg-[#D90302] hover:bg-[#b00201] border border-[#EBFA00]/50 text-white text-sm sm:text-base font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-[#D90302]/30 transition-colors"
                 >
-                  <Download className="w-4 h-4 text-[#EBFA00]" />
+                  <Download className="w-5 h-5 text-[#EBFA00]" />
                   <span>Descargar PDF</span>
                 </a>
 
@@ -184,9 +184,9 @@ export const PdfMenuPage: React.FC = () => {
                   type="button"
                   onClick={() => setActiveModalPdf(null)}
                   aria-label="Cerrar visor PDF"
-                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="py-3.5 px-5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/25 text-white text-sm sm:text-base font-bold flex items-center gap-2 transition-colors cursor-pointer"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                   <span>Cerrar</span>
                 </button>
               </div>
